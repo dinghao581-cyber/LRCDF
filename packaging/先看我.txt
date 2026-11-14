@@ -1,0 +1,27 @@
+LRCDF 当前版本（给 MacBook Air 检查功能用）
+
+包里有什么
+  LRCDF.app            配套 App（已编译，Apple 芯片）
+  LRCDF/project        全部代码、Lightroom 插件、调色模型 tone.pt、修图模型 retouch_model.pt
+  LRCDF/models         人脸网格、人脸识别、年龄性别模型
+  LRCDF/legacy         RetouchFormer、人脸检测、皮肤分割模型
+  install.command      安装脚本
+不含：个人照片、测试照片、训练数据、Python 环境（安装时联网下载）。
+
+怎么装
+  1. 把整个 LRCDF_Air 文件夹拷到 Air 上任意位置（比如桌面）。
+  2. 双击 install.command。如果提示"无法打开"，右键 → 打开。不需要管理员密码。
+     它会：复制到 ~/LRCDF、把 App 放进 ~/应用程序、把插件放进 ~/文稿、联网下载 Python 环境（约 1.2 GB）。
+  3. 打开 Lightroom Classic：文件 → 增效工具管理器 → 添加 → 选 文稿 里的 LRCDFAuto.lrplugin。
+  4. 在图库里选照片，菜单 图库 → 增效工具额外信息 → 开始一键修图…
+
+前提
+  - Air 是 Apple 芯片，装有 Lightroom Classic，能联网。
+  - 磁盘需要约 3.5 GB 空间。
+
+没验证过的地方
+  - 这个安装脚本没有在第二台电脑上实际跑过。出错时把终端里最后几行发给我。
+  - 8 GB 内存的 Air 处理 4000 万像素以上的照片可能很慢或内存不足。
+
+许可和隐私
+  - 代码是 Apache-2.0；隐私政策、使用条款、模型和第三方声明在 LRCDF/project/legal/（英文）。

@@ -1,0 +1,8 @@
+.venv/
+runs/
+__pycache__/
+*.pyc
+.DS_Store
+legal/zh-CN/
+legal/TODO_VERIFY.md
+legal/RIGHTS_WIRING.md

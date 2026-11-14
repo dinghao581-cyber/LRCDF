@@ -1,0 +1,94 @@
+{
+ "d": {
+  "base": "a",
+  "note": "Natural clear look for East Asian skin: style A's brightness, a touch warmer and pinker, softer contrast. Chosen by eye from three candidates on 2026-11-13.",
+  "delta": {
+   "TemperaturePct": 3,
+   "Tint": 6,
+   "Contrast2012": -8,
+   "Shadows2012": 10,
+   "Blacks2012": 5,
+   "HueAdjustmentOrange": -5,
+   "LuminanceAdjustmentOrange": 8,
+   "SaturationAdjustmentYellow": -6,
+   "Vibrance": 10,
+   "SaturationAdjustmentRed": 3
+  }
+ },
+ "e": {
+  "base": "a",
+  "note": "韩系: bright, soft, low-saturation skin (orange saturation down, luminance up: 3 of 3 tutorials), slightly cool highlights and warm shadows (K2, K3).",
+  "delta": {
+   "TemperaturePct": -2,
+   "Tint": 4,
+   "Contrast2012": -12,
+   "Highlights2012": -10,
+   "Shadows2012": 14,
+   "Blacks2012": 6,
+   "Clarity2012": -6,
+   "SaturationAdjustmentOrange": -12,
+   "LuminanceAdjustmentOrange": 6,
+   "SaturationAdjustmentYellow": -10,
+   "Vibrance": 6,
+   "Saturation": -6
+  },
+  "curve": [
+   8,
+   4,
+   1,
+   0,
+   0,
+   0,
+   0,
+   -1,
+   -4
+  ],
+  "extra": {
+   "SplitToningHighlightHue": 212,
+   "SplitToningHighlightSaturation": 9,
+   "SplitToningShadowHue": 34,
+   "SplitToningShadowSaturation": 6
+  }
+ },
+ "f": {
+  "base": "a",
+  "note": "港风: warm, saturated reds and skin (orange saturation up: 3 of 3 tutorials), deeper contrast with a faded black point, warm highlights against teal shadows (H1, H3), film grain (H1).",
+  "delta": {
+   "TemperaturePct": 5,
+   "Tint": 4,
+   "Exposure2012": -0.15,
+   "Contrast2012": 14,
+   "Highlights2012": -25,
+   "Shadows2012": -6,
+   "Blacks2012": -10,
+   "SaturationAdjustmentOrange": 10,
+   "LuminanceAdjustmentOrange": -4,
+   "SaturationAdjustmentRed": 12,
+   "HueAdjustmentRed": 4,
+   "SaturationAdjustmentYellow": 6,
+   "SaturationAdjustmentBlue": -15,
+   "Vibrance": 6,
+   "PostCropVignetteAmount": -12
+  },
+  "curve": [
+   12,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   -2,
+   -8
+  ],
+  "extra": {
+   "SplitToningHighlightHue": 45,
+   "SplitToningHighlightSaturation": 16,
+   "SplitToningShadowHue": 195,
+   "SplitToningShadowSaturation": 18,
+   "GrainAmount": 28,
+   "GrainSize": 20,
+   "GrainFrequency": 40
+  }
+ }
+}
