@@ -14,7 +14,7 @@ cp app/AppIcon.icns LICENSE NOTICE packaging/first_run.sh "$APP/Contents/Resourc
 # was withdrawn), internal legal files, the briefs and scripts for our own machines, macOS's ._ companion files.
 rsync -a --exclude __pycache__ --exclude .venv --exclude .git --exclude runs --exclude .build --exclude .uv-cache \
       --exclude "legal/zh-CN" --exclude "legal/TODO_VERIFY.md" --exclude "legal/RIGHTS_WIRING.md" \
-      --exclude "/CLAUDE.md" --exclude "/docs" --exclude "/scripts/win3090" --exclude "/packaging/windows_port" \
+      --exclude "/CLAUDE.md" --exclude "/docs" --exclude "/scripts/win3090" --exclude "/packaging/windows_port" --exclude "/packaging/publish_source.sh" \
       --exclude "._*" --exclude ".DS_Store" ./ "$PAY/project/"
 cp runs/tone/tone.pt "$PAY/project/runs/tone/"
 for f in retouch_model.pt critic_model.pt shadow_model.pt; do [ -f runs/$f ] && cp runs/$f "$PAY/project/runs/"; done

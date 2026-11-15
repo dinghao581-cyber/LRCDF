@@ -10,4 +10,5 @@ rm -f "$OUT/LRCDF/CLAUDE.md"
 rm -rf "$OUT/LRCDF/docs"        # working notes between sessions: private details
 rm -rf "$OUT/LRCDF/scripts/win3090"
 rm -rf "$OUT/LRCDF/packaging/windows_port"     # briefs for the helper on the PC: internal
+rm -f "$OUT/LRCDF/packaging/publish_source.sh"  # its safety scan lists private words: internal
 echo "exported to $OUT/LRCDF"; (cd "$OUT/LRCDF" && find . -type f | wc -l)

@@ -15,6 +15,9 @@ computer; nothing is uploaded.
 - **Selection help**: closed eyes, out of focus, overexposed, near-duplicates.
 - A desktop app (SwiftUI) that Lightroom opens: before/after, looks, levels, one button, undo.
 
+Mirror for users in China / 国内镜像: https://gitee.com/YMLFPV/LRCDF (source and release notes; the app download
+itself is on GitHub, it is larger than Gitee allows).
+
 ## Download
 
 The ready-to-use app (everything inside: Python, packages, models, the Lightroom plug-in) is on the
