@@ -190,7 +190,7 @@ def main():
             rec["drift_" + name] = round(g[4] / g[5], 3)
         return rec
 
-    t0, seen = time.time(), 0.0
+    t0, seen, best = time.time(), 0.0, -1e9
     log = open(f"{a.out}/log.jsonl", "a")
     while step < a.steps:
         for x, add, heal, real in loader:
@@ -207,7 +207,14 @@ def main():
             bce = F.binary_cross_entropy_with_logits(ph, heal, reduction="none") * (1 + a.heal * heal)
             # heal masks derived from real pairs are rough: they count a third
             loss = 20 * (F.huber_loss(pa, add, reduction="none", delta=0.03) / 0.03 * weight).mean() + (bce.mean((1, 2, 3)) * (1 - 0.67 * real)).mean()
-            opt.zero_grad(set_to_none=True); loss.backward(); opt.step()
+            # The first long run (3090, 70,000 pairs) learnt well up to step 18,000 (0.35 of the wanted change on real
+            # pairs) and then lost everything between two checks: one bad step threw it into "add nothing", where it
+            # stayed. Hence: a step whose loss is not a number is skipped, gradients are clipped, and the best
+            # checkpoint is kept apart (dodge_best.pt).
+            opt.zero_grad(set_to_none=True)
+            if not torch.isfinite(loss):
+                print(f"step {step}: loss not finite, skipped", flush=True); continue
+            loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0); opt.step()
             with torch.no_grad():
                 decay = min(0.999, (1 + step) / (10 + step))
                 for pe, pm in zip(ema.parameters(), model.parameters()):
@@ -222,6 +229,10 @@ def main():
                 torch.save(dict(model=model.state_dict(), ema=ema.state_dict(), opt=opt.state_dict(), step=step, args=vars(a)), last + ".tmp")
                 os.replace(last + ".tmp", last)
                 torch.save(dict(model=ema.state_dict(), width=a.width, **rec), f"{a.out}/dodge.pt")
+                score = rec.get("add_real", 0) + rec.get("add_paint", 0)
+                if score > best:
+                    best = score
+                    torch.save(dict(model=ema.state_dict(), width=a.width, **rec), f"{a.out}/dodge_best.pt")
             if step >= a.steps:
                 break
 

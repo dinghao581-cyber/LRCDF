@@ -90,7 +90,7 @@ _SHADOW = None
 
 def deshadow(rgb, faces, amount, device, note=None):
     """Cast shadows on the faces taken out (lrcdf/shadow.py, scripts/train_shadow.py), or rgb itself when there is
-    nothing to do. rgb: float 0..255. The model sees each face at up to 768 px and answers with a factor per pixel
+    nothing to do. rgb: float 0..255. The model sees a 384 px copy of each face and answers with a factor per pixel
     and colour; the factor is brought to the photo's resolution with the photo's own edges as a guide, so the rim of
     a shadow is undone where it really is, and applied in linear light. It only ever lightens."""
     global _SHADOW
@@ -98,9 +98,9 @@ def deshadow(rgb, faces, amount, device, note=None):
         return rgb
     from lrcdf import shadow
     if _SHADOW is None:
-        from train_retouch import RetouchNet
+        import train_shadow
         ck = torch.load(SHADOW, map_location="cpu", weights_only=False)
-        _SHADOW = RetouchNet(ck.get("width", 32)); _SHADOW.load_state_dict(ck["model"]); _SHADOW = _SHADOW.to(device).eval()
+        _SHADOW = train_shadow.ShadowNet(ck.get("width", 32)); _SHADOW.load_state_dict(ck["model"]); _SHADOW = _SHADOW.to(device).eval()
     H, W = rgb.shape[:2]
     total = None
     for d in faces:
@@ -108,7 +108,7 @@ def deshadow(rgb, faces, amount, device, note=None):
         side = 512 / float(np.hypot(tf[0, 0], tf[0, 1]))
         if side < 300:              # a small face in the photo: too few pixels to tell a shadow from a feature
             continue
-        n = int(np.clip(side, 256, 768)) // 16 * 16
+        n = 384                     # train_shadow.WORK: the model looks at a small copy of the whole face
         crop = cv2.warpAffine(rgb, tf * (n / 512), (n, n), flags=cv2.INTER_AREA, borderMode=cv2.BORDER_REFLECT_101) / 255.0
         with torch.inference_mode():
             x = torch.from_numpy(np.clip(crop, 0, 1).astype(np.float32)).permute(2, 0, 1)[None].to(device)
