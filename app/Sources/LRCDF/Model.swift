@@ -29,9 +29,9 @@ struct PhotoPreview {
 enum BeautyLevel: String, CaseIterable, Identifiable {
     case off, auto, natural, refined
     var id: String { rawValue }
-    var title: String { ["off": "不美颜", "auto": "自动", "natural": "自然", "refined": "精致"][rawValue]! }
+    var title: String { ["off": L.levelOff, "auto": L.levelAuto, "natural": L.levelNatural, "refined": L.levelRefined][rawValue]! }
     var note: String {
-        ["off": "只调色，不动皮肤", "auto": "每张脸各选一档：修不过头的前提下尽量干净（推荐）", "natural": "看不出修过", "refined": "更干净，适合特写"][rawValue]!
+        ["off": L.levelOffNote, "auto": L.levelAutoNote, "natural": L.levelNaturalNote, "refined": L.levelRefinedNote][rawValue]!
     }
 }
 
@@ -306,7 +306,7 @@ final class Studio: ObservableObject {
         let wanted = look == "none" ? "d" : look
         let (found, folder, missing) = try await askLooks(of: id, only: "none,\(wanted)")
         guard let folder, found.contains(where: { $0.id == "none" }), found.count > 1 else {
-            throw Bridge.Failure.refused("没有拿到这张照片的预览。")
+            throw Bridge.Failure.refused(L.noPreview)
         }
         if !found.contains(where: { $0.id == look }) { look = found.first(where: { $0.id != "none" })?.id ?? "d" }
         previews[id] = PhotoPreview(looks: found, folder: folder, faces: readFaces(folder))
@@ -483,7 +483,7 @@ final class Studio: ObservableObject {
             do {
                 // the photo on screen first; the other photos of the session that are edited count as examples too
                 let all = [id] + (session?.ids ?? []).filter { $0 != id }
-                let lines = try await Bridge.send([("action", "learnstyle"), ("name", title.isEmpty ? "我的风格" : title),
+                let lines = try await Bridge.send([("action", "learnstyle"), ("name", title.isEmpty ? L.defaultStyleName : title),
                                                    ("ids", all.map(String.init).joined(separator: ","))], timeout: 600)
                 let key = lines.first ?? ""
                 try await loadLooks(of: id)                 // makes the picture of the new look
@@ -526,7 +526,7 @@ final class Studio: ObservableObject {
     func work() {
         guard var job = run, !job.finished else { return }
         face = nil; zoom = 1; centre = CGPoint(x: 0.5, y: 0.5); pauseAsked = false; notice = nil
-        caption = "正在交给 Lightroom…"
+        caption = L.handingOver
         withAnimation(.easeInOut(duration: 0.35)) { stage = .working }
         let list = { (ids: [Int]) in ids.map(String.init).joined(separator: ",") }
         // how much of the whole each step is, per photo: denoising and retouching take seconds, toning hardly any
@@ -552,7 +552,7 @@ final class Studio: ObservableObject {
                 // how each photo looked before, for looking at the results later
                 let lacking = job.ids.filter { !FileManager.default.fileExists(atPath: Bridge.before.appendingPathComponent("\($0).jpg").path) }
                 for chunk in lacking.chunked(20) where !job.toned && job.done.isEmpty {
-                    caption = "正在记下修图前的样子…"
+                    caption = L.rememberingBefore
                     _ = try? await Bridge.send([("action", "thumbs"), ("size", "1400"), ("dir", Bridge.before.path), ("ids", list(chunk))], timeout: 300)
                 }
                 @MainActor func step(_ arguments: [(String, String)], ids: [Int], weight: Double) async throws -> [String] {
@@ -594,7 +594,7 @@ final class Studio: ObservableObject {
                                 if ends.count == 2, let new = Int(ends[1]) { made[String(ends[0])] = new }
                             }
                             if made.count == chunk.count { break }
-                            if attempt == 1 { caption = "有照片没成功，再试一次…" }
+                            if attempt == 1 { caption = L.retrying }
                         }
                         job.created.merge(made) { _, new in new }
                         job.done += chunk.filter { made[String($0)] != nil }
@@ -609,7 +609,7 @@ final class Studio: ObservableObject {
                 withAnimation(.spring(duration: 0.5)) { stage = .finished }
             } catch {
                 keep(job)
-                stage = .failed(error.localizedDescription + "\n已经做完的部分都在，可以点“继续”接着做。")
+                stage = .failed(L.failedKeep(error.localizedDescription))
             }
         }
     }
@@ -644,7 +644,7 @@ final class Studio: ObservableObject {
     /// by program, so the retouched pictures are marked as rejected.
     func undoRun() {
         guard var job = run, job.saved, !job.undone else { return }
-        notice = "正在撤销…"
+        notice = L.undoing
         Task {
             var arguments = [("action", "undo"), ("file", job.settingsFile.path), ("ids", job.ids.map(String.init).joined(separator: ","))]
             if !job.created.isEmpty { arguments.append(("rejects", job.created.values.map(String.init).joined(separator: ","))) }
@@ -654,10 +654,10 @@ final class Studio: ObservableObject {
                 job.undone = true; job.finished = true
                 run = job
                 if let data = try? JSONEncoder().encode(job) { try? data.write(to: Bridge.run, options: .atomic) }
-                notice = job.created.isEmpty ? "已撤销，照片回到修图前的样子。"
-                    : "已撤销。调色已还原，\(job.created.count) 张美颜成片被标记为“排除”，在 Lightroom 里用 照片 → 删除排除的照片 可以一次清掉。"
+                notice = job.created.isEmpty ? L.undoneNote
+                    : L.undoneRejects(job.created.count)
             } catch {
-                notice = "撤销没有完成：" + error.localizedDescription
+                notice = L.undoFailed(error.localizedDescription)
             }
         }
     }

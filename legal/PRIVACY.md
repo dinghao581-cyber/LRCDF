@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: 2026-11-14 · Applies to LRCDF (the Lightroom Classic plug-in, the
+Last updated: 2026-11-15 · Applies to LRCDF (the Lightroom Classic plug-in, the
 companion desktop app and the command-line tools).
 
 ## In short
@@ -21,8 +21,9 @@ analytics, no telemetry and no crash reporting.
   descriptor for each clearly seen face, so that the same person can be given
   the same retouching level across photos.
 
-None of this leaves your computer. The software contains no code that sends
-data over a network while you use it.
+None of this leaves your computer. The only network use is the update check
+described under "Network use" below; it sends no photos and no personal
+information.
 
 ## What LRCDF stores on your Mac
 
@@ -44,14 +45,23 @@ software.
 
 ## Network use
 
-- While running, LRCDF makes **no network connections**.
+- **Update check (on by default).** When it starts, and about once a day while
+  it is open, LRCDF asks the project's release servers (Gitee and GitHub)
+  whether a newer version exists, by downloading a small public file that lists
+  the current version. When there is one, it tells you, downloads only the parts
+  that changed, checks their signature and installs them when it is not working
+  on your photos; the version you had is kept so you can go back.
+- **What the update check sends.** Nothing about you, your photos or your
+  catalog. Like any download, the request itself shows the server your IP
+  address, the time and LRCDF's version and platform; those servers (Gitee,
+  GitHub) handle that under their own privacy policies. LRCDF itself keeps no
+  record of it and has no server of its own.
+- **Turning it off.** You can switch automatic updates off in LRCDF's settings at
+  any time. With it off, LRCDF makes **no network connections** while running.
 - Installing LRCDF may download the software itself, its dependencies (for
   example Python packages) and its model files from the servers of the project's
   release page, your package manager or the model publishers. Those downloads are governed by the privacy policies of those
   services, not by LRCDF, and carry no photo data.
-- If a future version adds an update check, it will be off by default or clearly
-  announced, will send no photos or personal information, and this policy will
-  be updated first.
 
 ## Children, biometric and sensitive data
 

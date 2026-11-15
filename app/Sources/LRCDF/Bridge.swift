@@ -18,9 +18,9 @@ enum Bridge {
         case lightroomAway, refused(String), noAnswer
         var errorDescription: String? {
             switch self {
-            case .lightroomAway: return "没有连上 Lightroom。请先打开 Lightroom Classic。"
+            case .lightroomAway: return L.lightroomAway
             case .refused(let why): return why
-            case .noAnswer: return "Lightroom 没有回应，请回到 Lightroom 看看是否有对话框挡住了。"
+            case .noAnswer: return L.noAnswer
             }
         }
     }

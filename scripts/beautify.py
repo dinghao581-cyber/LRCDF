@@ -183,6 +183,38 @@ def judge(rgb, out, faces, each, device):
     return found
 
 
+_MAKEUP = None
+MAKEUP_RAMP = (-0.4, 0.3)      # zero-shot score from .. to: bare .. made-up (the user's made-up faces 1.7-5.8, bare test faces -0.6 and lower)
+
+
+MAKEUP_MODEL = os.path.expanduser("~/LRCDF/models/makeup/makeup_s2.pt")
+
+
+def makeup_of(rgb8, box, device):
+    """0 (bare) .. 1 (made-up) for one face: MobileCLIP2-S2 (Apple) zero-shot, "a face wearing make-up" against
+    "a face without make-up" - one self-contained TorchScript file (scripts/export_makeup.py; the same model and
+    prompts as the iPad app). No file: 0, the old behaviour. rgb8: the picture (uint8 RGB); box: x0, y0, x1, y1."""
+    global _MAKEUP
+    if _MAKEUP is None:
+        if not os.path.exists(MAKEUP_MODEL):
+            return 0.0
+        _MAKEUP = torch.jit.load(MAKEUP_MODEL, map_location="cpu").float().to(device).eval()
+    model = _MAKEUP
+    H, W = rgb8.shape[:2]
+    x0, y0, x1, y1 = box
+    side = max(x1 - x0, y1 - y0) * 1.3; cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    a, b, c, e = int(max(0, cx - side / 2)), int(max(0, cy - side / 2)), int(min(W, cx + side / 2)), int(min(H, cy + side / 2))
+    if c - a < 8 or e - b < 8:
+        return 0.0
+    crop = cv2.resize(rgb8[b:e, a:c], (256, 256), interpolation=cv2.INTER_AREA if c - a > 256 else cv2.INTER_LINEAR)
+    x = torch.from_numpy(crop).permute(2, 0, 1).float()[None].to(device) / 255
+    with torch.no_grad():
+        score = float(model(x))
+    if os.environ.get("LRCDF_DEBUG"):
+        print("make-up score %.2f" % score, flush=True)
+    return float(np.clip((score - MAKEUP_RAMP[0]) / (MAKEUP_RAMP[1] - MAKEUP_RAMP[0]), 0, 1))
+
+
 def guard(rgb, out, faces, each, device, note=None):
     """The "retouched too much" check (scripts/train_critic.py). For every retouched face, how much was changed is
     measured the way professionals' work was measured, and compared with what the critic expects professionals to do
@@ -291,7 +323,11 @@ def retouch(rgb, models, opt, device):
         f = dict(opt, **o)
         f["shine"] = opt["shine"] * min(1.6, f["smooth"] / beauty.DEFAULTS["smooth"])      # follows the level
         f["spots"] = opt["spots"] * f["blemish"]
-        each.append({k: f[k] for k in list(beauty.DEFAULTS) + ["blemish"]})
+        each.append({k: f.get(k, beauty.DEFAULTS.get(k)) for k in list(beauty.DEFAULTS) + ["blemish"]})
+    if opt.get("makeup_check", 1):     # make-up per face: protects blush and the under-eye area (beauty.DEFAULTS makeup)
+        for k, (d, f) in enumerate(zip(faces, each)):
+            if f:
+                f["makeup"] = kept(memo, ("makeup", k), lambda: makeup_of(rgb8, d["bbox"], device))
     opt["_levels"] = [o.get("_level") if o else None for o in own]
     followers = [o is not None and "_level" not in o and not (set(o) - {"_level"}) for o in own]     # nobody chose for them
     if any(f and f["blemish"] > 0 for f in each):
@@ -366,7 +402,7 @@ def retouch(rgb, models, opt, device):
     alone = [d["bbox"] for d, f in zip(faces, each) if f is None]
     if faces:
         out = beauty.beautify(out / 255.0, [d["bbox"] for d in faces], regions, [d["landmarks"] for d in faces], meshes,
-                              each=each, **{k: opt[k] for k in beauty.DEFAULTS}) * 255.0
+                              each=each, **{k: opt.get(k, v) for k, v in beauty.DEFAULTS.items()}) * 255.0
     if "_judge" in opt:
         opt["_judge"] = judge(rgb, out, faces, [f if free else None for f, free in zip(each, followers)], device)
     if faces and opt.get("guard", 1):

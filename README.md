@@ -27,7 +27,7 @@ certificate: the first time, right-click it and choose Open (or allow it under S
 
 ## Status
 
-Research-grade software by a very small team; expect rough edges. Apple-silicon Macs with macOS 14 or newer and Lightroom Classic only.
+Research-grade software by a very small team; expect rough edges. Apple-silicon Macs with macOS 26 or newer and Lightroom Classic only.
 
 ## Model weights
 

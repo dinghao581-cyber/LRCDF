@@ -9,6 +9,8 @@ rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/LRCDF "$APP/Contents/MacOS/LRCDF"
 cp Info.plist "$APP/Contents/Info.plist"
 [ -f AppIcon.icns ] && cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp ../packaging/update_install.sh "$APP/Contents/Resources/"      # the updater's installer (Updater.swift)
+./localize.sh "$APP/Contents/Resources"      # the texts, in every language of Localizable.xcstrings
 for f in ../LICENSE ../NOTICE; do [ -f "$f" ] && cp "$f" "$APP/Contents/Resources/"; done      # the licence travels with the app
 codesign --force --sign - "$APP" >/dev/null 2>&1
 mkdir -p "$HOME/Applications"

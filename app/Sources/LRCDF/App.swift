@@ -10,16 +10,19 @@ struct LRCDFApp: App {
                 // the rights prompt, card and break reminder (Rights.swift); not in the way of a run that is going on
                 .overlay { if studio.stage != .working && studio.stage != .paused { RightsHost() } }
                 .overlay(SetupHost())           // the all-in-one app installs itself the first time (Setup.swift)
+                .overlay(UpdateHost())          // updates, in parts (Updater.swift)
                 .environmentObject(studio)
-                .frame(minWidth: 1040, minHeight: 680)
+                .frame(minWidth: 760, minHeight: 620)       // below 1000 wide the controls become a paged bar (Views.swift)
                 .preferredColorScheme(.dark)
                 .onAppear { studio.start() }
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 1240, height: 800)
+        .defaultSize(width: 1376, height: 860)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            CommandGroup(after: .help) { Button("了解您拥有的权利…") { RightsCenter.shared.openCard() } }
+            CommandGroup(after: .appInfo) { Button(L.updateCheckNow + "…") { Task { await Updater.shared.check(manual: true) } } }
+            CommandGroup(after: .help) { Button(L.rightsMenu) { RightsCenter.shared.openCard() } }
         }
+        Settings { UpdateSettings() }
     }
 }

@@ -1,0 +1,7 @@
+# generated or downloaded: not in git
+build/
+LRCDFPad.xcodeproj/
+# the Core ML models (109 MB) are the release component models-ipad (docs/update/IPAD.md), not source
+LRCDF/models/
+.DS_Store
+._*

@@ -1,0 +1,43 @@
+name: LRCDFPad
+options:
+  bundleIdPrefix: com.ding
+  deploymentTarget:
+    iOS: "27.0"
+    macOS: "27.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  LRCDFPad:
+    type: application
+    supportedDestinations: [iOS, macOS]
+    sources: [LRCDF]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ding.lrcdf.ipad
+        PRODUCT_NAME: 一键修图
+        TARGETED_DEVICE_FAMILY: "2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: 一键修图
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: 把修好的照片存进你的相册。
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: 从相册里选照片来修。
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        ENABLE_APP_SANDBOX: YES
+        ENABLE_USER_SELECTED_FILES: readonly
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.photography
+        ENABLE_OUTGOING_NETWORK_CONNECTIONS: YES     # the update notice (Updater.swift); macOS sandbox only
+    preBuildScripts:
+      - name: Build time for the update notice
+        basedOnDependencyAnalysis: false
+        script: |
+          # LRCDF/BuildStamp.swift: the version of the models built into the app (component models-ipad,
+          # docs/update/UPDATE_MANIFEST.md), so a fresh install does not download the same models again
+          V=$(python3 "$SRCROOT/../../packaging/ipad/models_version.py" "$SRCROOT/LRCDF")
+          printf '// written by the build (project.yml, project/packaging/ipad/models_version.py): models-ipad version of the models in the app\nlet bundledModelsVersion = "%s"\n' "$V" > "$SRCROOT/LRCDF/BuildStamp.swift"

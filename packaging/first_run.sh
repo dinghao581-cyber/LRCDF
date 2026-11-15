@@ -7,7 +7,7 @@ SRC="$1"; APP="$2"
 [ -d "$SRC/project" ] || { echo "no payload in the app"; exit 1; }
 [ -e "$HOME/LRCDF/project/.git" ] && exit 3           # the developer's own project: never written over
 DATA="$HOME/Library/Application Support/LRCDF"
-echo "step 正在复制程序和模型（约 2.7 GB，一两分钟）…"
+echo "step 正在复制程序和模型（约 2.8 GB，一两分钟）…"
 mkdir -p "$HOME/LRCDF" "$HOME/LRCDF/plugin_work" "$DATA"
 rsync -a "$SRC/" "$HOME/LRCDF/"
 xattr -dr com.apple.quarantine "$HOME/LRCDF" 2>/dev/null || true
@@ -26,4 +26,5 @@ rm -rf "$DATA/previews"                                    # made by an older ve
 echo "step 正在检查…"
 "$HOME/LRCDF/python/bin/python3" -c "import torch, cv2, mediapipe, onnxruntime, scipy, tifffile" 
 cp "$SRC/VERSION" "$HOME/LRCDF/.installed_version"
+[ -f "$SRC/COMPONENTS.json" ] && cp "$SRC/COMPONENTS.json" "$HOME/LRCDF/.components.json"      # what is installed, component by component (the updater)
 echo "step 完成"

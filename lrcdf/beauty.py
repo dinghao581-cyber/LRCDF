@@ -29,7 +29,10 @@ HAIR_SCALE = 400       # hair detection works on a copy where the face is this m
 RELIEF = 0.8        # how much of a blemish's highlight and shadow is taken out
 RELIEF_REACH = 3.0   # how far around a red mark that applies (larger = further)
 HEAL = 0.7      # how much of the high layer is removed on a blemish at full strength
-DEFAULTS = dict(smooth=0.6, spots=1.0, shine=0.5, unify=0.5, wrinkles=0.5, undereye=0.5, eyes=0.4, teeth=0.4, light=0.0)
+DEFAULTS = dict(smooth=0.6, spots=1.0, shine=0.5, unify=0.5, wrinkles=0.5, undereye=0.5, eyes=0.4, teeth=0.4, light=0.0, makeup=0.0)
+# makeup: 0 bare .. 1 made-up, per face (scripts/beautify.makeup_of: MobileCLIP zero-shot). On a made-up face red laid in bands
+# (blush under the eyes, eye shadow) is not taken for blemishes and the under-eye area is only lifted, never made less red.
+PIMPLE = 0.02      # on the nose only marks narrower than this (fraction of the face width) count: its own redness is not a blemish
 LIGHT_FROM = 150    # faces narrower than this many pixels are not relit (the mesh is too coarse to trust its shape)
 LINES = (0.012, 0.03, 0.11, 0.17)   # depth of a line relative to the skin beside it: from .. fully softened; from .. left alone (hair, frames)
 LINE_SCALE = 360      # lines are looked for on a copy where the face is this many pixels wide
@@ -81,7 +84,7 @@ def ellipse(shape, centre, axes, angle, blur):
     return cv2.GaussianBlur(m, (0, 0), max(0.5, blur))
 
 
-def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eyes=None, mesh=None):
+def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eyes=None, mesh=None, nose=None):
     """crop: float32 RGB 0..1 around one face; face: face width in pixels; box: the face box inside the crop;
     mouth, eyes: the two mouth corners and the two eye centres from the face detector, in crop pixels. They protect
     lips when the face mesh is off (profiles), and when the mesh finds no face at all (strong profile, lying down,
@@ -117,6 +120,11 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
     small, base, d = smooth_low(low, f)
     low += opt["smooth"] * skin[..., None] * (base - low)
 
+    if pts is not None:      # the face's downward direction (eyes to mouth), for the under-eye steps
+        down = pts[LIPS_OUT].mean(0) - (pts[EYE_L].mean(0) + pts[EYE_R].mean(0)) / 2
+        down /= np.linalg.norm(down) + 1e-6
+        angle = float(np.degrees(np.arctan2(down[1], down[0])) - 90)
+
     # --- red spots (acne, marks): where skin is redder than the skin around it, pull colour and lightness back to
     # the surrounding skin in the low layer, and tone down the blemish's raised texture in the high layer.
     if opt.get("spots", 0) > 0 or opt.get("shine", 0) > 0:
@@ -133,6 +141,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         spot = np.clip((red - 1.5) / 3.0, 0, 1) * wt
         # not deep shadows (nostrils, mouth corners) ...
         spot *= np.clip(1 - (around[..., 0] - lab[..., 0] - 10) / 8, 0, 1)
+        raw = spot.copy()
         # ... compact marks always (up to SPOT_WIDTH of the face; wider with strength above the default).
         k = max(3, int(f * d * SPOT_WIDTH * max(1.0, opt["spots"] / DEFAULTS["spots"]) ** 2)) | 1
         wide = cv2.morphologyEx(spot, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
@@ -147,6 +156,16 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         if debug is not None:
             debug.update(red=red.copy(), wide=wide.copy(), inflamed=inflamed, more_yellow=more_yellow, darker=darker)
         spot = spot - wide + wide * inflamed
+        # The nose is redder than the cheeks by nature. There only marks narrower than PIMPLE count; as one wide mark
+        # its tip was taken back to the cheek colour and went pale (iPad port, man4).
+        if pts is not None or nose is not None:
+            if pts is not None:
+                nz = hull_mask(spot.shape, pts[NOSTRILS[0]] * d, f * d * 0.03, f * d * 0.03)
+            else:
+                nz = ellipse(spot.shape, (nose[0] * d, nose[1] * d), (f * d * 0.12, f * d * 0.12), 0, f * d * 0.03)
+            kp = max(3, int(f * d * PIMPLE)) | 1
+            pimples = np.maximum(raw - cv2.morphologyEx(raw, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kp, kp))), 0)
+            spot += nz * (pimples - spot)
         if box is not None:  # stay on the face: the skin mask also catches skin-coloured things further away
             bx0, by0, bx1, by1 = [v * d for v in box]
             spot *= ellipse(spot.shape, ((bx0 + bx1) / 2, (by0 + by1) / 2), ((bx1 - bx0) * 0.62, (by1 - by0) * 0.7), 0, f * d * 0.05)
@@ -155,6 +174,21 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
             half = max(np.hypot(mx1 - mx0, my1 - my0) * 0.65, f * d * 0.12)
             spot *= 1 - ellipse(spot.shape, ((mx0 + mx1) / 2, (my0 + my1) / 2), (half, f * d * 0.11),
                                 float(np.degrees(np.arctan2(my1 - my0, mx1 - mx0))) if half > f * d * 0.12 else 0, f * d * 0.02)
+        # Red laid in a band is make-up (blush under the eyes, eye shadow) or a fold, not a blemish; blemishes are
+        # round. Applied on made-up faces, and below the eyes on every face: the crease under an eye bag is a long
+        # dark-red arc, corrected as a mark it turned the bag into a pale disc (iPad port, oldman3). Not elsewhere on
+        # bare skin: merged acne makes long patches too.
+        under_zone = None
+        if pts is not None:
+            under_zone = np.zeros_like(spot)
+            for eye in (EYE_L, EYE_R):
+                c = pts[eye].mean(0) * d; ew = float(np.linalg.norm(pts[eye[0]] - pts[eye[8]])) * d
+                under_zone = np.maximum(under_zone, ellipse(spot.shape, c + down * ew * 0.75, (ew * 0.95, ew * 0.6), angle, ew * 0.2))
+        mk = float(opt.get("makeup", 0))
+        if mk > 0 or under_zone is not None:
+            band = 1 - round_only(spot, f * d)
+            band = cv2.GaussianBlur(band, (0, 0), max(0.6, f * d * 0.004))
+            spot *= 1 - np.maximum(under_zone if under_zone is not None else 0, mk) * band
         spot = cv2.GaussianBlur(spot, (0, 0), max(0.6, f * d * 0.004))
         fixed = lab + min(1.0, opt["spots"]) * spot[..., None] * (around - lab)
         # Relief: a raised blemish also has a highlight and a shadow that are not red. Right around the marks, lightness
@@ -164,6 +198,8 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         bump = np.clip((off - 2.0) / 4.0, 0, 1) * near * wt
         bump -= cv2.morphologyEx(bump, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))   # small only
         bump = np.maximum(cv2.GaussianBlur(bump, (0, 0), max(0.6, f * d * 0.004)) - spot, 0)
+        if under_zone is not None:      # no relief below the eyes: there light and shade are the eye bag's own shape
+            bump *= 1 - under_zone
         fixed[..., 0] += RELIEF * min(1.0, opt["spots"]) * bump * (around[..., 0] - lab[..., 0])
         # Shine (oily forehead, nose, cheeks): skin that is clearly lighter and paler than the skin around it. Its
         # lightness and colour are taken part of the way back; the catch-light keeps its place, only weaker.
@@ -202,18 +238,32 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
                              where=cv2.GaussianBlur(np.clip(cv2.resize(models.skin_all, (w, h), interpolation=cv2.INTER_LINEAR) * 1.5 - 0.25, 0, 1), (0, 0), f * 0.012))
         low *= ratio[..., None] ** (1 / 2.2)
 
-    # --- under-eye: pull the low-frequency colour towards the cheek below it
-    down = pts[LIPS_OUT].mean(0) - (pts[EYE_L].mean(0) + pts[EYE_R].mean(0)) / 2
-    down /= np.linalg.norm(down) + 1e-6
-    angle = float(np.degrees(np.arctan2(down[1], down[0])) - 90)
+    # --- under-eye: pull the low-frequency colour towards the cheek below it (in Lab). Lightness is lifted place by
+    # place by as much as it is darker than the cheek (a uniform shift also lifted the bright part of an eye bag and
+    # made a flat disc); colour moves by the area's mean. On a made-up face nothing is darkened or made less red or
+    # yellow (blush and 卧蚕 highlight sit there). The oval's edge is soft (0.12 eye widths left it visible).
+    mk = float(opt.get("makeup", 0))
     for eye in (EYE_L, EYE_R):
         c = pts[eye].mean(0); ew = float(np.linalg.norm(pts[eye[0]] - pts[eye[8]]))
-        under = ellipse(crop.shape, c + down * ew * 0.62, (ew * 0.72, ew * 0.36), angle, ew * 0.12)
+        under = ellipse(crop.shape, c + down * ew * 0.62, (ew * 0.72, ew * 0.36), angle, ew * 0.25)
         under *= (1 - poly(crop.shape, pts, eye, grow=ew * 0.12, blur=ew * 0.06)) * np.clip(skin * 2, 0, 1)
         cheek = ellipse(crop.shape, c + down * ew * 1.45, (ew * 0.6, ew * 0.35), angle, ew * 0.1) * skin
-        if under.sum() > 10 and cheek.sum() > 10:
-            delta = (base * cheek[..., None]).sum((0, 1)) / cheek.sum() - (base * under[..., None]).sum((0, 1)) / under.sum()
-            low += opt["undereye"] * under[..., None] * delta
+        if under.sum() > 10 and cheek.sum() > 10 and opt["undereye"] > 0:
+            ys, xs = np.where(under > 0.003)
+            y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+            u = under[y0:y1, x0:x1]; b = base[y0:y1, x0:x1]
+            lab_of = lambda rgb: cv2.cvtColor(np.ascontiguousarray(rgb, np.float32).reshape(-1, 1, 3), cv2.COLOR_RGB2Lab).reshape(-1, 3)
+            ck = lab_of((base * cheek[..., None]).sum((0, 1)) / cheek.sum())[0]
+            mean_under = lab_of((b * u[..., None]).sum((0, 1)) / u.sum())[0]
+            sg = ew * 0.15
+            local = cv2.GaussianBlur(b * u[..., None], (0, 0), sg) / (cv2.GaussianBlur(u, (0, 0), sg)[..., None] + 1e-3)
+            dl = np.zeros(u.shape + (3,), np.float32)
+            dl[..., 0] = np.maximum(ck[0] - cv2.cvtColor(np.clip(local, 0, 1).astype(np.float32), cv2.COLOR_RGB2Lab)[..., 0], 0)
+            dl[..., 1:] = ck[1:] - mean_under[1:]
+            dl = dl + mk * (np.maximum(dl, 0) - dl)
+            part = cv2.cvtColor(np.clip(low[y0:y1, x0:x1], 0, 1).astype(np.float32), cv2.COLOR_RGB2Lab)
+            part += opt["undereye"] * u[..., None] * dl
+            low[y0:y1, x0:x1] = cv2.cvtColor(part, cv2.COLOR_Lab2RGB)
         if debug is not None:
             debug["under"] = np.maximum(debug.get("under", 0), under)
 
@@ -277,6 +327,42 @@ def soften_lines(img, where, f, amount, debug=None):
         debug["lines"] = line
     gain = 1 + min(1.0, amount) * line * (filled - fine) / (fine + 0.02)
     return cv2.resize(gain, (w, h), interpolation=cv2.INTER_LINEAR)
+
+
+def hull_mask(shape, points, grow, blur):
+    """0..1 mask of the convex hull of points (x, y), grown and feathered (pixels)."""
+    m = np.zeros(shape[:2], np.float32)
+    cv2.fillConvexPoly(m, cv2.convexHull(np.round(points).astype(np.int32)), 1.0)
+    if grow >= 1:
+        k = int(grow * 2) | 1
+        m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+    return cv2.GaussianBlur(m, (0, 0), blur) if blur > 0.3 else m
+
+
+def round_only(spot, fs):
+    """1 on round marks, 0 on patches of the mark map laid in a band: area over ~3 x thickness squared (straight or
+    curved) or clearly elongated, and bigger than 3-5 % of the face. fs: face width on this map."""
+    on = (spot > 0.25).astype(np.uint8)
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(on, connectivity=8)
+    dist = cv2.distanceTransform(on, cv2.DIST_L2, 3)
+    keep = np.ones(spot.shape, np.float32)
+    for i in range(1, n):
+        area = stats[i, cv2.CC_STAT_AREA]
+        if area < 6:
+            continue
+        x, y, w, h = stats[i, :4]
+        sub = lab[y:y + h, x:x + w] == i
+        thick = 2 * float(dist[y:y + h, x:x + w][sub].max())
+        ratio = area / max(thick * thick, 1)
+        yy, xx = np.nonzero(sub)
+        cov = np.cov(np.stack([xx, yy]).astype(np.float64), bias=True) if area > 1 else np.zeros((2, 2))
+        ev = np.sort(np.linalg.eigvalsh(cov))
+        elong = np.sqrt(ev[1] / (max(ev[0], 0) + 0.25))
+        size = np.clip((np.sqrt(area) - fs * 0.03) / (fs * 0.02), 0, 1)
+        band = max(np.clip((ratio - 2.5) / 1.5, 0, 1), np.clip(elong - 2.0, 0, 1)) * size
+        if band > 0:
+            keep[y:y + h, x:x + w][sub] = 1 - band
+    return 1 - cv2.dilate(1 - keep, np.ones((5, 5), np.uint8))
 
 
 def split(img, f):
@@ -429,7 +515,8 @@ def beautify(rgb, boxes, models=None, points=None, meshes=None, each=None, **opt
         five = [(x - a, y - b) for x, y in points[n]] if points else None      # detector: eyes, nose, mouth corners
         got = []
         done = beautify_face(out[b:d, a:c], fw, models, own, box=(x0 - a, y0 - b, x1 - a, y1 - b),
-                             mouth=five[3:5] if five else None, eyes=five[0:2] if five else None, mesh=got)
+                             mouth=five[3:5] if five else None, eyes=five[0:2] if five else None, mesh=got,
+                             nose=five[2] if five else None)
         # The crop fades in at its sides (not where the picture ends): a neighbour's skin inside it must not end in an edge.
         fade = np.ones((d - b, c - a), np.float32); r = max(2, int(0.15 * fw))
         ramp = np.linspace(0, 1, r, dtype=np.float32)

@@ -1,0 +1,2298 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "beauty.title" : {
+      "comment" : "Section heading in the inspector and tab of the bottom bar: skin retouching. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "美颜"
+          }
+        }
+      }
+    },
+    "break.later" : {
+      "comment" : "Button on the break banner: ask again in 30 minutes.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 分钟后再说"
+          }
+        }
+      }
+    },
+    "break.rest" : {
+      "comment" : "Button on the break banner: take the break.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去休息"
+          }
+        }
+      }
+    },
+    "break.text" : {
+      "comment" : "Banner shown after about 1.5 hours of continuous work.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已经连续工作约 1.5 小时了，起来活动一下、喝口水吧。"
+          }
+        }
+      }
+    },
+    "common.back" : {
+      "comment" : "Button on the failure screen: back to choosing a look.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
+    "common.backToLightroom" : {
+      "comment" : "Button: brings Lightroom Classic to the front.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回到 Lightroom"
+          }
+        }
+      }
+    },
+    "common.cancel" : {
+      "comment" : "Button: cancels a dialog.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "common.close" : {
+      "comment" : "Button: closes a panel or dialog.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "common.continue" : {
+      "comment" : "Button: carries on with a run that was paused or interrupted.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续"
+          }
+        }
+      }
+    },
+    "common.explain" : {
+      "comment" : "Accessibility label of the small ? button that opens an explanation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "说明"
+          }
+        }
+      }
+    },
+    "common.save" : {
+      "comment" : "Button: saves (in the save-my-style dialog).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "compare.divider" : {
+      "comment" : "Accessibility label of the draggable before/after divider.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对比分隔线"
+          }
+        }
+      }
+    },
+    "compare.original" : {
+      "comment" : "Small label on the left half of the before/after picture: the photo as shot.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原片"
+          }
+        }
+      }
+    },
+    "compare.pending" : {
+      "comment" : "Small label on the right half of the picture while the retouching preview is being made. %@ = name of the look.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，美颜预览生成中"
+          }
+        }
+      }
+    },
+    "compare.retouched" : {
+      "comment" : "Small label on the right half of the picture: look plus retouching. %@ = name of the look.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ + 美颜"
+          }
+        }
+      }
+    },
+    "denoise.noisyNote" : {
+      "comment" : "Note under the denoise switch when the photos were shot at high ISO. %lld = the ISO value.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这组照片感光度较高（ISO %lld），建议打开。每张多花约 10 秒。"
+          }
+        }
+      }
+    },
+    "denoise.note" : {
+      "comment" : "Note under the denoise switch.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "夜景、高感光的照片建议打开。每张多花约 10 秒。"
+          }
+        }
+      }
+    },
+    "denoise.title" : {
+      "comment" : "Switch: run Lightroom's AI Denoise first.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 降噪"
+          }
+        }
+      }
+    },
+    "error.lightroomAway" : {
+      "comment" : "Error: Lightroom Classic is not running.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有连上 Lightroom。请先打开 Lightroom Classic。"
+          }
+        }
+      }
+    },
+    "error.noAnswer" : {
+      "comment" : "Error: Lightroom did not answer in time.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lightroom 没有回应，请回到 Lightroom 看看是否有对话框挡住了。"
+          }
+        }
+      }
+    },
+    "error.noPreview" : {
+      "comment" : "Error: the preview pictures of a photo could not be made.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有拿到这张照片的预览。"
+          }
+        }
+      }
+    },
+    "failed.keep" : {
+      "comment" : "Failure screen when a run broke off. %@ = the error message; the second paragraph refers to the button common.continue.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\n已经做完的部分都在，可以点“继续”接着做。"
+          }
+        }
+      }
+    },
+    "failed.title" : {
+      "comment" : "Title of the screen shown when something went wrong.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有完成"
+          }
+        }
+      }
+    },
+    "finished.again" : {
+      "comment" : "Button: back to choosing, to try another look.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "换个效果再来"
+          }
+        }
+      }
+    },
+    "finished.failedCount" : {
+      "comment" : "On the finished card: some photos did not work.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有 %lld 张没有成功"
+          }
+        }
+      }
+    },
+    "finished.many" : {
+      "comment" : "Title after several photos were retouched.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 张已修好"
+          }
+        }
+      }
+    },
+    "finished.one" : {
+      "comment" : "Title after one photo was retouched.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修好了"
+          }
+        }
+      }
+    },
+    "finished.retry" : {
+      "comment" : "Button next to it: try those photos again.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再试这 %lld 张"
+          }
+        }
+      }
+    },
+    "finished.stacked" : {
+      "comment" : "Line after a run that made retouched pictures.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成片已经在 Lightroom 里，叠在原片上方。"
+          }
+        }
+      }
+    },
+    "finished.toned" : {
+      "comment" : "Line after a run that only changed colour.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "调色已经写进 Lightroom。"
+          }
+        }
+      }
+    },
+    "finished.undone" : {
+      "comment" : "Title after a run was undone.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已撤销"
+          }
+        }
+      }
+    },
+    "flag.blur" : {
+      "comment" : "Tiny badge on a photo thumbnail: out of focus. Keep it very short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚焦"
+          }
+        }
+      }
+    },
+    "flag.dup" : {
+      "comment" : "Tiny badge on a photo thumbnail: near-duplicate of its neighbour. Keep it very short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重复"
+          }
+        }
+      }
+    },
+    "flag.eyes" : {
+      "comment" : "Tiny badge on a photo thumbnail: someone's eyes are closed. Keep it very short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "闭眼"
+          }
+        }
+      }
+    },
+    "flag.over" : {
+      "comment" : "Tiny badge on a photo thumbnail: face overexposed. Keep it very short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "过曝"
+          }
+        }
+      }
+    },
+    "lastRun.continue" : {
+      "comment" : "Button on the first screen: finish the photos left over from the last run.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续修完"
+          }
+        }
+      }
+    },
+    "lastRun.done" : {
+      "comment" : "First screen: how many photos the last run retouched.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次修了 %lld 张"
+          }
+        }
+      }
+    },
+    "lastRun.stop" : {
+      "comment" : "Button on the first screen: give up the photos left over from the last run.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不修了"
+          }
+        }
+      }
+    },
+    "lastRun.undo" : {
+      "comment" : "Button on the first screen: undo the previous retouching run.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销上次修图"
+          }
+        }
+      }
+    },
+    "lastRun.unfinished" : {
+      "comment" : "First screen: photos left over from the last run. %1 = photos still to do, %2 = photos done.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上次有 %1$lld 张还没修完（已完成 %2$lld 张）"
+          }
+        }
+      }
+    },
+    "level.auto" : {
+      "comment" : "Retouching level: chosen automatically per face. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动"
+          }
+        }
+      }
+    },
+    "level.auto.note" : {
+      "comment" : "Line under the level row when 'automatic' is chosen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每张脸各选一档：修不过头的前提下尽量干净（推荐）"
+          }
+        }
+      }
+    },
+    "level.natural" : {
+      "comment" : "Retouching level, also a per-person choice: natural. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自然"
+          }
+        }
+      }
+    },
+    "level.natural.note" : {
+      "comment" : "Line under the level row when 'natural' is chosen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "看不出修过"
+          }
+        }
+      }
+    },
+    "level.off" : {
+      "comment" : "Retouching level, one of four segments in a row: no skin retouching. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不美颜"
+          }
+        }
+      }
+    },
+    "level.off.note" : {
+      "comment" : "Line under the level row when 'no retouching' is chosen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只调色，不动皮肤"
+          }
+        }
+      }
+    },
+    "level.refined" : {
+      "comment" : "Retouching level, also a per-person choice: the strongest. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "精致"
+          }
+        }
+      }
+    },
+    "level.refined.note" : {
+      "comment" : "Line under the level row when 'refined' is chosen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更干净，适合特写"
+          }
+        }
+      }
+    },
+    "loading.note" : {
+      "comment" : "Line under the loading title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大约 20 秒，看过的照片下次直接打开"
+          }
+        }
+      }
+    },
+    "loading.title" : {
+      "comment" : "Title over the photo while the looks of another photo are being rendered.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在用这张照片试每一种效果"
+          }
+        }
+      }
+    },
+    "look.delete" : {
+      "comment" : "Button / context menu on one of the user's own looks.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除这个风格"
+          }
+        }
+      }
+    },
+    "look.none.note" : {
+      "comment" : "Line under the look's name when the look is the unedited original.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保持原片的颜色"
+          }
+        }
+      }
+    },
+    "look.saveMine" : {
+      "comment" : "Last card in the row of looks, and the title of the dialog it opens: store the current Lightroom edit as an own look.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "存为我的风格"
+          }
+        }
+      }
+    },
+    "look.saveMine.busy" : {
+      "comment" : "Shown in the dialog while the look is being learnt.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在学习你的调法…"
+          }
+        }
+      }
+    },
+    "look.saveMine.defaultName" : {
+      "comment" : "Name given to an own look when the user typed none.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的风格"
+          }
+        }
+      }
+    },
+    "look.saveMine.note" : {
+      "comment" : "Second line of that card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "照你调好的来"
+          }
+        }
+      }
+    },
+    "look.saveMine.placeholder" : {
+      "comment" : "Placeholder of the name field in the save-my-style dialog.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "给它起个名字，例如：我的日系"
+          }
+        }
+      }
+    },
+    "look.saveMine.text" : {
+      "comment" : "Explanation in the save-my-style dialog. Three paragraphs.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先在 Lightroom 里把左边选中的这张照片调到你满意的样子，再回到这里点“保存”。\n之后它会成为一张新的效果卡片，对别的照片也会按你的调法来，并且照样根据每张照片自动调整曝光和白平衡。\n这次带过来的照片里，其他已经调过的也会一起用来学习：调过的越多，学得越准（6 张以上最好）。"
+          }
+        }
+      }
+    },
+    "page.look" : {
+      "comment" : "Tab of the bottom bar in a narrow window: the colour looks. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "效果"
+          }
+        }
+      }
+    },
+    "page.more" : {
+      "comment" : "Tab of the bottom bar in a narrow window: remaining switches. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多"
+          }
+        }
+      }
+    },
+    "paused.note" : {
+      "comment" : "Text of the paused card. %1 = photos done, %2 = photos left.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已完成 %1$lld 张，还剩 %2$lld 张。关掉程序也没关系，下次打开可以接着修。"
+          }
+        }
+      }
+    },
+    "paused.stop" : {
+      "comment" : "Button while paused: keep what is done, give up the rest.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "到此为止"
+          }
+        }
+      }
+    },
+    "paused.title" : {
+      "comment" : "Title of the card while a run is paused.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已暂停"
+          }
+        }
+      }
+    },
+    "person.follow" : {
+      "comment" : "Under a person's face: they get the general level. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随"
+          }
+        }
+      }
+    },
+    "person.help" : {
+      "comment" : "Explanation of the per-person faces (opens from the ? button). Mentions the five choices by name: keep them the same as person.follow, person.light, level.natural, level.refined, person.off.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个人可以单独设置：点头像，在 跟随、轻、自然、精致、不修 之间切换。跟随 = 用上面的整体档位。男士和小孩默认是 轻；你改过的人，下次会记住。"
+          }
+        }
+      }
+    },
+    "person.light" : {
+      "comment" : "Under a person's face: light retouching. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轻"
+          }
+        }
+      }
+    },
+    "person.off" : {
+      "comment" : "Under a person's face: not retouched. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不修"
+          }
+        }
+      }
+    },
+    "photos.appliesToAll" : {
+      "comment" : "Top row, next to the photo counter, when several photos were handed over: the settings apply to all of them.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置会用于全部 %lld 张"
+          }
+        }
+      }
+    },
+    "photos.next" : {
+      "comment" : "Accessibility label of the › button: next photo.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一张"
+          }
+        }
+      }
+    },
+    "photos.position" : {
+      "comment" : "Photo counter in the top row: photo %1 of %2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      }
+    },
+    "photos.previous" : {
+      "comment" : "Accessibility label of the ‹ button: previous photo.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上一张"
+          }
+        }
+      }
+    },
+    "photos.railHint" : {
+      "comment" : "Small hint under the strip of photos on the left of the main screen. Two short lines.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点一张看它的效果\n所选设置用于全部"
+          }
+        }
+      }
+    },
+    "preparing.note" : {
+      "comment" : "Line under the preparing title. %@ = the photo's file name.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，大约 20 秒，同一张照片下次直接打开"
+          }
+        }
+      }
+    },
+    "preparing.title" : {
+      "comment" : "Title while the looks of the first photo are being rendered (about 20 seconds).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在用你的照片试每一种效果"
+          }
+        }
+      }
+    },
+    "quality.best" : {
+      "comment" : "Switch: keep the most picture quality (16-bit wide-gamut output).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留最大画质"
+          }
+        }
+      }
+    },
+    "quality.best.help" : {
+      "comment" : "Explanation of the quality switch (opens from the ? button).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留最大画质：成片存成 16 位广色域（ProPhoto RGB），适合还要继续精修或大幅输出；每张约 300MB，是平时的三倍多。关闭时是 8 位 sRGB，适合直接交付。"
+          }
+        }
+      }
+    },
+    "retouch.many" : {
+      "comment" : "The main button when several photos will be retouched (count is 2 or more).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修好这 %lld 张"
+          }
+        }
+      }
+    },
+    "retouch.one" : {
+      "comment" : "The main button when one photo will be retouched.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修好这张"
+          }
+        }
+      }
+    },
+    "retouch.safeNote" : {
+      "comment" : "Reassurance under the main button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原片不会被改动，修完可以一键撤销。"
+          }
+        }
+      }
+    },
+    "retouch.skipFlagged" : {
+      "comment" : "Switch above the main button: leave out the photos the selection help marked. Names the four marks (flag.eyes, flag.blur, flag.over, flag.dup).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过 %lld 张有问题的（闭眼、虚焦、过曝、重复）"
+          }
+        }
+      }
+    },
+    "review.done" : {
+      "comment" : "Main button of the review screen: finished looking.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "看完了"
+          }
+        }
+      }
+    },
+    "review.fetching" : {
+      "comment" : "Shown while a finished picture is being fetched from Lightroom.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在取这张成片…"
+          }
+        }
+      }
+    },
+    "review.railHint" : {
+      "comment" : "Small hint under the strip of photos on the review screen. Two short lines.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点一张看它\n修图前后的样子"
+          }
+        }
+      }
+    },
+    "review.result" : {
+      "comment" : "Small label on the right half of the before/after picture on the review screen: the finished picture.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成片"
+          }
+        }
+      }
+    },
+    "rights.breakReminder" : {
+      "comment" : "Checkbox at the end of the rights card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连续工作 1.5 小时后提醒休息"
+          }
+        }
+      }
+    },
+    "rights.credit.body" : {
+      "comment" : "Rights card, text 4.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作者对自己的作品享有精神权利：被署名，作品不被歪曲。雇用关系里版权通常归雇主，但精神权利仍在你手上，除非你书面同意放弃。"
+          }
+        }
+      }
+    },
+    "rights.credit.title" : {
+      "comment" : "Rights card, heading 4: attribution and moral rights.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "署名与作品"
+          }
+        }
+      }
+    },
+    "rights.disclaimer" : {
+      "comment" : "First paragraph of the rights card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下为一般性信息，不是法律意见，依据澳大利亚联邦法律和首都领地（堪培拉，ACT）的规定。如果你在其他地方工作，当地法律可能不同。"
+          }
+        }
+      }
+    },
+    "rights.dismiss" : {
+      "comment" : "Other button of the launch prompt.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有，继续"
+          }
+        }
+      }
+    },
+    "rights.dontAsk" : {
+      "comment" : "Checkbox in the launch prompt.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不再提示"
+          }
+        }
+      }
+    },
+    "rights.forced.body" : {
+      "comment" : "Rights card, text 7. 000 is the Australian emergency number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以债务、威胁或暴力逼人工作是刑事犯罪，与你是什么身份或签证无关；扣押护照或证件可能构成犯罪，也是强迫劳动的警示信号。遇到危险请立刻拨打 000。"
+          }
+        }
+      }
+    },
+    "rights.forced.title" : {
+      "comment" : "Rights card, heading 7.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "强迫劳动"
+          }
+        }
+      }
+    },
+    "rights.help.afp" : {
+      "comment" : "Name of an Australian body; keep the abbreviation in brackets.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "澳大利亚联邦警察（AFP）"
+          }
+        }
+      }
+    },
+    "rights.help.afp.how" : {
+      "comment" : "What to report there, and phone numbers.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "强迫劳动、人口贩运举报。电话 131 237；紧急情况拨 000"
+          }
+        }
+      }
+    },
+    "rights.help.fwc" : {
+      "comment" : "Name of an Australian body; keep the English name in brackets.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公平工作委员会（Fair Work Commission）"
+          }
+        }
+      }
+    },
+    "rights.help.fwc.how" : {
+      "comment" : "What that body handles.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不公平解雇、欺凌等申请"
+          }
+        }
+      }
+    },
+    "rights.help.fwo" : {
+      "comment" : "Name of an Australian body; keep the English name in brackets.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公平工作监察专员（Fair Work Ombudsman）"
+          }
+        }
+      }
+    },
+    "rights.help.fwo.how" : {
+      "comment" : "What that body offers and its phone number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费咨询，可使用翻译服务。电话 13 13 94"
+          }
+        }
+      }
+    },
+    "rights.help.hrc" : {
+      "comment" : "Name of the ACT Human Rights Commission.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ACT 人权委员会"
+          }
+        }
+      }
+    },
+    "rights.help.hrc.how" : {
+      "comment" : "What that body handles.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歧视和骚扰投诉"
+          }
+        }
+      }
+    },
+    "rights.help.legalaid" : {
+      "comment" : "Name of an Australian body; keep the English name in brackets.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ACT 法律援助（Legal Aid ACT）"
+          }
+        }
+      }
+    },
+    "rights.help.legalaid.how" : {
+      "comment" : "What that body offers and its phone number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费或低价法律帮助。求助热线 1300 654 314"
+          }
+        }
+      }
+    },
+    "rights.help.lifeline.how" : {
+      "comment" : "What Lifeline offers and its phone number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "情绪支持，24 小时。电话 13 11 14"
+          }
+        }
+      }
+    },
+    "rights.help.tis" : {
+      "comment" : "Name of the national translating and interpreting service; keep the English name in brackets.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "笔译和口译服务（TIS National）"
+          }
+        }
+      }
+    },
+    "rights.help.tis.how" : {
+      "comment" : "How to use it, with its phone number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打电话时需要翻译，拨 131 450"
+          }
+        }
+      }
+    },
+    "rights.help.title" : {
+      "comment" : "Rights card: heading of the list of places to get help.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在哪里求助"
+          }
+        }
+      }
+    },
+    "rights.help.worksafe.how" : {
+      "comment" : "What WorkSafe ACT covers (Canberra).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "堪培拉的工作安全与健康"
+          }
+        }
+      }
+    },
+    "rights.hours.body" : {
+      "comment" : "Rights card, text 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全职每周标准工时是 38 小时；超出的部分必须合理，你有权拒绝不合理的加班。你也有权享有休息和假期（年假、病假等，按雇用类型而定）。"
+          }
+        }
+      }
+    },
+    "rights.hours.title" : {
+      "comment" : "Rights card, heading 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工时与休息"
+          }
+        }
+      }
+    },
+    "rights.invite" : {
+      "comment" : "Line under the launch question.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解您拥有的权利。"
+          }
+        }
+      }
+    },
+    "rights.menu" : {
+      "comment" : "Help menu item that opens the rights card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解您拥有的权利…"
+          }
+        }
+      }
+    },
+    "rights.open" : {
+      "comment" : "Main button of the launch prompt: opens the rights card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解我的权利"
+          }
+        }
+      }
+    },
+    "rights.pay.body" : {
+      "comment" : "Rights card, text 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雇员有权获得至少法定最低工资，以及按所适用的行业裁定（award）或协议应得的加班、周末和公共假日待遇。如果“无薪”做的是真正的工作，而不是很短的、合理的评估，通常是违法的。"
+          }
+        }
+      }
+    },
+    "rights.pay.title" : {
+      "comment" : "Rights card, heading 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "报酬"
+          }
+        }
+      }
+    },
+    "rights.question" : {
+      "comment" : "Question of the prompt shown at launch.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您是否正在剥削性工作中？"
+          }
+        }
+      }
+    },
+    "rights.remindAtLaunch" : {
+      "comment" : "Checkbox at the end of the rights card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次打开时提醒我这些权利"
+          }
+        }
+      }
+    },
+    "rights.reprisal.body" : {
+      "comment" : "Rights card, text 6.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你行使自己的工作权利（提问、投诉、请假）时，雇主不能因此解雇你、削减工时或区别对待。"
+          }
+        }
+      }
+    },
+    "rights.reprisal.title" : {
+      "comment" : "Rights card, heading 6: protection from adverse action.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不被报复"
+          }
+        }
+      }
+    },
+    "rights.safety.body" : {
+      "comment" : "Rights card, text 5.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "雇主有责任在合理可行的范围内提供安全、健康的工作环境，包括合理的工作量和休息。长时间连续工作造成的伤害，也是工作安全问题。"
+          }
+        }
+      }
+    },
+    "rights.safety.title" : {
+      "comment" : "Rights card, heading 5.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安全与健康"
+          }
+        }
+      }
+    },
+    "rights.sham.body" : {
+      "comment" : "Rights card, text 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把雇员硬说成“自由职业者/承包人”来逃避工资和福利，可能构成假承包（sham contracting），是违法的。拿不准自己的身份，可以免费咨询公平工作监察专员。"
+          }
+        }
+      }
+    },
+    "rights.sham.title" : {
+      "comment" : "Rights card, heading 3: sham contracting.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“假承包”"
+          }
+        }
+      }
+    },
+    "rights.title" : {
+      "comment" : "Title of the rights card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您拥有的权利"
+          }
+        }
+      }
+    },
+    "rights.visa.body" : {
+      "comment" : "Rights card, text 8.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "持工作、学生或其他签证的人，同样享有基本的工作权利，向监察专员求助本身不会取消你的签证（只有内政部能取消签证），符合条件的人还有举报保护。具体情况请向官方或法律援助确认。"
+          }
+        }
+      }
+    },
+    "rights.visa.title" : {
+      "comment" : "Rights card, heading 8.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "签证持有人"
+          }
+        }
+      }
+    },
+    "run.undo" : {
+      "comment" : "Button: undo this retouching run.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销这次修图"
+          }
+        }
+      }
+    },
+    "run.viewResults" : {
+      "comment" : "Button: look at the finished pictures next to the originals.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看成片"
+          }
+        }
+      }
+    },
+    "setup.done" : {
+      "comment" : "Title when the installer has finished.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安装好了"
+          }
+        }
+      }
+    },
+    "setup.failed" : {
+      "comment" : "Title when the installer failed (a log excerpt follows).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安装没有完成"
+          }
+        }
+      }
+    },
+    "setup.offline" : {
+      "comment" : "Line in the installer panel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部在这台电脑上完成，不需要联网。"
+          }
+        }
+      }
+    },
+    "setup.preparing" : {
+      "comment" : "First progress line of the installer.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在准备…"
+          }
+        }
+      }
+    },
+    "setup.step1" : {
+      "comment" : "First of three numbered steps after installing.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 Lightroom Classic（已经开着的话，请退出再打开一次）。"
+          }
+        }
+      }
+    },
+    "setup.step2" : {
+      "comment" : "Second step after installing.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在图库里选中要修的照片。"
+          }
+        }
+      }
+    },
+    "setup.title" : {
+      "comment" : "Title of the installer panel on first launch.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第一次打开，正在安装"
+          }
+        }
+      }
+    },
+    "setup.understood" : {
+      "comment" : "Button that closes the installer panel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "知道了"
+          }
+        }
+      }
+    },
+    "shape.chest" : {
+      "comment" : "Shaping chip: fuller chest. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "丰胸"
+          }
+        }
+      }
+    },
+    "shape.eyes" : {
+      "comment" : "Shaping chip: larger eyes. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大眼"
+          }
+        }
+      }
+    },
+    "shape.help" : {
+      "comment" : "Explanation of the six chips (opens from the ? button). Two paragraphs.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "塑形：点亮的才会做。身体侧着、被手挡住、或腿没拍全时，对应的那一项会自动跳过。\n匀光：把侧光造成的一边亮一边暗匀开一些，只动明暗，不动皮肤纹理；鼻影、帽檐这类有边缘的影子不会去掉。"
+          }
+        }
+      }
+    },
+    "shape.legs" : {
+      "comment" : "Shaping chip: longer legs. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "长腿"
+          }
+        }
+      }
+    },
+    "shape.light" : {
+      "comment" : "Chip: evens out side light on the face. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匀光"
+          }
+        }
+      }
+    },
+    "shape.slim" : {
+      "comment" : "Shaping chip: slimmer face. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瘦脸"
+          }
+        }
+      }
+    },
+    "shape.waist" : {
+      "comment" : "Shaping chip: narrower waist. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收腰"
+          }
+        }
+      }
+    },
+    "tweak.brighter" : {
+      "comment" : "Right end of the brightness row. As short as possible.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亮"
+          }
+        }
+      }
+    },
+    "tweak.cooler" : {
+      "comment" : "Left end of the colour-temperature row. As short as possible.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "冷"
+          }
+        }
+      }
+    },
+    "tweak.darker" : {
+      "comment" : "Left end of the brightness row (five steps). As short as possible, ideally one word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暗"
+          }
+        }
+      }
+    },
+    "tweak.paler" : {
+      "comment" : "Left end of the colour-strength row (less saturated). As short as possible.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淡"
+          }
+        }
+      }
+    },
+    "tweak.richer" : {
+      "comment" : "Right end of the colour-strength row (more saturated). As short as possible.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浓"
+          }
+        }
+      }
+    },
+    "tweak.warmer" : {
+      "comment" : "Right end of the colour-temperature row. As short as possible.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暖"
+          }
+        }
+      }
+    },
+    "undo.busy" : {
+      "comment" : "Notice while a run is being undone.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在撤销…"
+          }
+        }
+      }
+    },
+    "undo.done" : {
+      "comment" : "Notice after undoing a run that only changed colour.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已撤销，照片回到修图前的样子。"
+          }
+        }
+      }
+    },
+    "undo.doneWithRejects" : {
+      "comment" : "Notice after undoing a run that made retouched pictures. %lld = number of pictures. Names a Lightroom menu path (Photo → Delete Rejected Photos): use Lightroom's menu names in the target language.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已撤销。调色已还原，%lld 张美颜成片被标记为“排除”，在 Lightroom 里用 照片 → 删除排除的照片 可以一次清掉。"
+          }
+        }
+      }
+    },
+    "undo.failed" : {
+      "comment" : "Notice when undoing did not work. %@ = the error message.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销没有完成：%@"
+          }
+        }
+      }
+    },
+    "update.auto" : {
+      "comment" : "Switch in Settings.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动检查并安装更新"
+          }
+        }
+      }
+    },
+    "update.autoNote" : {
+      "comment" : "Explanation under the switch in Settings. Must stay true to the privacy policy: translate faithfully.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 LRCDF 时检查一次，之后大约每天一次。只下载一个写着版本号的公开小文件，不发送任何关于你、照片或目录的内容。关掉后，LRCDF 运行时完全不联网。"
+          }
+        }
+      }
+    },
+    "update.available" : {
+      "comment" : "Line when a new version exists and is large enough to ask first. First %@ = version number, second %@ = download size such as 210 MB.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有新版本 %1$@，需要下载 %2$@"
+          }
+        }
+      }
+    },
+    "update.broken" : {
+      "comment" : "Line when a downloaded update failed its integrity check.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载的更新不完整，已放弃。下次会重新下载"
+          }
+        }
+      }
+    },
+    "update.checkNow" : {
+      "comment" : "Button in Settings and item in the app menu.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现在检查更新"
+          }
+        }
+      }
+    },
+    "update.checking" : {
+      "comment" : "Line at the bottom of the window while looking for a new version.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检查更新…"
+          }
+        }
+      }
+    },
+    "update.download" : {
+      "comment" : "Button on the update line: start downloading. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载"
+          }
+        }
+      }
+    },
+    "update.downloading" : {
+      "comment" : "Line while an update downloads. %@ = version number, %lld = per cent done.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在下载新版本 %1$@　%2$lld%%"
+          }
+        }
+      }
+    },
+    "update.goBack" : {
+      "comment" : "Button in Settings: undo the last update.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退回上一个版本"
+          }
+        }
+      }
+    },
+    "update.install" : {
+      "comment" : "Button on the update line: quit, install and open the app again. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现在重开"
+          }
+        }
+      }
+    },
+    "update.installing" : {
+      "comment" : "Line shown for a moment before the app quits to install an update.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在安装，马上回来…"
+          }
+        }
+      }
+    },
+    "update.later" : {
+      "comment" : "Button on the update line: hide it for now. One short word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以后"
+          }
+        }
+      }
+    },
+    "update.none" : {
+      "comment" : "Line after a manual check that found nothing new.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已经是最新版本"
+          }
+        }
+      }
+    },
+    "update.notInstalled" : {
+      "comment" : "Line after a manual check on a copy that was not installed by the all-in-one app.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这份 LRCDF 不是用一体版安装的，不能自动更新"
+          }
+        }
+      }
+    },
+    "update.openPage" : {
+      "comment" : "Button on the update line: opens the download page in the browser.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开下载页"
+          }
+        }
+      }
+    },
+    "update.ready" : {
+      "comment" : "Line when an update is downloaded and waits to be installed. %@ = version number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新版本 %@ 已准备好，重新打开后生效"
+          }
+        }
+      }
+    },
+    "update.tooNew" : {
+      "comment" : "Line when the update feed is of a newer kind than this app understands.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有新版本，但这一版 LRCDF 太旧，不能自动更新，请到下载页获取"
+          }
+        }
+      }
+    },
+    "update.unreachable" : {
+      "comment" : "Line after a manual check when the server could not be reached or its answer could not be trusted.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没能连上更新服务器，稍后再试"
+          }
+        }
+      }
+    },
+    "waiting.notConnected" : {
+      "comment" : "Warning on the first screen when Lightroom Classic is not running.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还没有连上 Lightroom Classic，请先打开它"
+          }
+        }
+      }
+    },
+    "waiting.openLightroom" : {
+      "comment" : "Button next to the not-connected warning.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 Lightroom"
+          }
+        }
+      }
+    },
+    "waiting.step1" : {
+      "comment" : "First of three numbered steps on the first screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Lightroom 里选中要修的照片"
+          }
+        }
+      }
+    },
+    "waiting.step2" : {
+      "comment" : "Second step on the first screen: the menu path inside Lightroom Classic. Use the menu names of Lightroom in the target language.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单 图库 → 增效工具额外信息 → 开始一键修图…"
+          }
+        }
+      }
+    },
+    "waiting.step3" : {
+      "comment" : "Third step on the first screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回到这里挑一个喜欢的效果"
+          }
+        }
+      }
+    },
+    "waiting.title" : {
+      "comment" : "Large title of the first screen, shown before any photo has been handed over. LRCDF is the product name.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LRCDF 一键修图"
+          }
+        }
+      }
+    },
+    "working.doneOf" : {
+      "comment" : "Progress line: %1 of %2 photos done, then %3 = what Lightroom is doing right now (text from the plug-in).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已完成 %1$lld / %2$lld，%3$@"
+          }
+        }
+      }
+    },
+    "working.handingOver" : {
+      "comment" : "Progress line at the very start of a run.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在交给 Lightroom…"
+          }
+        }
+      }
+    },
+    "working.many" : {
+      "comment" : "Title of the progress card for several photos.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在修 %lld 张照片"
+          }
+        }
+      }
+    },
+    "working.one" : {
+      "comment" : "Title of the progress card for one photo.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在修这张照片"
+          }
+        }
+      }
+    },
+    "working.pause" : {
+      "comment" : "Button on the progress card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂停"
+          }
+        }
+      }
+    },
+    "working.pauseAsked" : {
+      "comment" : "The pause button after it was pressed: the photos in hand are finished first.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "做完手上这几张就暂停…"
+          }
+        }
+      }
+    },
+    "working.rememberingBefore" : {
+      "comment" : "Progress line: saving how the photos looked before.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在记下修图前的样子…"
+          }
+        }
+      }
+    },
+    "working.retrying" : {
+      "comment" : "Progress line: some photos failed and are tried once more.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有照片没成功，再试一次…"
+          }
+        }
+      }
+    },
+    "zoom.fit" : {
+      "comment" : "Button between − and +: shows the whole picture. Shown while the picture is not zoomed.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适合窗口"
+          }
+        }
+      }
+    },
+    "zoom.help" : {
+      "comment" : "Hover help of the zoom control: the gestures.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "双指捏合或滚轮缩放，放大后拖动照片移动，双击放大或还原"
+          }
+        }
+      }
+    },
+    "zoom.in" : {
+      "comment" : "Accessibility label of the + button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放大"
+          }
+        }
+      }
+    },
+    "zoom.nextFace" : {
+      "comment" : "Same button once zoomed on a face: go to the next face.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下一张脸"
+          }
+        }
+      }
+    },
+    "zoom.out" : {
+      "comment" : "Accessibility label of the − button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缩小"
+          }
+        }
+      }
+    },
+    "zoom.toFace" : {
+      "comment" : "Button: zooms in on the first face.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放大看脸"
+          }
+        }
+      }
+    },
+    "zoom.whole" : {
+      "comment" : "Same button on the last face: back to the whole picture.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "看整张"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
