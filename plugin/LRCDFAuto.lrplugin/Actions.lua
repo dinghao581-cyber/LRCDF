@@ -42,7 +42,7 @@ local function targetPhotos(args)
     return photos
 end
 
-local function applyFile(photos, path, label)
+local function applyFile(photos, path, label, asBefore)
     local saved = assert(loadstring(LrFileUtils.readFile(path)))()
     local count = 0
     LrApplication.activeCatalog():withWriteAccessDo(label, function()
@@ -52,11 +52,13 @@ local function applyFile(photos, path, label)
                 if settings.WhiteBalance == 'As Shot' then
                     -- only a preset really returns a photo to its as-shot white balance; applyDevelopSettings would
                     -- keep the current temperature under an "As Shot" label
-                    local asShot = LrApplication.addDevelopPresetForPlugin(_PLUGIN, 'LRCDF 原始白平衡', { WhiteBalance = 'As Shot' })
+                    local asShot = LrApplication.addDevelopPresetForPlugin(_PLUGIN, LOC("$$$/LRCDF/History/AsShotWhiteBalance=LRCDF 原始白平衡"), { WhiteBalance = 'As Shot' })
                     photo:applyDevelopSettings({ WhiteBalance = 'Custom', Temperature = 5000, Tint = 0 }, label)
                     photo:applyDevelopPreset(asShot, _PLUGIN)
                     settings.WhiteBalance, settings.Temperature, settings.Tint = nil, nil, nil
                 end
+                -- going back: a photo that had no masks when it was saved has none afterwards (the skin mask goes)
+                if asBefore and not settings.MaskGroupBasedCorrections then settings.MaskGroupBasedCorrections = {} end
                 photo:applyDevelopSettings(settings, label)
                 count = count + 1
             end
@@ -115,11 +117,11 @@ function actions.save(args, photos)
 end
 
 function actions.restore(args, photos)
-    return 'restored=' .. applyFile(photos, assert(args.file, 'file is required'), 'LRCDF 还原')
+    return 'restored=' .. applyFile(photos, assert(args.file, 'file is required'), LOC("$$$/LRCDF/History/Restore=LRCDF 还原"), true)
 end
 
 function actions.apply(args, photos)
-    return 'applied=' .. applyFile(photos, assert(args.file, 'file is required'), 'LRCDF 应用设置')
+    return 'applied=' .. applyFile(photos, assert(args.file, 'file is required'), LOC("$$$/LRCDF/History/ApplySettings=LRCDF 应用设置"))
 end
 
 function actions.info(args, photos)
@@ -191,7 +193,7 @@ end
 function actions.add(args)
     local catalog = LrApplication.activeCatalog()
     local added = {}
-    catalog:withWriteAccessDo('LRCDF 添加测试照片', function()
+    catalog:withWriteAccessDo(LOC("$$$/LRCDF/History/AddTestPhotos=LRCDF 添加测试照片"), function()
         for path in LrFileUtils.files(assert(args.dir, 'dir is required')) do
             if not LrPathUtils.leafName(path):match('^%.') then
                 local photo = catalog:findPhotoByPath(path) or catalog:addPhoto(path)
@@ -208,8 +210,8 @@ end
 
 -- Put the photos back to the unedited look (as-shot white balance, all model-controlled settings neutral).
 function actions.neutral(args, photos)
-    LrApplication.activeCatalog():withWriteAccessDo('LRCDF 原片状态', function()
-        local preset = LrApplication.addDevelopPresetForPlugin(_PLUGIN, 'LRCDF 原片状态', fresh 'Neutral')
+    LrApplication.activeCatalog():withWriteAccessDo(LOC("$$$/LRCDF/History/OriginalState=LRCDF 原片状态"), function()
+        local preset = LrApplication.addDevelopPresetForPlugin(_PLUGIN, LOC("$$$/LRCDF/History/OriginalState=LRCDF 原片状态"), fresh 'Neutral')
         for _, photo in ipairs(photos) do
             photo:applyDevelopSettings({ WhiteBalance = 'Custom', Temperature = 5000, Tint = 0 }, 'LRCDF')
             photo:applyDevelopPreset(preset, _PLUGIN)
@@ -231,22 +233,70 @@ function actions.previews(args, photos)
     local paths, dir = Simple.previews(photos[1], nil, tonumber(args.size), args.dir, only)
     if not paths then error(dir, 0) end
     local lines = { 'seconds=' .. (os.time() - t0) }
-    for _, card in ipairs(Simple.cards()) do   -- value, picture, title, note: in the order they are shown
+    -- a fifth column for the colour wheels: where the look itself puts shadows and highlights, in the wheels' own
+    -- numbers ("wheels=<shadow hue>,<amount>,<highlight hue>,<amount>"; amount = saturation x 2, as shadow= / high=
+    -- are halved when written). A wheel starts there: what it sends replaces the look's value, so a wheel starting
+    -- at nothing would make the colour jump at the first touch. Empty for a look not rendered yet.
+    local results = {}
+    local analysis = LrPathUtils.child(dir, 'analysis.lua')
+    if LrFileUtils.exists(analysis) then
+        local chunk = loadstring(LrFileUtils.readFile(analysis))
+        local ok, read = pcall(chunk or error)
+        if ok and type(read) == 'table' then results = read end
+    end
+    local id = tostring(photos[1].localIdentifier)
+    local function amount(saturation) return math.min(100, math.floor((tonumber(saturation) or 0) * 2 / 5 + 0.5) * 5) end
+    local function hue(value) return (math.floor((tonumber(value) or 0) / 5 + 0.5) * 5) % 360 end
+    for _, card in ipairs(Simple.cards()) do   -- value, picture, title, note, wheels: in the order they are shown
         local made = LrFileUtils.exists(paths[card.value])
-        lines[#lines + 1] = table.concat({ card.value, made and paths[card.value] or '', card.title, card.note }, '\t')
+        local settings = results[card.value] and results[card.value][id]
+        local wheels = ''
+        if card.value == 'none' then
+            wheels = 'wheels=0,0,0,0'
+        elseif made and type(settings) == 'table' and not settings.error then
+            wheels = string.format('wheels=%d,%d,%d,%d', hue(settings.SplitToningShadowHue), amount(settings.SplitToningShadowSaturation),
+                hue(settings.SplitToningHighlightHue), amount(settings.SplitToningHighlightSaturation))
+        end
+        lines[#lines + 1] = table.concat({ card.value, made and paths[card.value] or '', card.title, card.note, wheels }, '\t')
     end
     return table.concat(lines, '\n')
 end
 
+-- tweak=bright,warm,rich: 1.0 is one of the old five steps, -2..2, in steps of 0.05 ("0.35,-1.2,0"; the old whole
+-- steps "1,0,-1" mean what they always did). The apps show value x 50 (-100..100).
+-- The colour wheels add, each optional: tint=T (-2..2 in steps of 0.05; green to magenta), shadow=hue,amount and
+-- high=hue,amount (hue 0..359 in steps of 5 degrees, amount 0..100 in steps of 5). Not given: the look's own colour
+-- for that range stays. Given with amount 0: no colour there (the wheel dragged to its centre); the hue is then 0.
+-- Returns { bright, warm, rich, tint = T, shadow = { hue, amount }, high = { hue, amount } } or nil when nothing is asked.
 local function tweakOf(args)
-    if not args.tweak then return nil end
     local t = {}
-    for value in args.tweak:gmatch('-?%d+') do t[#t + 1] = math.max(-2, math.min(2, tonumber(value))) end
-    if #t ~= 3 or (t[1] == 0 and t[2] == 0 and t[3] == 0) then return nil end
+    for value in (args.tweak or ''):gmatch('-?%d+%.?%d*') do
+        local v = math.max(-2, math.min(2, tonumber(value) or 0))
+        t[#t + 1] = math.floor(v * 20 + 0.5) / 20
+    end
+    if #t ~= 3 then
+        if args.tweak and args.tweak ~= '' then return nil end
+        t = { 0, 0, 0 }
+    end
+    local tint = tonumber(args.tint)
+    if tint then
+        tint = math.floor(math.max(-2, math.min(2, tint)) * 20 + 0.5) / 20
+        if tint ~= 0 then t.tint = tint end
+    end
+    local function wheel(text)
+        local hue, amount = (text or ''):match('^(%d+%.?%d*),(%d+%.?%d*)$')
+        hue, amount = tonumber(hue), tonumber(amount)
+        if not hue or not amount then return nil end
+        amount = math.floor(math.max(0, math.min(100, amount)) / 5 + 0.5) * 5
+        if amount == 0 then return { 0, 0 } end     -- given with nothing: this range gets no colour, whatever the look has
+        return { (math.floor(hue / 5 + 0.5) * 5) % 360, amount }
+    end
+    t.shadow, t.high = wheel(args.shadow), wheel(args.high)
+    if t[1] == 0 and t[2] == 0 and t[3] == 0 and not t.tint and not t.shadow and not t.high then return nil end
     return t
 end
 
--- One look with a tweak, for the app's comparison: dir=<previews folder of the photo> look=d tweak=1,0,-1
+-- One look with a tweak, for the app's comparison: dir=<previews folder of the photo> look=d tweak=0.35,-1.2,0 [tint=0.4 shadow=210,30 high=45,20]
 function actions.tweakpreview(args, photos)
     local tweak = assert(tweakOf(args), 'tweak is required')
     local path, name = fresh('Simple').tweakPreview(photos[1], assert(args.dir), assert(args.look), tweak, tonumber(args.size))
@@ -283,7 +333,7 @@ function actions.forgetstyle(args)
     local config = fresh 'Config'
     local q = Tone.shellQuote
     local out = LrPathUtils.child(config.appData, 'forget.lua')
-    LrTasks.execute(q(config.python) .. ' ' .. q(config.predict) .. ' --ckpt x --job x --out ' .. q(out) ..
+    Tone.execute(Tone.python(config.predict) .. ' --ckpt x --job x --out ' .. q(out) ..
         ' --mystyles ' .. q(config.myStyles) .. ' --forget ' .. q(assert(args.key, 'key is required')))
     return 'forgotten=' .. args.key
 end
@@ -291,11 +341,11 @@ end
 -- Undo a run: file=<settings saved before it> [rejects=<ids of the pictures it made>] [denoised=<ids>]
 -- The SDK cannot remove photos from the catalog, so the pictures the run made are marked as rejected instead.
 function actions.undo(args, photos)
-    local restored = applyFile(photos, assert(args.file, 'file is required'), 'LRCDF 撤销')
+    local restored = applyFile(photos, assert(args.file, 'file is required'), LOC("$$$/LRCDF/History/Undo=LRCDF 撤销"), true)
     local catalog = LrApplication.activeCatalog()
     local rejected = 0
     if args.rejects then
-        catalog:withWriteAccessDo('LRCDF 撤销', function()
+        catalog:withWriteAccessDo(LOC("$$$/LRCDF/History/Undo=LRCDF 撤销"), function()
             for id in args.rejects:gmatch('%d+') do
                 local photo = catalog:getPhotoByLocalId(tonumber(id))
                 if photo then photo:setRawMetadata('pickStatus', -1) rejected = rejected + 1 end
@@ -332,7 +382,7 @@ function actions.cull(args, photos)
     LrFileUtils.delete(staging)
     local q = Tone.shellQuote
     local out = LrPathUtils.child(dir, 'cull_result.tsv')
-    LrTasks.execute(q(config.python) .. ' ' .. q(config.cull) .. ' --job ' .. q(job) .. ' --out ' .. q(out) ..
+    Tone.execute(Tone.python(config.cull) .. ' --job ' .. q(job) .. ' --out ' .. q(out) ..
         ' --people ' .. q(LrPathUtils.child(dir, 'people.json')) .. ' --fresh ' .. (args.fresh == '1' and 1 or 0) ..
         ' > ' .. q(LrPathUtils.child(dir, 'cull.log')) .. ' 2>&1')
     if not LrFileUtils.exists(out) then error('选片分析没有完成。', 0) end
@@ -363,6 +413,7 @@ end
 function actions.beautypreview(args)
     local config = fresh 'Config'
     local dir, look = assert(args.dir, 'dir is required'), assert(args.look, 'look is required')
+    look = fresh('Simple').lookName(look)        -- an app from before the stepless tweaks names tweaked looks the old way
     local order = { 'slim', 'bigeyes', 'chest', 'waist', 'legs', 'light' }
     local suffix, amounts = '', {}
     for _, key in ipairs(order) do
@@ -370,7 +421,7 @@ function actions.beautypreview(args)
         if on then suffix = suffix .. '_' .. key end
         amounts[#amounts + 1] = on and config.shapes[key] / 100 or 0
     end
-    local who = fresh('Beauty').who(args.peoplefile, args.people)       -- own settings for some people: other file names
+    local Beauty = fresh 'Beauty'
     if args.peoplefile and LrFileUtils.exists(args.peoplefile) and args.people and args.people ~= '' then suffix = suffix .. '_p' .. args.people:gsub('[:,]', '') end
     local job = LrPathUtils.child(dir, 'beauty_job.tsv')
     local file = assert(io.open(job, 'w'))
@@ -389,10 +440,13 @@ function actions.beautypreview(args)
     end
     file:close()
     local q = Tone.shellQuote
-    local arguments = ' --job ' .. q(job) .. ' --original ' .. q(LrPathUtils.child(dir, 'none.jpg')) .. ' --faces ' ..
-        q(LrPathUtils.child(dir, 'faces.json')) .. who
-    if not fresh('Beauty').preview(arguments) then      -- the process that stays loaded did not answer: the slow way
-        LrTasks.execute(q(config.python) .. ' ' .. q(config.previewBeauty) .. arguments ..
+    local function arguments(quote)
+        return ' --job ' .. quote(job) .. ' --original ' .. quote(LrPathUtils.child(dir, 'none.jpg')) ..
+            ' --faces ' .. quote(LrPathUtils.child(dir, 'faces.json')) .. Beauty.who(args.peoplefile, args.people, quote)
+    end
+    -- The .req file is parsed by Python's shlex on both platforms.
+    if not Beauty.preview(arguments(Tone.posixQuote)) then
+        Tone.execute(Tone.python(config.previewBeauty) .. arguments(q) ..
             ' > ' .. q(LrPathUtils.child(dir, 'beauty.log')) .. ' 2>&1')
     end
     local lines = {}

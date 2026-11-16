@@ -10,6 +10,8 @@ Faces are handled in their own crops; body skin (arms, hands, chest, legs) gets 
 import os
 import cv2
 import numpy as np
+from lrcdf.mediapipe_io import base_options
+from lrcdf import reuse      # filters asked for again with the same pixels and settings are not computed twice
 
 MODELS = os.path.expanduser("~/LRCDF/models/mediapipe")
 LIPS_OUT = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185]
@@ -47,10 +49,10 @@ class Models:
         from mediapipe.tasks.python import vision
         self.mp = mp
         self.landmarker = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
-            base_options=mpp.BaseOptions(model_asset_path=f"{MODELS}/face_landmarker.task"), num_faces=1,
+            base_options=base_options(mpp.BaseOptions, f"{MODELS}/face_landmarker.task"), num_faces=1,
             min_face_detection_confidence=0.3, min_face_presence_confidence=0.3))
         self.segmenter = vision.ImageSegmenter.create_from_options(vision.ImageSegmenterOptions(
-            base_options=mpp.BaseOptions(model_asset_path=f"{MODELS}/selfie_multiclass_256x256.tflite"),
+            base_options=base_options(mpp.BaseOptions, f"{MODELS}/selfie_multiclass_256x256.tflite"),
             output_confidence_masks=True, output_category_mask=False))
 
     def analyse(self, rgb8):
@@ -72,16 +74,16 @@ def poly(shape, pts, idx, grow=0.0, blur=0.0):
     cv2.fillPoly(m, [np.round(pts[idx]).astype(np.int32)], 1.0)
     if grow >= 1:
         k = int(grow) * 2 + 1
-        m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+        m = reuse.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
     if blur > 0.3:
-        m = cv2.GaussianBlur(m, (0, 0), blur)
+        m = reuse.GaussianBlur(m, (0, 0), blur)
     return m
 
 
 def ellipse(shape, centre, axes, angle, blur):
     m = np.zeros(shape[:2], np.float32)
     cv2.ellipse(m, (int(centre[0]), int(centre[1])), (max(1, int(axes[0])), max(1, int(axes[1]))), angle, 0, 360, 1.0, -1)
-    return cv2.GaussianBlur(m, (0, 0), max(0.5, blur))
+    return reuse.GaussianBlur(m, (0, 0), max(0.5, blur))
 
 
 def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eyes=None, mesh=None, nose=None):
@@ -113,7 +115,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         features = np.maximum(features, ellipse(crop.shape, ((mx0 + mx1) / 2, (my0 + my1) / 2),
                                                 (max(np.hypot(mx1 - mx0, my1 - my0) * 0.7, f * 0.14), f * 0.12), 0, f * 0.02))
         features = np.clip(features * 1.5, 0, 1)
-    skin = cv2.GaussianBlur(np.clip(skin * 1.5 - 0.25, 0, 1), (0, 0), f * 0.012) * (1 - features)
+    skin = reuse.GaussianBlur(np.clip(skin * 1.5 - 0.25, 0, 1), (0, 0), f * 0.012) * (1 - features)
     low, high = split(crop, f)
 
     # --- low layer: even colour and light (blotches, redness, soft uneven shading)
@@ -134,8 +136,8 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         sigma = f * d * 0.06
         keep = wt.copy()
         for _ in range(4):   # surrounding skin = average of skin that is not itself a spot
-            norm = cv2.GaussianBlur(keep, (0, 0), sigma) + 1e-3
-            around = cv2.GaussianBlur(lab * keep[..., None], (0, 0), sigma) / norm[..., None]
+            norm = reuse.GaussianBlur(keep, (0, 0), sigma) + 1e-3
+            around = reuse.GaussianBlur(lab * keep[..., None], (0, 0), sigma) / norm[..., None]
             red = lab[..., 1] - around[..., 1]
             keep = wt * np.clip(1 - (red - 1.5) / 3.0, 0.05, 1)
         spot = np.clip((red - 1.5) / 3.0, 0, 1) * wt
@@ -144,14 +146,14 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         raw = spot.copy()
         # ... compact marks always (up to SPOT_WIDTH of the face; wider with strength above the default).
         k = max(3, int(f * d * SPOT_WIDTH * max(1.0, opt["spots"] / DEFAULTS["spots"]) ** 2)) | 1
-        wide = cv2.morphologyEx(spot, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+        wide = reuse.morphologyEx(spot, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
         # Wide red areas are either merged acne or something to keep: blush, lips, a ruddy cheek, a warm shadow.
         # What tells them apart is the colour of the redness: inflamed skin is redder without being yellower
         # (Lab b stays, a rises) and darker; blush, warm light and ruddy skin shift towards orange (b rises with a).
         # (Patchiness, crowding of small marks and surface texture were measured too and do not separate them.)
         blur = f * d * 0.02
-        more_yellow = cv2.GaussianBlur(lab[..., 2] - around[..., 2], (0, 0), blur) / (cv2.GaussianBlur(np.maximum(red, 0), (0, 0), blur) + 0.5)
-        darker = cv2.GaussianBlur(around[..., 0] - lab[..., 0], (0, 0), blur)
+        more_yellow = reuse.GaussianBlur(lab[..., 2] - around[..., 2], (0, 0), blur) / (reuse.GaussianBlur(np.maximum(red, 0), (0, 0), blur) + 0.5)
+        darker = reuse.GaussianBlur(around[..., 0] - lab[..., 0], (0, 0), blur)
         inflamed = np.clip((ACNE_HUE[1] - more_yellow) / (ACNE_HUE[1] - ACNE_HUE[0]), 0, 1) * np.clip(darker / 2.0, 0, 1)
         if debug is not None:
             debug.update(red=red.copy(), wide=wide.copy(), inflamed=inflamed, more_yellow=more_yellow, darker=darker)
@@ -164,7 +166,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
             else:
                 nz = ellipse(spot.shape, (nose[0] * d, nose[1] * d), (f * d * 0.12, f * d * 0.12), 0, f * d * 0.03)
             kp = max(3, int(f * d * PIMPLE)) | 1
-            pimples = np.maximum(raw - cv2.morphologyEx(raw, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kp, kp))), 0)
+            pimples = np.maximum(raw - reuse.morphologyEx(raw, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kp, kp))), 0)
             spot += nz * (pimples - spot)
         if box is not None:  # stay on the face: the skin mask also catches skin-coloured things further away
             bx0, by0, bx1, by1 = [v * d for v in box]
@@ -187,17 +189,17 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         mk = float(opt.get("makeup", 0))
         if mk > 0 or under_zone is not None:
             band = 1 - round_only(spot, f * d)
-            band = cv2.GaussianBlur(band, (0, 0), max(0.6, f * d * 0.004))
+            band = reuse.GaussianBlur(band, (0, 0), max(0.6, f * d * 0.004))
             spot *= 1 - np.maximum(under_zone if under_zone is not None else 0, mk) * band
-        spot = cv2.GaussianBlur(spot, (0, 0), max(0.6, f * d * 0.004))
+        spot = reuse.GaussianBlur(spot, (0, 0), max(0.6, f * d * 0.004))
         fixed = lab + min(1.0, opt["spots"]) * spot[..., None] * (around - lab)
         # Relief: a raised blemish also has a highlight and a shadow that are not red. Right around the marks, lightness
         # that departs from the surrounding skin in small patches is pulled back as well.
-        near = np.clip(cv2.GaussianBlur(spot, (0, 0), f * d * 0.02) * RELIEF_REACH, 0, 1)
+        near = np.clip(reuse.GaussianBlur(spot, (0, 0), f * d * 0.02) * RELIEF_REACH, 0, 1)
         off = np.abs(lab[..., 0] - around[..., 0])
         bump = np.clip((off - 2.0) / 4.0, 0, 1) * near * wt
-        bump -= cv2.morphologyEx(bump, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))   # small only
-        bump = np.maximum(cv2.GaussianBlur(bump, (0, 0), max(0.6, f * d * 0.004)) - spot, 0)
+        bump -= reuse.morphologyEx(bump, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))   # small only
+        bump = np.maximum(reuse.GaussianBlur(bump, (0, 0), max(0.6, f * d * 0.004)) - spot, 0)
         if under_zone is not None:      # no relief below the eyes: there light and shade are the eye bag's own shape
             bump *= 1 - under_zone
         fixed[..., 0] += RELIEF * min(1.0, opt["spots"]) * bump * (around[..., 0] - lab[..., 0])
@@ -207,7 +209,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
             chroma = np.hypot(lab[..., 1], lab[..., 2]); chroma_around = np.hypot(around[..., 1], around[..., 2])
             glare = np.clip((lab[..., 0] - around[..., 0] - SHINE[0]) / (SHINE[1] - SHINE[0]), 0, 1) \
                 * np.clip((chroma_around - chroma) / 3.0, 0, 1) * wt
-            glare = cv2.GaussianBlur(glare, (0, 0), max(0.8, f * d * 0.008))
+            glare = reuse.GaussianBlur(glare, (0, 0), max(0.8, f * d * 0.008))
             fixed += min(1.0, opt["shine"]) * 0.7 * glare[..., None] * (around - fixed)
             if debug is not None:
                 debug["shine"] = glare
@@ -235,7 +237,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
     if opt.get("light", 0) > 0 and f >= LIGHT_FROM and getattr(models, "depth", None) is not None:
         from lrcdf import relight
         ratio = relight.even(low, pts, models.depth / s, f, skin, min(1.0, opt["light"]), debug,
-                             where=cv2.GaussianBlur(np.clip(cv2.resize(models.skin_all, (w, h), interpolation=cv2.INTER_LINEAR) * 1.5 - 0.25, 0, 1), (0, 0), f * 0.012))
+                             where=reuse.GaussianBlur(np.clip(cv2.resize(models.skin_all, (w, h), interpolation=cv2.INTER_LINEAR) * 1.5 - 0.25, 0, 1), (0, 0), f * 0.012))
         low *= ratio[..., None] ** (1 / 2.2)
 
     # --- under-eye: pull the low-frequency colour towards the cheek below it (in Lab). Lightness is lifted place by
@@ -256,7 +258,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
             ck = lab_of((base * cheek[..., None]).sum((0, 1)) / cheek.sum())[0]
             mean_under = lab_of((b * u[..., None]).sum((0, 1)) / u.sum())[0]
             sg = ew * 0.15
-            local = cv2.GaussianBlur(b * u[..., None], (0, 0), sg) / (cv2.GaussianBlur(u, (0, 0), sg)[..., None] + 1e-3)
+            local = reuse.GaussianBlur(b * u[..., None], (0, 0), sg) / (reuse.GaussianBlur(u, (0, 0), sg)[..., None] + 1e-3)
             dl = np.zeros(u.shape + (3,), np.float32)
             dl[..., 0] = np.maximum(ck[0] - cv2.cvtColor(np.clip(local, 0, 1).astype(np.float32), cv2.COLOR_RGB2Lab)[..., 0], 0)
             dl[..., 1:] = ck[1:] - mean_under[1:]
@@ -278,13 +280,13 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
         for eye, brow in ((EYE_L, BROW_L), (EYE_R, BROW_R)):       # the lid crease belongs to the eye
             hull = cv2.convexHull(np.round(pts[eye + brow]).astype(np.int32))
             lid = np.zeros((h, w), np.float32); cv2.fillConvexPoly(lid, hull, 1.0)
-            keep = np.maximum(keep, cv2.GaussianBlur(lid, (0, 0), f * 0.015))
+            keep = np.maximum(keep, reuse.GaussianBlur(lid, (0, 0), f * 0.015))
         keep = np.maximum(keep, poly(crop.shape, pts, NOSTRILS[0], grow=f * 0.02, blur=f * 0.012))
         out *= soften_lines(out, np.clip(skin * 1.5, 0, 1) * (1 - np.clip(keep * 1.5, 0, 1)), f, amount, debug)[..., None]
 
     # --- eyes: a little clarity and brightness inside the eye opening
     eyes = np.maximum(poly(crop.shape, pts, EYE_L, blur=f * 0.006), poly(crop.shape, pts, EYE_R, blur=f * 0.006))
-    detail = crop - cv2.GaussianBlur(crop, (0, 0), f * 0.02)
+    detail = crop - reuse.GaussianBlur(crop, (0, 0), f * 0.02)
     out += opt["eyes"] * eyes[..., None] * (0.6 * detail + 0.03)
 
     # --- teeth: only bright, low-saturation pixels inside the lips
@@ -308,21 +310,21 @@ def soften_lines(img, where, f, amount, debug=None):
     h, w = img.shape[:2]
     g = min(1.0, LINE_SCALE / f); n = f * g
     lum = cv2.resize(img @ np.float32([0.299, 0.587, 0.114]), None, fx=g, fy=g, interpolation=cv2.INTER_AREA)
-    fine = cv2.GaussianBlur(lum, (0, 0), n * 0.004)
+    fine = reuse.GaussianBlur(lum, (0, 0), n * 0.004)
     k = max(3, int(n * LINE_WIDTH)) | 1
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
-    filled = cv2.morphologyEx(fine, cv2.MORPH_CLOSE, kernel)
+    filled = reuse.morphologyEx(fine, cv2.MORPH_CLOSE, kernel)
     depth = (filled - fine) / (filled + 0.05)
-    b = cv2.GaussianBlur(lum, (0, 0), n * 0.006)
+    b = reuse.GaussianBlur(lum, (0, 0), n * 0.006)
     xx = cv2.Sobel(b, cv2.CV_32F, 2, 0, ksize=3); yy = cv2.Sobel(b, cv2.CV_32F, 0, 2, ksize=3); xy = cv2.Sobel(b, cv2.CV_32F, 1, 1, ksize=3)
     root = np.sqrt(((xx - yy) / 2) ** 2 + xy ** 2)
     across, along = (xx + yy) / 2 + root, (xx + yy) / 2 - root        # curvature across the valley and along it
     long = np.clip(1 - np.abs(along) / (np.maximum(across, 0) + 1e-4), 0, 1) * (across > 0)
-    long = cv2.GaussianBlur(long.astype(np.float32), (0, 0), n * 0.006)
-    deepest = cv2.dilate(depth, kernel)                                # a deep line is left alone across its whole width
+    long = reuse.GaussianBlur(long.astype(np.float32), (0, 0), n * 0.006)
+    deepest = reuse.dilate(depth, kernel)                                # a deep line is left alone across its whole width
     line = np.clip((depth - LINES[0]) / (LINES[1] - LINES[0]), 0, 1) * np.clip(long * 1.6 - 0.3, 0, 1) \
         * np.clip(1 - (deepest - LINES[2]) / (LINES[3] - LINES[2]), 0, 1)
-    line = cv2.GaussianBlur(line, (0, 0), max(0.6, n * 0.004)) * cv2.resize(where, (lum.shape[1], lum.shape[0]), interpolation=cv2.INTER_AREA)
+    line = reuse.GaussianBlur(line, (0, 0), max(0.6, n * 0.004)) * cv2.resize(where, (lum.shape[1], lum.shape[0]), interpolation=cv2.INTER_AREA)
     if debug is not None:
         debug["lines"] = line
     gain = 1 + min(1.0, amount) * line * (filled - fine) / (fine + 0.02)
@@ -335,8 +337,8 @@ def hull_mask(shape, points, grow, blur):
     cv2.fillConvexPoly(m, cv2.convexHull(np.round(points).astype(np.int32)), 1.0)
     if grow >= 1:
         k = int(grow * 2) | 1
-        m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
-    return cv2.GaussianBlur(m, (0, 0), blur) if blur > 0.3 else m
+        m = reuse.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+    return reuse.GaussianBlur(m, (0, 0), blur) if blur > 0.3 else m
 
 
 def round_only(spot, fs):
@@ -362,12 +364,12 @@ def round_only(spot, fs):
         band = max(np.clip((ratio - 2.5) / 1.5, 0, 1), np.clip(elong - 2.0, 0, 1)) * size
         if band > 0:
             keep[y:y + h, x:x + w][sub] = 1 - band
-    return 1 - cv2.dilate(1 - keep, np.ones((5, 5), np.uint8))
+    return 1 - reuse.dilate(1 - keep, np.ones((5, 5), np.uint8))
 
 
 def split(img, f):
     """Frequency separation: (low, high) with low + high == img. f: face width in pixels."""
-    low = cv2.GaussianBlur(img, (0, 0), f * SPLIT)
+    low = reuse.GaussianBlur(img, (0, 0), f * SPLIT)
     return low, img - low
 
 
@@ -378,7 +380,7 @@ def smooth_low(low, f):
     d = min(1.0, 320 / f)
     small = cv2.resize(low, None, fx=d, fy=d, interpolation=cv2.INTER_AREA)
     for _ in range(2):
-        small = cv2.bilateralFilter(small, -1, 0.07, f * d * 0.045)
+        small = reuse.bilateralFilter(small, -1, 0.07, f * d * 0.045)
     return small, cv2.resize(small, (w, h), interpolation=cv2.INTER_LINEAR), d
 
 
@@ -402,7 +404,7 @@ def _noise_response(n, sigma_blur):
     key = (n, round(sigma_blur, 1))
     if key not in _NOISE_RESPONSE:
         noise = np.random.default_rng(0).standard_normal((512, 512)).astype(np.float32)
-        r = _line_response(noise - cv2.GaussianBlur(noise, (0, 0), sigma_blur), n)[n:-n, n:-n]
+        r = _line_response(noise - reuse.GaussianBlur(noise, (0, 0), sigma_blur), n)[n:-n, n:-n]
         _NOISE_RESPONSE[key] = tuple(float(v) for v in np.percentile(r, [99, 99.9]))
     return _NOISE_RESPONSE[key]
 
@@ -419,7 +421,7 @@ def hair_lines(img, f, skin=None):
     z = min(1.0, HAIR_SCALE / f)
     grey = cv2.resize(img, None, fx=z, fy=z, interpolation=cv2.INTER_AREA).mean(2)
     fz = f * z
-    soft = cv2.GaussianBlur(grey, (0, 0), fz * SPLIT)
+    soft = reuse.GaussianBlur(grey, (0, 0), fz * SPLIT)
     n = max(7, int(fz * 0.03)) | 1
     dark = _line_response(grey - soft, n)
     second = grey[:, 2:] - 2 * grey[:, 1:-1] + grey[:, :-2]          # noise level: robust, hairs are too few to move it
@@ -432,7 +434,7 @@ def hair_lines(img, f, skin=None):
     lines = np.clip((dark - lo) / (lo * (HAIR[1] / HAIR[0] - 1)), 0, 1)
     if os.environ.get("LRCDF_DEBUG"):
         print("hair: noise sigma %.4f, noise threshold %.4f, contrast floor ~%.4f" % (sigma, sigma * q999, HAIR[0] * (float(soft.mean()) + 0.1)), flush=True)
-    lines = cv2.GaussianBlur(lines, (0, 0), max(0.8, fz * SPLIT))
+    lines = reuse.GaussianBlur(lines, (0, 0), max(0.8, fz * SPLIT))
     return cv2.resize(np.clip(lines * 2, 0, 1), (w, h), interpolation=cv2.INTER_LINEAR)
 
 
@@ -469,8 +471,8 @@ def beautify_body(out, boxes, models, opt, alone=()):
             x0, y0, x1, y1 = [v * s for v in boxes[0]]
             keep = np.zeros_like(skin)
             keep[int(max(0, y0)):int(y1), int(max(0, x0)):int(x1)] = 1
-            keep = cv2.GaussianBlur(keep, (0, 0), max(1.0, 0.3 * (x1 - x0)))
-            where = cv2.GaussianBlur(whole * np.clip(1 - 1.6 * keep, 0, 1), (0, 0), max(1.0, f * s * 0.012))
+            keep = reuse.GaussianBlur(keep, (0, 0), max(1.0, 0.3 * (x1 - x0)))
+            where = reuse.GaussianBlur(whole * np.clip(1 - 1.6 * keep, 0, 1), (0, 0), max(1.0, f * s * 0.012))
             ty, tx = np.where(where > 0.02)
             if len(ty) > 50:
                 ta, tb, tc, te = int(tx.min() / s), int(ty.min() / s), min(W, int(tx.max() / s) + 2), min(H, int(ty.max() / s) + 2)
@@ -485,7 +487,7 @@ def beautify_body(out, boxes, models, opt, alone=()):
     a, b = max(0, int(xs.min() / s) - pad), max(0, int(ys.min() / s) - pad)
     c, e = min(W, int(xs.max() / s) + pad), min(H, int(ys.max() / s) + pad)
     part = cv2.resize(skin, (W, H), interpolation=cv2.INTER_LINEAR)[b:e, a:c]
-    part = cv2.GaussianBlur(part, (0, 0), f * 0.012)
+    part = reuse.GaussianBlur(part, (0, 0), f * 0.012)
     region = out[b:e, a:c]
     # Body hair: a hair is high-layer detail, but its soft shadow sits in the low layer, and evening would fade it.
     # So evening is switched off on the hairs themselves (and a split radius around them) and stays on between them.

@@ -11,7 +11,6 @@ struct RootView: View {
             Room()
             switch studio.stage {
             case .waiting: WaitingView().transition(.opacity)
-            case .preparing: PreparingView().transition(.opacity)
             case .failed(let why): FailedView(message: why).transition(.opacity)
             case .reviewing: ReviewView().transition(.opacity)
             case .choosing, .working, .paused, .finished: StudioView().transition(.opacity)
@@ -153,16 +152,50 @@ struct NoticeLine: View {
     }
 }
 
-struct PreparingView: View {
-    @EnvironmentObject var studio: Studio
-
+/// The background work after photos were handed over, told in the top row: a hairline that fills in focus yellow
+/// and one line that says what is being done, with real counts (as on the iPad). Gone when all of it is done.
+struct ProgressLine: View {
+    let text: String
+    let fraction: Double
     var body: some View {
-        VStack(spacing: 14) {
-            Text(L.preparingTitle).font(DS.display(28)).foregroundStyle(DS.ink)
-            Text(studio.session.map { L.preparingNote($0.name) } ?? "")
-                .font(DS.body).foregroundStyle(DS.soft)
-            ProgressView().progressViewStyle(.linear).tint(.white).frame(width: 220).padding(.top, 8)
+        HStack(spacing: 10) {
+            GeometryReader { g in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(DS.faint)
+                    Capsule().fill(DS.focus).frame(width: max(4, g.size.width * min(1, fraction)))
+                        .shadow(color: DS.focus.opacity(0.6), radius: 4)
+                        .animation(.smooth(duration: 0.5), value: fraction)
+                }
+            }
+            .frame(width: 72, height: 3)
+            // where room is short (a long language, a window just wide enough for the inspector) the line first
+            // gets smaller, then loses words from its middle - the start and the count at the end stay - and it never
+            // pushes the rest of the top row out of the window
+            Text(text).font(DS.label).foregroundStyle(DS.soft).monospacedDigit()
+                .lineLimit(1).minimumScaleFactor(0.85).truncationMode(.middle)
+                .contentTransition(.numericText())
+                .animation(.smooth(duration: 0.3), value: text)
         }
+        .padding(.horizontal, 16).frame(height: DS.touch)
+        .glass(Capsule())
+        .accessibilityElement(children: .ignore).accessibilityLabel(text)
+        .transition(.opacity)
+    }
+}
+
+/// Stands in for a look that is not made yet: the card's shape in the fill of quiet things.
+struct EmptyLookCard: View {
+    let width: CGFloat
+    var height: CGFloat = 72
+    var centred = false
+    var body: some View {
+        VStack(alignment: centred ? .center : .leading, spacing: 5) {
+            RoundedRectangle(cornerRadius: 5, style: .continuous).fill(DS.faint).frame(width: width, height: height)
+            Capsule().fill(DS.faint).frame(width: min(width, 44), height: 8).padding(.top, 7)
+            Capsule().fill(DS.line).frame(width: min(width, 70), height: 6).padding(.top, 2)
+        }
+        .frame(width: width, alignment: centred ? .center : .leading)
+        .accessibilityHidden(true)
     }
 }
 
@@ -221,6 +254,13 @@ struct StudioView: View {
                         .blur(radius: choosing && studio.loading != nil ? 14 : 0)
                         .opacity(choosing && studio.loading != nil ? 0.45 : 1)
                         .allowsHitTesting(studio.stage != .paused)
+                } else if choosing, let small = studio.thumbs[studio.photo] {
+                    // the photo itself, out of focus, until its picture is there (as while another photo is loading)
+                    Image(nsImage: small).resizable().interpolation(.high).scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: DS.photo, style: .continuous))
+                        .blur(radius: 14).opacity(0.45)
+                        .padding(insets(wide: wide, rail: rail)).padding(12)
+                        .transition(.opacity)
                 }
                 if studio.loading != nil, choosing { LoadingPhotoOverlay().transition(.scale(scale: 0.94).combined(with: .opacity)) }
                 GlassEffectContainer(spacing: DS.gap) {
@@ -243,6 +283,8 @@ struct StudioView: View {
             .animation(DS.stage, value: wide)
             .animation(DS.stage, value: page)
             .animation(.smooth(duration: 0.3), value: studio.loading)
+            .animation(.smooth(duration: 0.4), value: studio.starting)
+            .animation(.smooth(duration: 0.3), value: studio.openingLine == nil)
         }
     }
 
@@ -254,7 +296,7 @@ struct StudioView: View {
             return EdgeInsets(top: 62, leading: rail ? PhotoRail.width + DS.gap * 2 : 24,
                               bottom: Self.trayHeight + DS.gap * 2 + 4, trailing: DS.side + DS.gap * 2 + 10)
         }
-        return EdgeInsets(top: 64, leading: 16, bottom: barHeight + DS.gap + 10, trailing: 16)
+        return EdgeInsets(top: studio.openingLine == nil ? 64 : 64 + DS.touch + 8, leading: 16, bottom: barHeight + DS.gap + 10, trailing: 16)
     }
 }
 
@@ -268,13 +310,15 @@ struct WideChrome: View {
     var body: some View {
         ZStack {
             VStack {
-                HStack(spacing: 10) {
-                    PhotoStepper(ids: ids, name: ids.count > 1 ? L.appliesToAll(ids.count) : studio.session?.name)
-                    Spacer(minLength: 0)
-                    ZoomCluster()
-                    Spacer(minLength: 0)
+                let name = ids.count > 1 ? L.appliesToAll(ids.count) : studio.session?.name
+                if let line = studio.openingLine {
+                    ViewThatFits(in: .horizontal) {
+                        top(name: name, line: line)
+                        top(name: nil, line: line)             // where room is short the progress line comes before the name
+                    }
+                } else {
+                    top(name: name, line: nil)
                 }
-                .padding(.leading, 84).padding(.top, 8)
                 Spacer()
             }
             .padding(.trailing, DS.side + DS.gap * 2)
@@ -293,6 +337,17 @@ struct WideChrome: View {
                 .transition(.move(edge: .trailing).combined(with: .opacity))
         }
     }
+
+    private func top(name: String?, line: (text: String, fraction: Double)?) -> some View {
+        HStack(spacing: 10) {
+            PhotoStepper(ids: ids, name: name)
+            if let line { ProgressLine(text: line.text, fraction: line.fraction) }
+            Spacer(minLength: 0)
+            ZoomCluster()
+            Spacer(minLength: 0)
+        }
+        .padding(.leading, 84).padding(.top, 8)
+    }
 }
 
 /// Below 1000 pt (a narrow window, an iPad held upright): the photo takes the window and one bar of glass holds
@@ -304,7 +359,7 @@ struct NarrowChrome: View {
     @Binding var barHeight: CGFloat
     @Namespace private var space
     @Namespace private var glassSpace
-    private static let pages = [("look", L.pageLook), ("beauty", L.beauty), ("more", L.pageMore)]
+    private static let pages = [("look", L.pageLook), ("tone", L.pageTone), ("beauty", L.beauty), ("more", L.pageMore)]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -319,11 +374,16 @@ struct NarrowChrome: View {
             }
             .padding(.leading, 84).padding(.trailing, DS.gap).padding(.top, 8)
             .transition(.move(edge: .top).combined(with: .opacity))
+            if let line = studio.openingLine {
+                HStack { ProgressLine(text: line.text, fraction: line.fraction); Spacer(minLength: 0) }
+                    .padding(.leading, DS.gap).padding(.top, 8)
+            }
             Spacer()
             VStack(spacing: 10) {
                 Group {
                     switch page {
                     case "look": LookPage()
+                    case "tone": WheelGroup(compact: true).disabled(studio.look == "none" || studio.chosen == nil).opacity(studio.look == "none" || studio.chosen == nil ? 0.3 : 1)
                     case "beauty": BeautyPage()
                     default: MorePage()
                     }
@@ -340,7 +400,7 @@ struct NarrowChrome: View {
                             Text(title).font(.system(size: 13, weight: on ? .semibold : .regular))
                                 .foregroundStyle(on ? Color.black : DS.ink)
                                 .lineLimit(1).fixedSize().padding(.horizontal, 16)
-                                .frame(minWidth: 84).frame(height: DS.touch - 8)
+                                .frame(minWidth: 72).frame(height: DS.touch - 8)
                                 .background { if on { Capsule().fill(.white).matchedGeometryEffect(id: "page", in: space) } }
                                 .contentShape(Rectangle())
                         }
@@ -364,7 +424,7 @@ struct RetouchButton: View {
     var wide = false
     var body: some View {
         PrimaryButton(title: studio.targets.count > 1 ? L.retouchMany(studio.targets.count) : L.retouchOne, wide: wide, action: studio.retouch)
-            .disabled(studio.nothingToDo)
+            .disabled(studio.nothingToDo || studio.chosen == nil)      // nothing to press until the photo on show has its picture
     }
 }
 
@@ -515,13 +575,14 @@ struct LookTray: View {
 
     var body: some View {
         GeometryReader { box in
-            let n = CGFloat(studio.looks.count + 1)
+            let n = CGFloat(studio.looks.count + studio.looksToCome + 1)
             let width = min(150, max(60, (box.size.width - 36 - 14 * (n - 1)) / n))
             HStack(alignment: .top, spacing: 14) {
                 ForEach(studio.looks) { look in
                     LookCard(look: look, width: width, space: space).id("\(studio.photo)-\(look.id)")
                 }
-                AddLookCard(width: width)
+                ForEach(0..<studio.looksToCome, id: \.self) { _ in EmptyLookCard(width: width) }
+                AddLookCard(width: width).disabled(studio.chosen == nil)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -575,10 +636,15 @@ struct LookHeadline: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(studio.chosen?.title ?? "").font(DS.display(size)).foregroundStyle(DS.ink).lineLimit(1).minimumScaleFactor(0.6)
-            Text(studio.chosen.map { $0.id == "none" ? L.keepOriginal : $0.note } ?? "").font(DS.body).foregroundStyle(DS.soft).lineLimit(1)
+            if studio.chosen == nil {      // not made yet: the two lines' places, in the fill of quiet things
+                Capsule().fill(DS.faint).frame(width: size * 3.2, height: size * 0.5).frame(height: size * 1.25)
+                Capsule().fill(DS.line).frame(width: size * 5, height: 7).frame(height: 16)
+            } else {
+                Text(studio.chosen?.title ?? "").font(DS.display(size)).foregroundStyle(DS.ink).lineLimit(1).minimumScaleFactor(0.6)
+                Text(studio.chosen.map { $0.id == "none" ? L.keepOriginal : $0.note } ?? "").font(DS.body).foregroundStyle(DS.soft).lineLimit(1)
+            }
         }
-        .id(studio.look)
+        .id(studio.chosen == nil ? "" : studio.look)
         .transition(.asymmetric(insertion: .push(from: .bottom), removal: .push(from: .bottom)).combined(with: .opacity))
         .frame(maxWidth: .infinity, alignment: .leading)
         .clipped()
@@ -588,13 +654,124 @@ struct LookHeadline: View {
 struct Tweaks: View {
     @EnvironmentObject var studio: Studio
     var spacing: CGFloat = 0
+    var wheel = true                 // the inspector has the colour wheel between the rows; the paged bar has it on its own page
     var body: some View {
         Grid(horizontalSpacing: 0, verticalSpacing: spacing) {
-            StepRow(low: L.darker, high: L.brighter, value: $studio.tweak.bright)
-            StepRow(low: L.cooler, high: L.warmer, value: $studio.tweak.warm)
-            StepRow(low: L.paler, high: L.richer, value: $studio.tweak.rich)
+            ToneRow(low: L.darker, high: L.brighter, value: $studio.tweak.bright) { studio.dragging = $0 }
+            if wheel { WheelGroup().gridCellColumns(4).padding(.vertical, 6) }
+            ToneRow(low: L.paler, high: L.richer, value: $studio.tweak.rich) { studio.dragging = $0 }
         }
-        .disabled(studio.look == "none").opacity(studio.look == "none" ? 0.3 : 1)
+        .disabled(studio.look == "none" || studio.chosen == nil).opacity(studio.look == "none" || studio.chosen == nil ? 0.3 : 1)
+    }
+}
+
+/// The colour wheels, one at a time: 白平衡 / 阴影 / 高光 above, the chosen wheel, its two numbers below.
+struct WheelGroup: View {
+    @EnvironmentObject var studio: Studio
+    var compact = false              // the paged bar: the choice and the numbers beside the wheel, not above and below
+    @AppStorage("wheel") private var which = "balance"
+    @Namespace private var space
+    private static let all = [("balance", L.wheelBalance), ("shadow", L.wheelShadows), ("high", L.wheelHighlights)]
+
+    /// Where a wheel starts and goes back to: the centre, or where the look itself puts shadows / highlights.
+    private func home(_ key: String) -> CGPoint { key == "shadow" ? studio.own.shadow : key == "high" ? studio.own.high : .zero }
+    private func point(_ key: String) -> CGPoint {
+        key == "shadow" ? studio.tweak.shadow ?? home(key) : key == "high" ? studio.tweak.high ?? home(key) : studio.tweak.balance
+    }
+    private var binding: Binding<CGPoint> {
+        let key = which
+        return Binding(get: { point(key) }, set: { new in
+            let kept: CGPoint? = new == home(key) ? nil : new       // back where the look has it = not set
+            switch key {
+            case "shadow": studio.tweak.shadow = kept
+            case "high": studio.tweak.high = kept
+            default: studio.tweak.balance = new
+            }
+        })
+    }
+    /// The two numbers of the wheel on show: (label, number).
+    private var numbers: [(String, String)] {
+        let p = point(which)
+        if which == "balance" {
+            func signed(_ v: CGFloat) -> String { let n = Int((v * 100).rounded()); return n == 0 ? "0" : n.formatted(.number.sign(strategy: .always())) }
+            return [(L.wheelWarmth, signed(p.x)), (L.wheelTint, signed(p.y))]
+        }
+        let g = Tweak.grade(p)
+        return [(L.wheelHue, "\(g.hue)°"), (L.wheelAmount, "\(g.amount)")]
+    }
+
+    var body: some View {
+        if compact {
+            HStack(spacing: 18) {
+                VStack(spacing: 8) { picker(vertical: true); readout }.frame(width: 170)
+                wheel(132)
+            }
+        } else {
+            VStack(spacing: 6) { picker(vertical: false); wheel(150); readout }.frame(maxWidth: .infinity)
+        }
+    }
+
+    private func wheel(_ size: CGFloat) -> some View {
+        ColourWheel(kind: which == "balance" ? .balance : .grade, point: binding, home: home(which), size: size,
+                    words: which == "balance" ? (L.cooler, L.warmer, L.pinker, L.greener) : nil,
+                    name: Self.all.first { $0.0 == which }?.1 ?? "", value: numbers.map { "\($0.0) \($0.1)" }.joined(separator: ", ")) { studio.dragging = $0 }
+            .frame(minHeight: size + 40)             // the same height with and without the words around it
+    }
+
+    private func picker(vertical: Bool) -> some View {
+        let layout = vertical ? AnyLayout(VStackLayout(spacing: 0)) : AnyLayout(HStackLayout(spacing: 0))
+        return layout {
+            ForEach(Self.all, id: \.0) { key, title in
+                let on = which == key
+                Button { withAnimation(DS.pick) { which = key } } label: {
+                    HStack(spacing: 4) {
+                        Text(title).font(.system(size: 13, weight: on ? .semibold : .regular))
+                            .foregroundStyle(on ? DS.onFocus : DS.ink).lineLimit(1).minimumScaleFactor(0.7)
+                        if !on && point(key) != home(key) { Circle().fill(DS.focus).frame(width: 5, height: 5) }   // this one has been set
+                    }
+                    .padding(.horizontal, 6).frame(maxWidth: .infinity).frame(height: vertical ? 32 : DS.touch - 6)
+                    .background { if on { Capsule().fill(DS.focus).matchedGeometryEffect(id: "wheel", in: space) } }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(3)
+        .background(DS.faint, in: RoundedRectangle(cornerRadius: vertical ? 19 : 22, style: .continuous))
+    }
+
+    /// The numbers; a click takes this wheel back to its centre.
+    private var readout: some View {
+        let moved = point(which) != home(which)
+        return Button { withAnimation(DS.pick) { binding.wrappedValue = home(which) } } label: {
+            Group {
+                if compact {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 16) { readoutPairs(moved: moved) }
+                            .fixedSize(horizontal: true, vertical: false)
+                        VStack(spacing: 4) { readoutPairs(moved: moved, stacked: true) }
+                    }
+                } else {
+                    HStack(spacing: 16) { readoutPairs(moved: moved) }
+                }
+            }
+            .font(.system(size: 12, weight: .medium))
+            .frame(maxWidth: .infinity, minHeight: 30).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain).accessibilityHidden(true)
+    }
+
+    private func readoutPairs(moved: Bool, stacked: Bool = false) -> some View {
+        ForEach(numbers, id: \.0) { label, number in
+            HStack(spacing: 6) {
+                Text(label).foregroundStyle(DS.soft)
+                    .lineLimit(stacked ? nil : 1)
+                    .fixedSize(horizontal: false, vertical: stacked)
+                if stacked { Spacer(minLength: 0) }
+                Text(number).monospacedDigit().foregroundStyle(moved ? DS.focus : DS.soft)
+                    .lineLimit(1).fixedSize(horizontal: stacked, vertical: false)
+            }
+        }
     }
 }
 
@@ -698,14 +875,15 @@ struct LookPage: View {
                         ForEach(studio.looks) { look in
                             LookCard(look: look, width: 104, height: 70, centred: true, space: space).id(look.id)
                         }
-                        AddLookCard(width: 104, height: 70, centred: true)
+                        ForEach(0..<studio.looksToCome, id: \.self) { _ in EmptyLookCard(width: 104, height: 70, centred: true) }
+                        AddLookCard(width: 104, height: 70, centred: true).disabled(studio.chosen == nil)
                     }
                     .padding(.vertical, 6).padding(.horizontal, 6)
                 }
                 .onChange(of: studio.look) { _, now in withAnimation(DS.pick) { scroll.scrollTo(now, anchor: .center) } }
             }
             Rectangle().fill(DS.line).frame(width: 1, height: 96)
-            Tweaks(spacing: -6).frame(width: 240)
+            Tweaks(spacing: 0, wheel: false).frame(width: 240)
         }
         .frame(height: 132)
     }
@@ -723,7 +901,7 @@ struct BeautyPage: View {
             }
             VStack(alignment: .leading, spacing: 10) {
                 level
-                rest(columns: 6)
+                rest(columns: 3)
             }
         }
     }

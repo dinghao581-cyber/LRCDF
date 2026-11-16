@@ -1,0 +1,25 @@
+Ứng dụng LRCDF trọn gói. Có sẵn mọi thứ bạn cần và dùng được khi không có mạng.
+
+Bắt đầu sử dụng
+  1. Kéo LRCDF.app vào thư mục “Ứng dụng” hoặc để ở thư mục khác.
+  2. Nhấp đúp để mở. Lần đầu thiết lập mất khoảng một phút. Ứng dụng sao chép chương trình và mô hình vào ~/LRCDF (khoảng 2,7 GB) rồi cài plugin vào Lightroom Classic.
+  3. Mở Lightroom Classic. Nếu đang mở, hãy thoát rồi mở lại.
+  4. Chọn ảnh rồi mở LRCDF từ menu. Trong Lightroom Classic tiếng Anh, chọn Library → Plug-in Extras → Start One-Click Retouch….
+
+  Nếu sau khi nhấp đúp, macOS báo không xác minh được nhà phát triển hoặc hiện thông báo “Apple không thể xác minh rằng ‘LRCDF’ không chứa phần mềm độc hại…”
+  Ứng dụng chưa được ký bằng chứng chỉ nhà phát triển Apple, nên lần đầu bạn cần cho phép mở theo cách thủ công.
+  1. Trong hộp thoại cảnh báo, bấm “Xong” (đừng bấm “Chuyển vào Thùng rác”).
+  2. Mở “Cài đặt hệ thống → Quyền riêng tư & Bảo mật”. Cuộn xuống tìm thông báo về LRCDF, bấm “Vẫn mở” rồi nhập mật khẩu đăng nhập máy Mac khi được yêu cầu.
+  3. Nhấp đúp vào LRCDF.app lần nữa rồi bấm “Vẫn mở” trong hộp thoại xác nhận.
+  Nút “Vẫn mở” chỉ xuất hiện trong khoảng một giờ sau khi bạn thử mở ứng dụng. Nếu không thấy, hãy nhấp đúp vào ứng dụng lần nữa. Bạn chỉ cần làm việc này một lần.
+  (Từ macOS 15, cách nhấp chuột phải → “Mở” không còn bỏ qua được bước này.)
+
+Yêu cầu
+  - Máy Mac dùng chip Apple (M1 trở lên), chạy macOS 26 trở lên và đã cài Lightroom Classic.
+  - 6 GB dung lượng trống (khoảng 2,7 GB cho ứng dụng và 2,7 GB cho các tệp đã cài).
+
+Giấy phép và quyền riêng tư
+  - Mọi thứ chạy trên máy Mac của bạn và không có dữ liệu nào được tải lên.
+  - Sau khi cài đặt, xem giấy phép và điều khoản trong ~/LRCDF/project/legal/.
+
+Để cập nhật, thay LRCDF.app cũ bằng bản mới rồi nhấp đúp để mở. Ứng dụng tự cập nhật.

@@ -6,6 +6,7 @@ away, something in front of it, legs not visible)."""
 import os
 import cv2
 import numpy as np
+from lrcdf.mediapipe_io import base_options
 
 MODELS = os.path.expanduser("~/LRCDF/models/mediapipe")
 SLIM = 0.05      # face: at amount 1 the jaw angle moves in by this fraction of the face width, each side
@@ -30,7 +31,7 @@ class Poses:
         from mediapipe.tasks.python import vision
         self.mp = mp
         self.pose = vision.PoseLandmarker.create_from_options(vision.PoseLandmarkerOptions(
-            base_options=mpp.BaseOptions(model_asset_path=f"{MODELS}/pose_landmarker_heavy.task"), num_poses=4,
+            base_options=base_options(mpp.BaseOptions, f"{MODELS}/pose_landmarker_heavy.task"), num_poses=4,
             min_pose_detection_confidence=0.5, output_segmentation_masks=True))
 
     def find(self, rgb8):
@@ -217,6 +218,42 @@ def plan(rgb, meshes, poses, slim=0.0, eyes=0.0, chest=0.0, waist=0.0, legs=0.0,
     if float(np.hypot(field[..., 0], field[..., 1]).max()) < 0.05:
         field = None
     return None if field is None and rows is None else (field, s, rows)
+
+
+def apply_strips(img, geometry, step=512):
+    """apply() a strip of `step` rows at a time, for machines with little memory: no floating-point copy of the whole
+    picture and no full-size coordinate maps (at 60 MP apply() needs about 3 GB). Same moves; integer pictures are
+    resampled directly, so values can differ from apply() by a level where rounding falls the other way."""
+    if geometry is None:
+        return img
+    field, s, rows = geometry
+    H, W = img.shape[:2]
+    full = None
+    if rows is not None:
+        full = (np.interp(np.arange(H, dtype=np.float32) * s, np.arange(len(rows), dtype=np.float32), rows) / s).astype(np.float32)
+        if field is not None:
+            ry, rx = np.mgrid[0:field.shape[0], 0:field.shape[1]].astype(np.float32)
+            field = cv2.remap(field, rx, np.repeat(rows[:, None], field.shape[1], 1), cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    out = np.empty_like(img)
+    gx = np.arange(W, dtype=np.float32)[None]
+    for y0 in range(0, H, step):
+        y1 = min(H, y0 + step)
+        my = np.repeat((full[y0:y1] if full is not None else np.arange(y0, y1, dtype=np.float32))[:, None], W, 1)
+        mx = np.repeat(gx, y1 - y0, 0)
+        still = None
+        if field is not None:
+            fh, fw = field.shape[:2]
+            m = np.float32([[fw / W, 0, 0.5 * fw / W - 0.5], [0, fh / H, (y0 + 0.5) * fh / H - 0.5]])
+            big = cv2.warpAffine(field, m, (W, y1 - y0), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP, borderMode=cv2.BORDER_REPLICATE) / s
+            mx += big[..., 0]; my += big[..., 1]
+            if rows is None:
+                still = np.hypot(big[..., 0], big[..., 1]) < 0.03
+            del big
+        part = cv2.remap(img, mx, my, cv2.INTER_LANCZOS4, borderMode=cv2.BORDER_REFLECT_101)
+        if still is not None:
+            part[still] = img[y0:y1][still]
+        out[y0:y1] = part
+    return out
 
 
 def apply(img, geometry):

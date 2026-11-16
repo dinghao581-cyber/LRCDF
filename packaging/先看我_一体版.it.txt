@@ -1,0 +1,25 @@
+App LRCDF completa. Include tutto il necessario e funziona senza connessione.
+
+Iniziare
+  1. Trascina LRCDF.app in «Applicazioni» o lasciala in un’altra cartella.
+  2. Aprila con un doppio clic. Il primo avvio richiede circa un minuto. L’app copia programma e modelli in ~/LRCDF (circa 2,7 GB) e installa il plug-in in Lightroom Classic.
+  3. Apri Lightroom Classic. Se è già aperto, chiudilo e riaprilo.
+  4. Seleziona le foto e scegli Libreria → Extra plug-in → Avvia ritocco con un clic….
+
+  Se dopo il doppio clic macOS avvisa che non può verificare lo sviluppatore o mostra «Apple non è in grado di verificare che “LRCDF” non contenga malware…»
+  L’app non ha una firma sviluppatore Apple. La prima volta devi autorizzarne l’apertura manualmente.
+  1. Nell’avviso fai clic su «Fine» (non su «Sposta nel Cestino»).
+  2. Apri Impostazioni di Sistema → Privacy e sicurezza, scorri fino all’avviso su LRCDF e fai clic su «Apri comunque». Inserisci la password di login del Mac quando ti viene richiesta.
+  3. Fai di nuovo doppio clic su LRCDF.app e, nella finestra di conferma, fai clic su «Apri comunque».
+  «Apri comunque» compare solo per circa un’ora dopo il tentativo di apertura. Se non lo vedi, fai di nuovo doppio clic sull’app. Basta farlo una volta.
+  (Da macOS 15, il clic con il tasto destro seguito da «Apri» non consente più di saltare questo passaggio.)
+
+Requisiti
+  - Mac con chip Apple (M1 o successivo), macOS 26 o successivo e Lightroom Classic installato.
+  - 6 GB di spazio libero (circa 2,7 GB per l’app e 2,7 GB per i file installati).
+
+Licenze e privacy
+  - Tutto viene elaborato sul Mac e nessun dato viene caricato.
+  - Dopo l’installazione, consulta licenze e condizioni in ~/LRCDF/project/legal/.
+
+Per aggiornare, sostituisci il vecchio LRCDF.app con quello nuovo e aprilo con un doppio clic. L’app si aggiorna da sola.

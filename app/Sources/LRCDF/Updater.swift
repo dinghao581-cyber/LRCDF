@@ -286,7 +286,7 @@ struct UpdateHost: View {
             }
         }
         .animation(DS.stage, value: updater.state)
-        .onAppear { updater.start { [weak studio] in studio.map { $0.stage == .working || $0.stage == .paused || $0.stage == .preparing } ?? false } }
+        .onAppear { updater.start { [weak studio] in studio.map { $0.stage == .working || $0.stage == .paused || $0.starting } ?? false } }
     }
 
     private struct Line { let text: String; var action: (title: String, run: () -> Void)? = nil; var dismissable = true }

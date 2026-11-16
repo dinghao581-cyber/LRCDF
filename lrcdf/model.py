@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
+from lrcdf.image_io import imread
 from . import params as P
 
 SIZE = 224        # network input
@@ -70,7 +71,7 @@ def wb_feature(temp, tint, known):
 def load_image(path, size=SIZE):
     """Any image file -> float32 [3,size,size] in 0..1 (aspect squashed: only global look matters)."""
     import cv2
-    im = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    im = imread(path, cv2.IMREAD_UNCHANGED)
     if im is None:
         import tifffile
         im = tifffile.imread(path)[..., ::-1]

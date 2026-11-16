@@ -9,6 +9,9 @@ import argparse, json, os, sys
 import cv2, numpy as np, torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from lrcdf import beauty, people
+from lrcdf.device import pick
+from lrcdf.image_io import imread, imwrite
+from lrcdf.mediapipe_io import base_options
 
 LEGACY = os.path.expanduser("~/LRCDF/legacy/mac_project")
 BLUR = 0.065   # sharpness below this: clearly out of focus (Gaussian blur of 4 px on a 1400 px picture gives 0.05-0.07, sharp faces 0.11+)
@@ -23,10 +26,12 @@ BLINK = 0.68    # both eyes above this: closed. On 1600 PPR10K photos scores fro
 
 
 def detector():
+    if sys.platform == "win32":
+        os.environ["NO_ALBUMENTATIONS_UPDATE"] = "1"
     base = f"{LEGACY}/external_models/modelscope_skin_v1_0_4"
     sys.path.insert(0, f"{base}/source")
     from modelscope.models.cv.skin_retouching.retinaface.predict_single import Model
-    d = Model(max_size=960, device="cpu")
+    d = Model(max_size=960, device=pick() if sys.platform == "win32" else "cpu")
     d.load_state_dict(torch.load(f"{base}/retinaface_resnet50_2020-07-20_old_torch.pth", map_location="cpu", weights_only=True))
     d.eval()
     return d
@@ -37,7 +42,7 @@ def blink_reader():
     from mediapipe.tasks import python as mpp
     from mediapipe.tasks.python import vision
     lm = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
-        base_options=mpp.BaseOptions(model_asset_path=f"{beauty.MODELS}/face_landmarker.task"), num_faces=1,
+        base_options=base_options(mpp.BaseOptions, f"{beauty.MODELS}/face_landmarker.task"), num_faces=1,
         output_face_blendshapes=True, min_face_detection_confidence=0.3, min_face_presence_confidence=0.3))
 
     def read(rgb8):
@@ -161,7 +166,7 @@ class Album:
                 w = x1 - x0; cx, cy = (x0 + x1) // 2, (y0 + y1) // 2; r = int(w * 0.8)
                 crop = bgr[max(0, cy - r):min(H, cy + r), max(0, cx - r):min(W, cx + r)]
                 p["thumb"] = os.path.join(os.path.dirname(self.path), f"person_{p['id']}.jpg"); p["width"] = int(w)
-                cv2.imwrite(p["thumb"], cv2.resize(crop, (160, 160), interpolation=cv2.INTER_AREA))
+                imwrite(p["thumb"], cv2.resize(crop, (160, 160), interpolation=cv2.INTER_AREA))
 
     def save(self):
         json.dump({"people": self.list}, open(self.path + ".tmp", "w"))
@@ -180,7 +185,7 @@ def main():
             continue
         pid, path = line.rstrip("\n").split("\t")
         try:
-            bgr = cv2.imread(path)
+            bgr = imread(path)
             seen = []
             flags, s, blink, n = judge(bgr, det, read, seen)
             if album:

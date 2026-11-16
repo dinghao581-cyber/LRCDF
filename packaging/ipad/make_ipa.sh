@@ -8,6 +8,10 @@ OUT="${1:-$HOME/LRCDF/dist}"; mkdir -p "$OUT"
 xcodebuild -project LRCDFPad.xcodeproj -scheme LRCDFPad -configuration Release -destination 'generic/platform=iOS' \
   -derivedDataPath build/ipa CODE_SIGNING_ALLOWED=NO build | grep -E "error:|BUILD (SUCCEEDED|FAILED)"
 APP=$(ls -d build/ipa/Build/Products/Release-iphoneos/*.app | head -1)
+# the published app must not carry the self-test launch arguments (TESTHOOKS builds only)
+if strings "$APP/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Info.plist")" | grep -qE -- '--(skinlab|selftest|snapshot|shape|tweaks)'; then
+  echo "STOP: test hooks in the release build"; exit 1
+fi
 VER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist")
 TMP=$(mktemp -d); mkdir "$TMP/Payload"; ditto "$APP" "$TMP/Payload/$(basename "$APP")"
 find "$TMP" -name "._*" -delete

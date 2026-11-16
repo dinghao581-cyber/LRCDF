@@ -1,0 +1,25 @@
+LRCDF tam paket. Gereken her şey dahildir ve uygulama internetsiz çalışır.
+
+Başlayın
+  1. LRCDF.app uygulamasını “Uygulamalar” klasörüne sürükleyin veya başka bir klasörde tutun.
+  2. Çift tıklayarak açın. İlk kurulum yaklaşık bir dakika sürer. Uygulamayı ve modelleri ~/LRCDF konumuna kopyalar (yaklaşık 2,7 GB) ve eklentiyi Lightroom Classic’e kurar.
+  3. Lightroom Classic’i açın. Zaten açıksa kapatıp yeniden açın.
+  4. Fotoğrafları seçin ve menüden LRCDF’yi açın. Lightroom Classic İngilizceyse Library → Plug-in Extras → Start One-Click Retouch… seçeneğini kullanın.
+
+  Çift tıklayınca geliştiricinin doğrulanamadığına ilişkin bir uyarı veya “Apple, ‘LRCDF’ öğesinin … kötü amaçlı yazılım içermediğini doğrulayamadı.” iletisi görünürse
+  Bu uygulamada Apple geliştirici imzası yoktur. İlk açılışta elle izin vermeniz gerekir.
+  1. Uyarıda “Bitti”yi tıklayın (“Çöp Sepeti’ne Taşı”yı tıklamayın).
+  2. “Sistem Ayarları → Gizlilik ve Güvenlik” bölümünü açın. Aşağı kaydırıp LRCDF hakkındaki bildirimi bulun, “Yine de Aç”ı tıklayın ve istendiğinde Mac’inizin oturum açma parolasını girin.
+  3. LRCDF.app’e yeniden çift tıklayın ve onay penceresinde “Yine de Aç”ı tıklayın.
+  “Yine de Aç” düğmesi, uygulamayı açmayı denedikten sonra yalnızca yaklaşık bir saat görünür. Düğmeyi görmüyorsanız uygulamaya yeniden çift tıklayın. Bu işlemi bir kez yapmanız yeterli.
+  (macOS 15’ten itibaren sağ tıklayıp “Aç”ı seçerek bu adımı atlayamazsınız.)
+
+Gereksinimler
+  - Apple çipli Mac (M1 veya üzeri), macOS 26 veya üzeri ve yüklü Lightroom Classic.
+  - 6 GB boş alan (uygulama için yaklaşık 2,7 GB ve kurulan dosyalar için 2,7 GB).
+
+Lisanslar ve gizlilik
+  - Tüm işlemler Mac’inizde çalışır ve hiçbir veri yüklenmez.
+  - Kurulumdan sonra lisansları ve kullanım koşullarını ~/LRCDF/project/legal/ konumunda bulabilirsiniz.
+
+Güncellemek için eski LRCDF.app yerine yenisini koyun ve çift tıklayın. Uygulama kendini günceller.

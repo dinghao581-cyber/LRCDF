@@ -2,10 +2,12 @@
 usage: beauty_val.py <image dir> <out dir> [--max-faces 4] [--long 6000] [beautify options, e.g. --smooth .6]
 Images of any common format; long edge is reduced to --long first. Writes <out>/<name>_f<k>.jpg (before | after) per face and <name>_b<k>.jpg for the body skin that changed most."""
 import argparse, glob, os, sys
-import cv2, numpy as np, torch
+import cv2, numpy as np
 sys.path.insert(0, os.path.dirname(__file__)); sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import beautify
 from lrcdf import beauty
+from lrcdf.device import pick
+from lrcdf.image_io import imread, imwrite
 
 
 def main():
@@ -17,14 +19,14 @@ def main():
     for k, v in beauty.DEFAULTS.items():
         ap.add_argument("--" + k, type=float, default=v)
     a = ap.parse_args(); opt = vars(a); os.makedirs(a.out, exist_ok=True)
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    device = pick()
     models = beautify.load_models(device)
     only = set(filter(None, a.only.split(",")))
     for path in sorted(glob.glob(os.path.join(a.src, "*"))):
         stem = os.path.splitext(os.path.basename(path))[0]
         if only and stem not in only:
             continue
-        bgr = cv2.imread(path, cv2.IMREAD_COLOR)
+        bgr = imread(path, cv2.IMREAD_COLOR)
         if bgr is None:
             continue
         s = a.long / max(bgr.shape[:2])
@@ -41,7 +43,7 @@ def main():
         if a.fixed:
             fx, fy, fq = [int(t) for t in a.fixed.split(",")]
             cells = [im[fy:fy + fq, fx:fx + fq] for im in (src, res)]
-            cv2.imwrite(os.path.join(a.out, f"{stem}_x.jpg"), np.concatenate(cells, 1)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 93])
+            imwrite(os.path.join(a.out, f"{stem}_x.jpg"), np.concatenate(cells, 1)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 93])
         # where skin outside the faces changed most: two close-ups of body skin
         diff = np.abs(res.astype(np.int16) - src).max(2).astype(np.float32)
         for x0, y0, x1, y1 in boxes:
@@ -56,7 +58,7 @@ def main():
             x0, y0 = int(np.clip(cx - q // 2, 0, W - q)), int(np.clip(cy - q // 2, 0, H - q))
             z = 900 / q
             cells = [cv2.resize(im[y0:y0 + q, x0:x0 + q], None, fx=z, fy=z, interpolation=cv2.INTER_AREA if z < 1 else cv2.INTER_CUBIC) for im in (src, res)]
-            cv2.imwrite(os.path.join(a.out, f"{stem}_b{k}.jpg"), np.concatenate(cells, 1)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 92])
+            imwrite(os.path.join(a.out, f"{stem}_b{k}.jpg"), np.concatenate(cells, 1)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 92])
             diff[y0:y0 + q, x0:x0 + q] = 0
         for k, (x0, y0, x1, y1) in enumerate(boxes[:a.max_faces]):
             w, h = x1 - x0, y1 - y0
@@ -67,7 +69,7 @@ def main():
             x0, x1 = int(max(0, x0 - w * 0.35)), int(min(W, x1 + w * 0.35)); y0, y1 = int(max(0, y0 - h * 0.3)), int(min(H, y1 + h * 0.45))
             z = 900 / (y1 - y0)
             cells = [cv2.resize(im[y0:y1, x0:x1], None, fx=z, fy=z, interpolation=cv2.INTER_AREA if z < 1 else cv2.INTER_CUBIC) for im in (src, res)]
-            cv2.imwrite(os.path.join(a.out, f"{stem}_f{k}.jpg"), np.concatenate(cells, 1)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 92])
+            imwrite(os.path.join(a.out, f"{stem}_f{k}.jpg"), np.concatenate(cells, 1)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 92])
 
 
 if __name__ == "__main__":

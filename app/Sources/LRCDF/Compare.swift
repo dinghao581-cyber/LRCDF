@@ -80,6 +80,7 @@ struct RevealMask: Shape {
 /// - a sideways swipe on a picture that fits goes to the next or the previous photo (as do ← →)
 struct Canvas: View {
     @EnvironmentObject var studio: Studio
+    @State private var pinchedTo: CGFloat = 1    // the pinch's magnification so far: each change zooms by the step from it
     let before: NSImage
     let after: NSImage
     var title = ""
@@ -96,12 +97,37 @@ struct Canvas: View {
                               height: max(60, box.size.height - clear.top - clear.bottom))
             let ratio = before.size.width / max(before.size.height, 1)
             let w = min(area.width, area.height * ratio), h = w / ratio
-            Pane(before: before, after: after, title: title, plain: plain, retouched: retouched, pending: pending,
-                 sweep: sweep, ids: ids, w: w, h: h)
-                .frame(width: w, height: h)
-                .position(x: clear.leading + area.width / 2, y: clear.top + area.height / 2)
-                .id(studio.photo)
-                .transition(.opacity.combined(with: .scale(scale: 0.985)))
+            let centre = CGPoint(x: clear.leading + area.width / 2, y: clear.top + area.height / 2)
+            ZStack {
+                // the whole free area takes a pinch, not only the picture: a portrait leaves much of the room beside it
+                // (the user pinched there and nothing happened)
+                Color.clear.contentShape(Rectangle())
+                    .background(ScrollCatcher(kinds: .magnify) { _, _, pinched, place, _ in
+                        guard sweep == nil, pinched != 0 else { return }
+                        // from the free area to the picture in its middle (outside the picture: its nearest edge)
+                        let at = CGPoint(x: min(1, max(0, (place.x * area.width - (area.width - w) / 2) / max(w, 1))),
+                                         y: min(1, max(0, (place.y * area.height - (area.height - h) / 2) / max(h, 1))))
+                        studio.zoom(by: 1 + pinched, at: at)
+                    })
+                    .frame(width: area.width, height: area.height).position(centre)
+                Pane(before: before, after: after, title: title, plain: plain, retouched: retouched, pending: pending,
+                     sweep: sweep, ids: ids, w: w, h: h)
+                    .frame(width: w, height: h)
+                    .position(centre)
+                    .id(studio.photo)
+                    .transition(.opacity.combined(with: .scale(scale: 0.985)))
+            }
+            // A fallback: the catcher above takes the trackpad's pinch events first (and keeps them), so this only acts
+            // if they ever arrive some other way - never both
+            .simultaneousGesture(MagnifyGesture(minimumScaleDelta: 0).onChanged { value in
+                guard sweep == nil else { return }
+                let step = value.magnification / max(pinchedTo, 0.01)
+                pinchedTo = value.magnification
+                // around the fingers, as a fraction of the picture (outside it: its nearest edge)
+                let at = CGPoint(x: min(1, max(0, (value.startLocation.x - (centre.x - w / 2)) / max(w, 1))),
+                                 y: min(1, max(0, (value.startLocation.y - (centre.y - h / 2)) / max(h, 1))))
+                studio.zoom(by: step, at: at)
+            }.onEnded { _ in pinchedTo = 1 })
         }
     }
 }
@@ -160,11 +186,9 @@ private struct Pane: View {
         .offset(x: pull)
         .contentShape(Rectangle())
         .coordinateSpace(name: "pane")
-        .background(ScrollCatcher { wheel, scrolled, pinched, place, ended in
+        .background(ScrollCatcher(kinds: .scrollWheel) { wheel, scrolled, _, place, ended in
             guard !working else { return }
-            if pinched != 0 {
-                studio.zoom(by: 1 + pinched, at: place)
-            } else if wheel != 0 {
+            if wheel != 0 {
                 studio.zoom(by: wheel > 0 ? 1.18 : 1 / 1.18, at: place)
             } else if studio.zoom > 1.01 {
                 studio.look(at: CGPoint(x: studio.centre.x - scrolled.width / (w * studio.zoom),
@@ -269,19 +293,23 @@ private struct Pane: View {
     }
 }
 
-/// Catches the mouse wheel, two-finger scrolling and pinching over a view (SwiftUI has no gesture for the first two).
+/// Catches the mouse wheel, two-finger scrolling or pinching over a view. The picture takes the wheel and scrolling;
+/// pinching is taken over the whole free area around it (Canvas), so a portrait can be pinched beside it too.
 struct ScrollCatcher: NSViewRepresentable {
+    let kinds: NSEvent.EventTypeMask
     /// (wheel steps, scrolled by, pinched by, where: 0…1 across the view from the top left, the fingers have left)
     let handler: (CGFloat, CGSize, CGFloat, CGPoint, Bool) -> Void
 
-    func makeNSView(context: Context) -> Catcher { Catcher(handler: handler) }
+    func makeNSView(context: Context) -> Catcher { Catcher(kinds: kinds, handler: handler) }
     func updateNSView(_ view: Catcher, context: Context) { view.handler = handler }
 
     final class Catcher: NSView {
         var handler: (CGFloat, CGSize, CGFloat, CGPoint, Bool) -> Void
+        private let kinds: NSEvent.EventTypeMask
         private var monitor: Any?
 
-        init(handler: @escaping (CGFloat, CGSize, CGFloat, CGPoint, Bool) -> Void) {
+        init(kinds: NSEvent.EventTypeMask, handler: @escaping (CGFloat, CGSize, CGFloat, CGPoint, Bool) -> Void) {
+            self.kinds = kinds
             self.handler = handler
             super.init(frame: .zero)
         }
@@ -291,7 +319,7 @@ struct ScrollCatcher: NSViewRepresentable {
             if let monitor { NSEvent.removeMonitor(monitor) }
             monitor = nil
             guard window != nil else { return }
-            monitor = NSEvent.addLocalMonitorForEvents(matching: [.scrollWheel, .magnify]) { [weak self] event in
+            monitor = NSEvent.addLocalMonitorForEvents(matching: kinds) { [weak self] event in
                 guard let self, event.window === self.window, self.bounds.width > 1 else { return event }
                 let point = self.convert(event.locationInWindow, from: nil)
                 guard self.bounds.contains(point) else { return event }
@@ -377,3 +405,4 @@ struct PhotoStepper: View {
         .glass(Capsule(), interactive: true)
     }
 }
+

@@ -7,7 +7,11 @@ import argparse, json, os, sys, time
 import cv2, numpy as np, tifffile, torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..")); sys.path.insert(0, os.path.dirname(__file__))
 from lrcdf import beauty, people, shape
+from lrcdf.device import pick, plan
 
+PLAN = plan()       # what this machine allows (lrcdf/device.py); on 32 GB and more everything runs as it was built
+from lrcdf import reuse
+reuse.limit({8: 96, 16: 192}.get(PLAN.tier, 384))     # MB of filter results kept for repeats (lrcdf/reuse.py)
 LEGACY = os.path.expanduser("~/LRCDF/legacy/mac_project")
 HIRES_FROM = 900     # face crops covering at least this many pixels of the photo are retouched at 1024 instead of 512
 sys.path.insert(0, f"{LEGACY}/scripts")
@@ -16,6 +20,8 @@ import retouch_photo as legacy  # face_transform, feather, blend_float, skin_wei
 
 
 def load_models(device):
+    if sys.platform == "win32":
+        os.environ["NO_ALBUMENTATIONS_UPDATE"] = "1"
     base = f"{LEGACY}/external_models/modelscope_skin_v1_0_4"
     sys.path.insert(0, f"{base}/source")
     from modelscope.models.cv.skin_retouching.retinaface.predict_single import Model
@@ -25,13 +31,72 @@ def load_models(device):
     # RetouchFormer (blemish pass on small faces) is loaded when it is installed; without it small faces get the
     # classical steps only.
     net = None
-    if os.path.exists(f"{LEGACY}/gen_best.pth") and os.path.isdir(f"{LEGACY}/external_models/RetouchFormer_AAAI_24"):
+    if PLAN.small_face_model and os.path.exists(f"{LEGACY}/gen_best.pth") and os.path.isdir(f"{LEGACY}/external_models/RetouchFormer_AAAI_24"):
         sys.path.insert(0, f"{LEGACY}/external_models/RetouchFormer_AAAI_24")
         from model.RetouchFormer import InpaintGenerator
         net = InpaintGenerator()
         net.load_state_dict(torch.load(f"{LEGACY}/gen_best.pth", map_location="cpu", weights_only=True), strict=True)
         net = net.to(device).eval()
     return detector, net, beauty.Models()
+
+
+def released():
+    """After a network call: on machines with little memory the GPU's cache is given back at once (PyTorch keeps
+    what a 1024 px crop needed, 4-5 GB, until the process ends)."""
+    if PLAN.release_gpu and torch.backends.mps.is_available():
+        torch.mps.synchronize()         # what is still queued holds its buffers until it has run
+        torch.mps.empty_cache()
+    elif PLAN.release_gpu and torch.cuda.is_available():
+        torch.cuda.empty_cache()        # a card with little memory of its own (device._fit_graphics_memory)
+
+
+_CPU_COPY = {}
+FALLBACKS = [0]     # pieces the GPU had no room for (cut smaller or done on the CPU)
+SKIPPED = [0, 0]    # small faces the small-face model had no room for (classical steps only); no room seen
+
+
+def _on_cpu(net):
+    """A CPU copy of net (made once), for the pieces the GPU has no room for."""
+    if id(net) not in _CPU_COPY:
+        import copy
+        _CPU_COPY[id(net)] = copy.deepcopy(net).cpu().eval()
+    return _CPU_COPY[id(net)]
+
+
+def infer(net, x, tiles=1, margin=128):
+    """net(x), or on machines with little memory the same in tiles x tiles pieces with `margin` pixels of overlap,
+    which gives the same result for the retouch network (it sees about 100 px around each pixel)."""
+    if tiles <= 1:
+        out = net(x)
+    else:
+        x = x.contiguous()      # the crops arrive channels-last (permuted); on the GPU such tiles took 2 GB and more
+        _, _, H, W = x.shape
+        out = torch.zeros(x.shape[0], 3, H, W, device=x.device)
+        hs, ws = -(-H // tiles), -(-W // tiles)
+        th, tw = min(H, hs + 2 * margin), min(W, ws + 2 * margin)      # every piece the same size: pieces at the
+        for y0 in range(0, H, hs):                                      # edge reach further in instead of being
+            for x0 in range(0, W, ws):                                  # smaller (each new size cost the GPU memory)
+                a, b = min(max(0, y0 - margin), H - th), min(max(0, x0 - margin), W - tw)
+                c, d = a + th, b + tw
+                piece = x[:, :, a:c, b:d].contiguous()
+                part = None
+                try:
+                    part = net(piece)
+                except RuntimeError as ex:      # the GPU is out of room for this piece now and then (seen at a
+                    if "out of memory" not in str(ex) or x.device.type == "cpu":    # 2 GB cap): this one on the CPU
+                        raise
+                if part is None:                # outside the except block, so the failed attempt's memory is free
+                    released()
+                    FALLBACKS[0] += 1
+                    if max(th, tw) > 2 * margin + 128:     # cut this piece again (same result, as above), on the GPU
+                        part = infer(net, piece, 2, margin)
+                    else:                                  # already small: on the CPU
+                        part = _on_cpu(net)(piece.cpu()).to(x.device)
+                out[:, :, y0:y0 + hs, x0:x0 + ws] = part[:, :, y0 - a:y0 - a + hs, x0 - b:x0 - b + ws]
+                del part
+                released()
+    released()
+    return out
 
 
 RETOUCHER = os.path.join(os.path.dirname(__file__), "..", "runs", "retouch_model.pt")
@@ -176,6 +241,7 @@ def judge(rgb, out, faces, each, device):
         view = cv2.resize(x, (train_critic.VIEW, train_critic.VIEW), interpolation=cv2.INTER_AREA)
         with torch.inference_mode():
             q = train_critic.decode(_CRITIC(torch.from_numpy(view).permute(2, 0, 1)[None].float().to(device)).cpu())[0.9]
+        released()
         over = max(colour / ((COLOUR_LIMIT[0] + COLOUR_LIMIT[1] * f["smooth"]) * max(q[0], 0.3)),
                    texture / (TEXTURE_LIMIT * max(q[1], 0.03)))
         found[k] = dict(colour=round(colour, 2), texture=round(texture, 3), expected=[round(q[0], 2), round(q[1], 3)],
@@ -198,7 +264,10 @@ def makeup_of(rgb8, box, device):
     if _MAKEUP is None:
         if not os.path.exists(MAKEUP_MODEL):
             return 0.0
-        _MAKEUP = torch.jit.load(MAKEUP_MODEL, map_location="cpu").float().to(device).eval()
+        # through a file object: given a path, TorchScript opens it with C fopen, which on Windows fails for a
+        # path with non-ASCII letters (a Chinese user name: C:\Users\<name>\LRCDF\models\...)
+        with open(MAKEUP_MODEL, "rb") as f:
+            _MAKEUP = torch.jit.load(f, map_location="cpu").float().to(device).eval()
     model = _MAKEUP
     H, W = rgb8.shape[:2]
     x0, y0, x1, y1 = box
@@ -209,7 +278,8 @@ def makeup_of(rgb8, box, device):
     crop = cv2.resize(rgb8[b:e, a:c], (256, 256), interpolation=cv2.INTER_AREA if c - a > 256 else cv2.INTER_LINEAR)
     x = torch.from_numpy(crop).permute(2, 0, 1).float()[None].to(device) / 255
     with torch.no_grad():
-        score = float(model(x))
+        score = float(model(x).flatten()[0])      # [make-up, skin depth]; files from before the skin fix give one number
+    released()
     if os.environ.get("LRCDF_DEBUG"):
         print("make-up score %.2f" % score, flush=True)
     return float(np.clip((score - MAKEUP_RAMP[0]) / (MAKEUP_RAMP[1] - MAKEUP_RAMP[0]), 0, 1))
@@ -261,6 +331,10 @@ def choose(rgb, models, opt, device):
                 picked[k] = name
             elif j is None:
                 picked.setdefault(k, None)
+        # Every face settled (a level, or "not judged", which no later level changes): the weaker levels cannot
+        # change anything any more, so they are not tried. Same result, a third or two thirds of the time.
+        if len(o["_judge"]) >= len(memo.get("faces", [])) and all(k in picked for k in range(len(o["_judge"]))):
+            break
     out = []
     for k, d in enumerate(memo.get("faces", [])):
         if picked.get(k):
@@ -373,7 +447,7 @@ def retouch(rgb, models, opt, device):
                     tf = tf * 2
                     crop = cv2.warpAffine(rgb8, tf, (1024, 1024), flags=cv2.INTER_AREA if side > 1024 else cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
                     x = torch.from_numpy(crop.copy()).permute(2, 0, 1).float()[None].to(device) / 255
-                    delta = own(x)[0].permute(1, 2, 0).cpu().numpy() * 255
+                    delta = infer(own, x, PLAN.tiles)[0].permute(1, 2, 0).cpu().numpy() * 255
                     mask = cv2.resize(legacy.feather(), (1024, 1024), interpolation=cv2.INTER_LINEAR)
                     delta -= np.median(delta[mask > 0.5], 0)
                     # 高低频: only the colour layer of its correction is used (same split as lrcdf.beauty: the face is
@@ -389,7 +463,21 @@ def retouch(rgb, models, opt, device):
                 tf = tf * (size / 512)
                 crop = cv2.warpAffine(rgb8, tf, (size, size), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
                 x = torch.from_numpy(crop.copy()).permute(2, 0, 1).float()[None].to(device) / 127.5 - 1
-                pred = ((net(x)[0][0].cpu().permute(1, 2, 0).numpy() + 1) * 127.5).clip(0, 255)
+                if PLAN.release_gpu:        # little memory: a face it has no room for gets the classical steps only,
+                    found = None            # and after one such face it is not tried again in this run
+                    if not SKIPPED[1]:
+                        try:
+                            found = infer(net, x)
+                        except RuntimeError as ex:
+                            if "out of memory" not in str(ex):
+                                raise
+                    if found is None:
+                        released(); SKIPPED[0] += 1; SKIPPED[1] = 1
+                        continue
+                else:
+                    found = net(x)
+                pred = ((found[0][0].cpu().permute(1, 2, 0).numpy() + 1) * 127.5).clip(0, 255)
+                del found
                 mask = legacy.feather() if size == 512 else cv2.resize(legacy.feather(), (size, size), interpolation=cv2.INTER_LINEAR)
                 delta = pred - crop.astype(np.float32)
                 if memo is not None:
@@ -459,6 +547,8 @@ def process(src, models, opt, device, icc=None):
     opt.pop("_auto", None)       # what was chosen for the last picture
     scale = 65535.0 if src.dtype == np.uint16 else 255.0
     wide = icc is not None and b"ProPhoto" in icc and src.dtype == np.uint16 and opt.get("bits") != 8
+    if PLAN.work_mp and src.shape[0] * src.shape[1] > PLAN.work_mp * 1e6:
+        return process_reduced(src, models, opt, device, wide)
     if not wide:
         srgb = src.astype(np.float32) * (1.0 / scale)
         out, n, meshes, alone = retouch(srgb * 255.0, models, opt, device)
@@ -483,6 +573,55 @@ def process(src, models, opt, device, icc=None):
     return shape.apply(res, geometry(clipped, meshes, opt, alone)), n
 
 
+def enlarge(small, W, H, y0, y1):
+    """Rows y0..y1 of cv2.resize(small, (W, H), INTER_LINEAR), without making the whole enlarged picture."""
+    h, w = small.shape[:2]
+    m = np.float32([[w / W, 0, 0.5 * w / W - 0.5], [0, h / H, (y0 + 0.5) * h / H - 0.5]])
+    return cv2.warpAffine(small, m, (W, y1 - y0), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP, borderMode=cv2.BORDER_REPLICATE)
+
+
+def process_reduced(src, models, opt, device, wide):
+    """process() for machines with little memory (PLAN.work_mp): colour and skin are worked on a copy of at most
+    PLAN.work_mp megapixels, and only what that changed is enlarged and laid onto the photo's own pixels, a strip of
+    rows at a time. The texture stays the photo's own; corrections are as fine as the copy. The full-size picture is
+    never held as floating point (60 MP: 720 MB per copy, five or six of them at full size)."""
+    H, W = src.shape[:2]
+    k = (PLAN.work_mp * 1e6 / (H * W)) ** 0.5
+    w, h = max(1, int(round(W * k))), max(1, int(round(H * k)))
+    small = cv2.resize(src, (w, h), interpolation=cv2.INTER_AREA)
+    scale = 65535.0 if src.dtype == np.uint16 else 255.0
+    if wide:
+        seen = np.clip(prophoto_to_srgb(small.astype(np.float32) / 65535.0).astype(np.float32), 0, 1)
+    else:
+        seen = small.astype(np.float32) * (1.0 / scale)
+    del small
+    out, n, meshes, alone = retouch(seen * 255.0, models, opt, device)
+    change = (out / 255.0 - seen).astype(np.float32)
+    del out
+    geo = geometry(seen, meshes, opt, alone)
+    if geo is not None:          # planned on the copy: the same moves, in the photo's pixels
+        geo = (geo[0], geo[1] * w / W, geo[2])
+    del seen
+    top = 255.0 if (opt.get("bits") == 8 or src.dtype == np.uint8) and not wide else scale
+    res = np.empty(src.shape, np.uint8 if top == 255.0 else src.dtype)
+    rows = PLAN.strip_rows or 512
+    for y0 in range(0, H, rows):
+        y1 = min(H, y0 + rows)
+        up = enlarge(change, W, H, y0, y1)
+        part = src[y0:y1]
+        if wide:            # as in process: back to ProPhoto only where something happened, the rest stays as it was
+            touched = np.abs(up).max(2) > 0.5 / 65535
+            res[y0:y1] = part
+            if touched.any():
+                unclipped = prophoto_to_srgb(part[touched].astype(np.float32) / 65535.0).astype(np.float32)
+                res[y0:y1][touched] = np.rint(srgb_to_prophoto(unclipped + up[touched]) * 65535.0).astype(np.uint16)
+        else:
+            value = (part.astype(np.float32) * (1.0 / scale) + up) * top
+            res[y0:y1] = np.rint(np.clip(value, 0, top)).astype(res.dtype)
+        del up
+    return shape.apply_strips(res, geo, rows), n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--job", required=True); ap.add_argument("--blemish", type=float, default=1.0)
@@ -499,7 +638,7 @@ def main():
     ap.add_argument("--levels", help="what the level names mean: natural=1,0.6,0.5,0.4,0.4/refined=...")
     a = ap.parse_args(); opt = vars(a)
     opt["who"] = people.Choices(a.people, a.choices, a.levels)
-    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    device = pick()
     models = load_models(device)
     for line in open(a.job, encoding="utf-8"):
         if not line.strip():
@@ -512,13 +651,18 @@ def main():
             if res.dtype == np.uint8 and icc is not None and b"ProPhoto" in icc:
                 raise ValueError("8-bit output needs an sRGB input")
             tags = [(34675, "B", len(icc), icc, True)] if icc else []
-            tifffile.imwrite(outp + ".tmp", res, photometric="rgb", compression="zlib", predictor=True, extratags=tags)
+            strips = {"rowsperstrip": PLAN.strip_rows} if PLAN.strip_rows else {}     # little memory: compressed a strip at a time
+            tifffile.imwrite(outp + ".tmp", res, photometric="rgb", compression="zlib", predictor=True, extratags=tags, **strips)
             os.replace(outp + ".tmp", outp)
             print(json.dumps({"input": inp, "output": outp, "faces": n, "seconds": round(time.time() - t0, 1),
                               "levels": opt.get("_levels") if opt.get("auto") else None,
-                              "toned_down": [g["kept"] for g in opt.get("_guard") or [] if g["kept"] < 1]}), flush=True)
+                              "toned_down": [g["kept"] for g in opt.get("_guard") or [] if g["kept"] < 1],
+                              **({"tier": PLAN.tier, "pieces_cut": FALLBACKS[0], "small_faces_plain": SKIPPED[0]} if PLAN.tier < 32 else {})}), flush=True)
         except Exception as ex:  # one bad file must not stop a batch
             print(json.dumps({"input": inp, "error": repr(ex)}), flush=True)
+        src = res = None         # the next photo starts from nothing (the two would otherwise live on into it)
+        FALLBACKS[0] = SKIPPED[0] = 0
+        released()
 
 
 if __name__ == "__main__":

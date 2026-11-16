@@ -1,0 +1,25 @@
+Application LRCDF tout-en-un. Tout le nécessaire est inclus et l’application fonctionne hors ligne.
+
+Commencer
+  1. Faites glisser LRCDF.app dans « Applications » ou laissez-la dans un autre dossier.
+  2. Double-cliquez pour l’ouvrir. La première configuration prend environ une minute. Elle copie l’application et les modèles dans ~/LRCDF (environ 2,7 Go) et installe le module externe dans Lightroom Classic.
+  3. Ouvrez Lightroom Classic. S’il est déjà ouvert, quittez-le et rouvrez-le.
+  4. Sélectionnez vos photos et choisissez Bibliothèque → Module externe - Extras → Lancer la retouche en un clic….
+
+  Si, après un double-clic, macOS indique qu’il ne peut pas vérifier le développeur ou affiche “Apple n’a pas pu confirmer que « LRCDF » ne contenait pas de logiciel malveillant…”
+  L’application n’a pas de signature de développeur Apple. Vous devez autoriser son ouverture manuellement la première fois.
+  1. Dans l’alerte, cliquez sur « Terminé » (et non sur « Placer dans la corbeille »).
+  2. Ouvrez Réglages Système → Confidentialité et sécurité, faites défiler jusqu’au message concernant LRCDF, cliquez sur « Ouvrir quand même » et saisissez le mot de passe de connexion de votre Mac lorsqu’il vous est demandé.
+  3. Double-cliquez de nouveau sur LRCDF.app, puis cliquez sur « Ouvrir quand même » dans la fenêtre de confirmation.
+  « Ouvrir quand même » s’affiche pendant environ une heure après votre tentative d’ouverture. Si le bouton n’apparaît pas, double-cliquez de nouveau sur l’application. Cette manipulation ne se fait qu’une fois.
+  (Depuis macOS 15, un clic droit suivi de « Ouvrir » ne permet plus de passer cette étape.)
+
+Configuration requise
+  - Un Mac à puce Apple (M1 ou ultérieure) avec macOS 26 ou ultérieur et Lightroom Classic installé.
+  - 6 Go d’espace libre (environ 2,7 Go pour l’application et 2,7 Go pour les fichiers installés).
+
+Licences et confidentialité
+  - Tout est traité sur votre Mac et aucune donnée n’est envoyée.
+  - Après installation, consultez les licences et conditions dans ~/LRCDF/project/legal/.
+
+Pour mettre à jour, remplacez l’ancien fichier LRCDF.app par la nouvelle version et double-cliquez dessus. L’application se met à jour automatiquement.

@@ -1,0 +1,25 @@
+Complete LRCDF-app. Alles wat je nodig hebt zit erin en werkt offline.
+
+Aan de slag
+  1. Sleep LRCDF.app naar ‘Apps’ of laat de app in een andere map staan.
+  2. Dubbelklik om de app te openen. De eerste installatie duurt ongeveer een minuut. De app kopieert zichzelf en de modellen naar ~/LRCDF (ongeveer 2,7 GB) en installeert de plug-in in Lightroom Classic.
+  3. Open Lightroom Classic. Als het al openstaat, sluit het dan en open het opnieuw.
+  4. Selecteer je foto’s en kies Bibliotheek → Plug-inopties → Start retoucheren met één klik….
+
+  Als macOS na dubbelklikken meldt dat het de ontwikkelaar niet kan verifiëren of ‘Apple kon niet verifiëren dat LRCDF geen malware bevat…’ weergeeft
+  De app heeft geen handtekening van een Apple-ontwikkelaar. De eerste keer moet je het openen handmatig toestaan.
+  1. Klik in de melding op ‘Gereed’ (niet op ‘Verplaats naar prullenmand’).
+  2. Open Systeeminstellingen → Privacy en beveiliging, scrol naar de melding over LRCDF en klik op ‘Open toch’. Voer het inlogwachtwoord van je Mac in als daarom wordt gevraagd.
+  3. Klik opnieuw dubbel op LRCDF.app en klik in het bevestigingsvenster op ‘Open toch’.
+  ‘Open toch’ verschijnt maar ongeveer een uur nadat je de app hebt proberen te openen. Zie je de knop niet, klik dan opnieuw dubbel op de app. Dit hoeft maar één keer.
+  (Vanaf macOS 15 kun je deze stap niet meer overslaan via rechtsklik → ‘Open’.)
+
+Wat je nodig hebt
+  - Een Mac met een Apple-chip (M1 of nieuwer), met macOS 26 of nieuwer en Lightroom Classic geïnstalleerd.
+  - 6 GB vrije ruimte (ongeveer 2,7 GB voor de app en 2,7 GB voor de geïnstalleerde bestanden).
+
+Licenties en privacy
+  - Alles gebeurt op je Mac en er wordt niets geüpload.
+  - Na de installatie vind je de licenties en gebruiksvoorwaarden in ~/LRCDF/project/legal/.
+
+Vervang voor een update de oude LRCDF.app door de nieuwe en dubbelklik erop. De app werkt zichzelf bij.

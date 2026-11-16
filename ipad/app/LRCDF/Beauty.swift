@@ -4,18 +4,39 @@ import CoreML
 import Foundation
 import Vision
 
-/// How much retouching: the Mac app's levels (plug-in Config.beautyLevels), in beauty.py's units.
+/// How much retouching. 自然 / 精致 are the Mac app's levels (plug-in Config.beautyLevels) in beauty.py's units; 轻,
+/// 特写, 男士 and 自动 were asked for on the iPad (user 2026-11-15). The strength slider scales any of them.
 enum BeautyLevel: String, CaseIterable, Identifiable {
-    case off, natural, refined
+    case off, auto, light, natural, refined, closeup, men
     var id: String { rawValue }
-    var title: String { switch self { case .off: "不修"; case .natural: "自然"; case .refined: "精致" } }
-    var note: String { switch self { case .off: "保持原样"; case .natural: "去痘匀肤，看不出修过"; case .refined: "更干净细腻" } }
-    var strength: Strength? {
+    var title: String {
+        switch self { case .off: "不修"; case .auto: "自动"; case .light: "轻"; case .natural: "自然"; case .refined: "精致"; case .closeup: "特写"; case .men: "男士" }
+    }
+    var note: String {
         switch self {
-        case .off: nil
-        case .natural: Strength(blemish: 1.0, smooth: 0.60, undereye: 0.50, eyes: 0.40, teeth: 0.40)
-        case .refined: Strength(blemish: 1.2, smooth: 0.85, undereye: 0.70, eyes: 0.55, teeth: 0.55)
+        case .off: "只调色，不动皮肤"
+        case .auto: "每张脸按大小各选一档：近的细致些，远的轻一些（推荐）"
+        case .light: "只去明显的痘和瑕疵，几乎不动皮肤"
+        case .natural: "去痘匀肤，看不出修过"
+        case .refined: "更干净细腻"
+        case .closeup: "最干净，适合脸占画面大部分的特写"
+        case .men: "保留胡茬和皮肤纹理，只匀肤色、去痘"
         }
+    }
+    /// The amounts for one face (`share`: face width over picture width, for 自动), scaled by the slider `k` (1 = as set).
+    func strength(share: CGFloat = 0.15, k: Float = 1) -> Strength? {
+        var st: Strength
+        switch self {
+        case .off: return nil
+        case .auto: return (share >= 0.25 ? BeautyLevel.refined : share >= 0.07 ? .natural : .light).strength(k: k)
+        case .light: st = Strength(blemish: 0.8, smooth: 0.30, undereye: 0.30, eyes: 0.20, teeth: 0.25)
+        case .natural: st = Strength(blemish: 1.0, smooth: 0.60, undereye: 0.50, eyes: 0.40, teeth: 0.40)
+        case .refined: st = Strength(blemish: 1.2, smooth: 0.85, undereye: 0.70, eyes: 0.55, teeth: 0.55)
+        case .closeup: st = Strength(blemish: 1.3, smooth: 1.00, undereye: 0.80, eyes: 0.60, teeth: 0.60)
+        case .men: st = Strength(blemish: 0.9, smooth: 0.25, undereye: 0.35, eyes: 0.15, teeth: 0.30)
+        }
+        st.blemish *= min(1.2, k); st.smooth *= k; st.undereye *= k; st.eyes *= k; st.teeth *= k
+        return st
     }
 }
 
@@ -41,6 +62,8 @@ struct Face {
     var area: CGRect             // where the skin map lies (normalised)
     var skin: CIImage?           // 256×256 face + body skin confidence (MediaPipe's selfie multiclass), over `area`
     var nose: [CGPoint] = []     // lower nose outline (Vision): the nostrils are not wrinkles
+    var contour: [CGPoint] = []  // Vision's face outline, ear to ear over the chin (塑形 slim)
+    var depth: Float = -10       // skin depth score (the make-up network's second output: "dark" vs "light" skin; SkinKeep), memory only
     var makeup: Float = 0        // 0 bare … 1 made-up (Beauty.makeupScore): how much the make-up-safe rules apply
 }
 
@@ -60,6 +83,7 @@ final class Beauty: @unchecked Sendable {
     // beauty.py constants
     static let SPLIT: CGFloat = 0.006, HEAL: Float = 0.7, RELIEF: Float = 0.8, RELIEF_REACH: Float = 3.0
     static let SPOT_WIDTH: CGFloat = 0.06
+    static let SMALL_FACE: Double = 64      // face crops covering fewer pixels of the full picture get no blemish model
     static let WRINKLES: CGFloat = 0.5, UNIFY: Float = 0,   // UNIFY: the Mac never applies it (beauty.beautify_body only marks the cheeks of people left alone, so its test fails); 0 = the same here
                  BODY: CGFloat = 0.75
     static let LINES: (Float, Float, Float, Float) = (0.012, 0.03, 0.11, 0.17), LINE_SCALE: CGFloat = 360, LINE_WIDTH: CGFloat = 0.035
@@ -111,7 +135,8 @@ final class Beauty: @unchecked Sendable {
             let corners = [lips.min { $0.x < $1.x } ?? .zero, lips.max { $0.x < $1.x } ?? .zero]
             eyes += [mid(pts(lm.nose))] + corners
             out.append(Face(box: box, eyeL: pts(le), eyeR: pts(re), browL: pts(lm.leftEyebrow), browR: pts(lm.rightEyebrow),
-                            lipsOut: lips, lipsIn: pts(lm.innerLips), points: eyes, mesh: true, width: width, area: .zero, skin: nil, nose: pts(lm.nose)))
+                            lipsOut: lips, lipsIn: pts(lm.innerLips), points: eyes, mesh: true, width: width, area: .zero, skin: nil, nose: pts(lm.nose),
+                            contour: pts(lm.faceContour)))
         }
         // faces Vision does not see (strong profiles, close-ups of a cheek): the Mac pipeline's detector, box + 5 points
         for d in retina(srgbImage) {
@@ -133,8 +158,9 @@ final class Beauty: @unchecked Sendable {
         // make-up: one score per face (MobileCLIP2-S2, zero-shot "made-up face" vs "bare face"); loaded only for this
         if let mm = Self.load("Makeup", config) {
             for i in out.indices {
-                let sc = makeupScore(srgbImage, out[i].box, mm)
+                let (sc, dp) = makeupScore(srgbImage, out[i].box, mm)
                 out[i].makeup = min(max((sc + 0.4) / 0.7, 0), 1)
+                out[i].depth = dp
                 if Beauty.debugDir != nil || ProcessInfo.processInfo.environment["LRCDF_DEBUG"] != nil { print(String(format: "  face %d make-up score %.2f -> %.2f", i, sc, out[i].makeup)) }
             }
         }
@@ -142,7 +168,7 @@ final class Beauty: @unchecked Sendable {
     }
 
     /// The make-up model's score for one face: the box widened 1.3×, square, stretched to 256 px (sRGB numbers).
-    private func makeupScore(_ srgb: CIImage, _ box: CGRect, _ model: MLModel) -> Float {
+    private func makeupScore(_ srgb: CIImage, _ box: CGRect, _ model: MLModel) -> (Float, Float) {
         let e = srgb.extent, n = 256
         let b = CGRect(x: box.minX * e.width, y: box.minY * e.height, width: box.width * e.width, height: box.height * e.height)
         let side = max(b.width, b.height) * 1.3
@@ -153,12 +179,13 @@ final class Beauty: @unchecked Sendable {
                       : small.transformed(by: CGAffineTransform(scaleX: s, y: s))
         var px = [Float](repeating: 0, count: n * n * 4)
         context.render(small, toBitmap: &px, rowBytes: n * 16, bounds: CGRect(x: 0, y: 0, width: n, height: n), format: .RGBAf, colorSpace: nil)
-        guard let input = try? MLMultiArray(shape: [1, 3, NSNumber(value: n), NSNumber(value: n)], dataType: .float32) else { return -10 }
+        guard let input = try? MLMultiArray(shape: [1, 3, NSNumber(value: n), NSNumber(value: n)], dataType: .float32) else { return (-10, -10) }
         let ip = input.dataPointer.assumingMemoryBound(to: Float.self)
         for i in 0..<(n * n) { for c in 0..<3 { ip[c * n * n + i] = min(max(px[i * 4 + c], 0), 1) } }
         guard let res = try? model.prediction(from: MLDictionaryFeatureProvider(dictionary: ["image": input])),
-              let v = res.featureValue(for: "score")?.multiArrayValue else { return -10 }
-        return MLShapedArray<Float>(converting: v).scalars.first ?? -10
+              let v = res.featureValue(for: "score")?.multiArrayValue else { return (-10, -10) }
+        let a = MLShapedArray<Float>(converting: v).scalars           // [make-up, skin depth] (an older one-output model: no depth)
+        return (a.first ?? -10, a.count > 1 ? a[1] : -10)
     }
 
     /// RetinaFace (ResNet-50, the Mac pipeline's detector) on a 960 px copy: boxes and five points, normalised.
@@ -227,6 +254,8 @@ final class Beauty: @unchecked Sendable {
         let c = MLShapedArray<Float>(converting: conf).scalars       // [1][y][x][6]
         return (0..<(n * n)).map { min(max(c[$0 * 6 + 2] + c[$0 * 6 + 3], 0), 1) }
     }
+    /// Body + face skin over the whole picture (`srgb`: sRGB numbers), 256×256, top row first (SkinOnly.mask).
+    func wholeSkin(_ srgb: CIImage) -> [Float]? { segment(srgb, srgb.extent) }
     /// A grey image from numbers (top row first), at the origin.
     fileprivate func grey(_ v: [Float], _ w: Int, _ h: Int) -> CIImage {
         var m = [Float](repeating: 1, count: w * h * 4)
@@ -239,15 +268,28 @@ final class Beauty: @unchecked Sendable {
 
     /// What the blemish model would change on each face, as images in `image`'s pixels (colour layer only, its
     /// overall colour shift removed, feathered). `image`: the decoded (linear) picture at any size; `fullWidth`: width of the
-    /// full-size picture (faces whose crop covers under 300 px of it are left to the rest of the pipeline).
+    /// full-size picture. Small faces get it too (the Mac hands faces under 300 px to RetouchFormer instead; on group
+    /// photos and shrunken acne close-ups RetouchFormer changed almost nothing while this model evened redness and marks,
+    /// texture kept as only its colour layer is used, 2026-11-15); only crops under SMALL_FACE px are left out.
     func edits(_ image: CIImage, faces: [Face], fullWidth: CGFloat) -> [CIImage?] {
         guard let retouch = Self.load("RetouchNet", config) else { return faces.map { _ in nil } }
         return faces.map { f in autoreleasepool { edit(image, f, fullWidth: fullWidth, retouch) } }
     }
 
+    /// legacy.feather at 1024 and the pixels inside it (made once: per face they took longer than the model)
+    private static let feather: [Float] = {
+        let n = 1024; var f = [Float](repeating: 0, count: n * n)
+        for y in 0..<n { for x in 0..<n {
+            let dx = (Float(x) - 511) / 352, dy = (Float(y) - 544) / 448
+            f[y * n + x] = min(max((1 - (dx * dx + dy * dy).squareRoot()) / 0.25, 0), 1)
+        } }
+        return f
+    }()
+    private static let inside: [Int] = feather.indices.filter { feather[$0] > 0.5 }
+
     private func edit(_ image: CIImage, _ f: Face, fullWidth: CGFloat, _ retouch: MLModel) -> CIImage? {
         let W = image.extent.width, H = image.extent.height
-        guard let (T, side) = align(f, W, H, 1024), side * Double(fullWidth / W) >= 300 else { return nil }
+        guard let (T, side) = align(f, W, H, 1024), side * Double(fullWidth / W) >= Self.SMALL_FACE else { return nil }
         let n = 1024
         let crop = warp(image, T, n)
         var px = [Float](repeating: 0, count: n * n * 4)
@@ -257,14 +299,17 @@ final class Beauty: @unchecked Sendable {
         for i in 0..<(n * n) { for ch in 0..<3 { ip[ch * n * n + i] = min(max(px[i * 4 + ch], 0), 1) } }
         guard let r = try? retouch.prediction(from: MLDictionaryFeatureProvider(dictionary: ["image": input])),
               let out = r.featureValue(for: "delta")?.multiArrayValue else { return nil }
-        var d = MLShapedArray<Float>(converting: out).scalars      // [1][3][y][x], 0..1 units
+        var d = [Float](repeating: 0, count: 3 * n * n)          // [1][3][y][x], 0..1 units
+        if out.dataType == .float16, out.strides.map(\.intValue) == [3 * n * n, n * n, n, 1] {
+            // vImage: MLShapedArray's own conversion took 0.26 s a face, longer than the model
+            var src = vImage_Buffer(data: out.dataPointer, height: 1, width: vImagePixelCount(3 * n * n), rowBytes: 3 * n * n * 2)
+            d.withUnsafeMutableBufferPointer { b in
+                var dst = vImage_Buffer(data: b.baseAddress!, height: 1, width: vImagePixelCount(3 * n * n), rowBytes: 3 * n * n * 4)
+                _ = vImageConvert_Planar16FtoPlanarF(&src, &dst, 0)
+            }
+        } else { d = MLShapedArray<Float>(converting: out).scalars }
         // feather (legacy.feather at 1024) and the median shift inside it
-        var feather = [Float](repeating: 0, count: n * n)
-        for y in 0..<n { for x in 0..<n {
-            let rr = (pow((Float(x) - 511) / 352, 2) + pow((Float(y) - 544) / 448, 2)).squareRoot()
-            feather[y * n + x] = min(max((1 - rr) / 0.25, 0), 1)
-        } }
-        let inside = feather.indices.filter { feather[$0] > 0.5 }
+        let feather = Self.feather, inside = Self.inside
         var blurred = [Float](repeating: 0, count: n * n)
         let sigma = 512 * Float(Self.SPLIT)
         let kernel = gaussianKernel(sigma)
@@ -337,16 +382,23 @@ final class Beauty: @unchecked Sendable {
     /// `enc`: the finished picture with sRGB-encoded numbers (after tone). Returns the same, retouched.
     /// `memo`: measurements kept for this photo and look (body skin plan, noise, the guard's verdicts), so a second
     /// render only builds the graph. `fullWidth`: width of the full-size picture (0: this one).
-    func apply(_ enc: CIImage, faces: [Face], edits: [CIImage?], level: BeautyLevel, memo: BeautyMemo? = nil, fullWidth: CGFloat = 0) -> CIImage {
-        guard let st = level.strength, !faces.isEmpty else { return enc }
+    func apply(_ enc: CIImage, faces: [Face], edits: [CIImage?], level: BeautyLevel, amount k: Float = 1, memo: BeautyMemo? = nil, fullWidth: CGFloat = 0) -> CIImage {
+        guard level != .off, !faces.isEmpty else { return enc }
+        let sts = faces.map { level.strength(share: $0.width, k: k)! }
+        let big = faces.indices.max { faces[$0].width < faces[$1].width }!
+        let st = sts[big]                   // the body follows the largest face
+        let tag = "\(level.rawValue)\(Int((k * 100).rounded()))"
         let memo = memo ?? BeautyMemo()
         let e = enc.extent, W = e.width, H = e.height
         var out = enc
         // 1. the blemish model, gated by skin (beautify.retouch → legacy.blend_float)
-        let amount = st.skip.contains("model") ? 0 : min(1, st.blemish)
         for (i, f) in faces.enumerated() {
+            let amount = sts[i].skip.contains("model") ? 0 : min(1, sts[i].blemish)
             guard i < edits.count, let ed = edits[i], let skin = skinImage(f, W, H) else { continue }
-            out = K.addMasked.apply(extent: e, arguments: [out, ed.cropped(to: e), skin, amount])!
+            // below the eyes the model only partly applies: trained on retouches that erase eye bags, it painted a flat
+            // pale patch over them (oldman3, man4; user 2026-11-15 "修乱质感"); the bag's shape and lines stay
+            let gate = underEyes(f, W, H).map { K.ease.apply(extent: e, arguments: [skin, $0, Float(0.7)])! } ?? skin
+            out = K.addMasked.apply(extent: e, arguments: [out, ed.cropped(to: e), gate, amount])!
         }
         // 2. each face in its own crop (beauty.beautify)
         let rects = faces.map { f -> CGRect in
@@ -359,7 +411,7 @@ final class Beauty: @unchecked Sendable {
             guard R.width > 8, R.height > 8 else { continue }
             debugFace = i
             if Beauty.debugDir != nil { print("  face \(i) crop", Int(R.minX), Int(e.height - R.maxY), Int(R.width), Int(R.height), "mesh", f.mesh) }
-            let done = face(out.cropped(to: R), f, R, W, H, st, memo: memo, key: "\(level.rawValue).\(i)")
+            let done = face(out.cropped(to: R), f, R, W, H, sts[i], memo: memo, key: "\(tag).\(i)")
             // fade in at the crop's sides, not where the picture ends; other faces inside the crop are theirs
             let fw = f.width * W, r = max(2, 0.15 * fw)
             var fade = K.fade.apply(extent: R, arguments: [CIVector(cgRect: R), r,
@@ -384,12 +436,40 @@ final class Beauty: @unchecked Sendable {
         if env["LRCDF_NOBODY"] == nil { out = body(out, raw: enc, faces: faces, st: st, memo: memo) }
         let t1 = Date()
         // 4. faces retouched more than professionals would are taken back (beautify.guard)
-        if env["LRCDF_NOGUARD"] == nil { out = guardFaces(enc, out, faces: faces, level: level, memo: memo, scale: fullWidth > 0 ? fullWidth / W : 1) }
+        if env["LRCDF_NOGUARD"] == nil { out = guardFaces(enc, out, faces: faces, sts: sts, tag: tag, memo: memo, scale: fullWidth > 0 ? fullWidth / W : 1) }
         if ProcessInfo.processInfo.environment["LRCDF_DEBUG"] != nil { print(String(format: "  build: body %.2fs guard %.2fs", t1.timeIntervalSince(t0), Date().timeIntervalSince(t1))) }
         return out
     }
 
     /// The face's skin map in the picture's pixels (0 outside its area).
+    /// 1 below each eye (the eye bag and its crease), soft-edged, in picture pixels; nil without eye outlines.
+    private func underEyes(_ f: Face, _ W: CGFloat, _ H: CGFloat) -> CIImage? {
+        func px(_ p: CGPoint) -> CGPoint { CGPoint(x: p.x * W, y: p.y * H) }
+        let eyeL = f.eyeL.map(px), eyeR = f.eyeR.map(px), lips = f.lipsOut.map(px)
+        guard eyeL.count > 2, eyeR.count > 2, lips.count > 2 else { return nil }
+        let mid = { (ps: [CGPoint]) -> CGPoint in CGPoint(x: ps.map(\.x).reduce(0, +) / CGFloat(ps.count), y: ps.map(\.y).reduce(0, +) / CGFloat(ps.count)) }
+        let em = CGPoint(x: (mid(eyeL).x + mid(eyeR).x) / 2, y: (mid(eyeL).y + mid(eyeR).y) / 2), lm = mid(lips)
+        var down = CGPoint(x: lm.x - em.x, y: lm.y - em.y)
+        let dl = hypot(down.x, down.y) + 1e-6; down = CGPoint(x: down.x / dl, y: down.y / dl)
+        let ang = atan2(down.y, down.x) + .pi / 2
+        let fw = f.width * W
+        let R = CGRect(x: f.area.minX * W, y: f.area.minY * H, width: f.area.width * W, height: f.area.height * H)
+        let canvas = Canvas(R, scale: min(1, 300 / max(fw, 1)))
+        var ewMax: CGFloat = 0
+        let m = canvas.mask(blur: fw * 0.05) { ctx, p in
+            for eye in [eyeL, eyeR] {
+                var ew: CGFloat = 0
+                for a in eye { for b in eye { ew = max(ew, hypot(a.x - b.x, a.y - b.y)) } }
+                guard ew > 4 else { continue }
+                ewMax = max(ewMax, ew)
+                let c = mid(eye), q = p(CGPoint(x: c.x + down.x * ew * 0.7, y: c.y + down.y * ew * 0.7)), s = canvas.scale
+                ctx.saveGState(); ctx.translateBy(x: q.x, y: q.y); ctx.rotate(by: ang)
+                ctx.fillEllipse(in: CGRect(x: -ew * 0.85 * s, y: -ew * 0.5 * s, width: 1.7 * ew * s, height: 1.0 * ew * s)); ctx.restoreGState()
+            }
+        }
+        return ewMax > 4 ? m : nil
+    }
+
     private func skinImage(_ f: Face, _ W: CGFloat, _ H: CGFloat) -> CIImage? {
         guard let s = f.skin else { return nil }
         let a = CGRect(x: f.area.minX * W, y: f.area.minY * H, width: f.area.width * W, height: f.area.height * H)
@@ -576,7 +656,9 @@ final class Beauty: @unchecked Sendable {
                 let area = Float(R.width * R.height)
                 // the under-eye's own level, locally (a masked blur): only what is darker than the cheek is lifted, by
                 // as much as it is darker - a uniform shift lifted the bright part of an eye bag too and made a flat disc
-                let sg = ew * 0.15
+                // (sg 0.15 also lifted the bag's own shading and lines to the cheek's level: a flat pale patch on oldman3 and
+                // man4, user 2026-11-15 "修乱质感". Measured over a wider area, only the circle's overall darkness is lifted.)
+                let sg = ew * 0.45
                 let local = K.divide.apply(extent: R, arguments: [blur(K.mul.apply(extent: R, arguments: [base, under])!, sg), blur(under, sg)])!
                 low = K.underEye.apply(extent: R, arguments: [low, under,
                     avg(K.mul.apply(extent: R, arguments: [base, cheek])!), avg(cheek),
@@ -837,15 +919,14 @@ final class Beauty: @unchecked Sendable {
     /// beautify.guard: a face retouched more than professionals almost ever do (the critic, trained on FFHQR) is
     /// taken back towards the original, at most half way. Blemish corrections are left out of measuring and taking back.
     /// `scale`: full-size pixels per pixel of this picture (the 200 px limit is in the photo's own pixels).
-    private func guardFaces(_ before: CIImage, _ after: CIImage, faces: [Face], level: BeautyLevel, memo: BeautyMemo, scale: CGFloat) -> CIImage {
-        guard let st = level.strength else { return after }
+    private func guardFaces(_ before: CIImage, _ after: CIImage, faces: [Face], sts: [Strength], tag: String, memo: BeautyMemo, scale: CGFloat) -> CIImage {
         let e = after.extent, W = e.width, H = e.height, n = 512
         var out = after
         for (k, f) in faces.enumerated() {
             guard let (T0, side) = align(f, W, H, Double(n)), side * Double(scale) >= 200 else { continue }
             let T = CGAffineTransform(translationX: -e.minX, y: -e.minY).concatenating(T0)
-            let verdict: (Float, [Float])? = memo.value("guard.\(level.rawValue).\(k)") { () -> (Float, [Float])? in
-                self.judge(before, after, T, st)
+            let verdict: (Float, [Float])? = memo.value("guard.\(tag).\(k)") { () -> (Float, [Float])? in
+                self.judge(before, after, T, sts[k])
             }
             guard let (keep, m) = verdict else { continue }
             let mask = grey(m, n, n).clampedToExtent().transformed(by: T.inverted()).cropped(to: e)
@@ -1041,6 +1122,7 @@ private enum K {
     static func c(_ s: String) -> CIColorKernel { CIColorKernel(source: s)! }
     static let zero = c("kernel vec4 z() { return vec4(0.0, 0.0, 0.0, 1.0); }")
     static let mul = c("kernel vec4 m(__sample a, __sample b) { return vec4(a.rgb * b.r, 1.0); }")
+    static let ease = c("kernel vec4 e(__sample s, __sample u, float a) { float v = s.r * (1.0 - a * clamp(u.r, 0.0, 1.0)); return vec4(v, v, v, 1.0); }")
     static let add = c("kernel vec4 a(__sample a, __sample b) { return vec4(a.rgb + b.rgb, 1.0); }")
     static let sub = c("kernel vec4 s(__sample a, __sample b) { return vec4(a.rgb - b.rgb, 1.0); }")
     static let subPos = c("kernel vec4 s(__sample a, __sample b) { return vec4(max(a.rgb - b.rgb, 0.0), 1.0); }")
@@ -1162,7 +1244,7 @@ private enum K {
           if (c.r * area < 10.0 || u.r * area < 10.0 || m.r <= 0.0) return lo;
           vec3 ck = toLab(cb.rgb / c.r);
           vec3 d = ck - toLab(ub.rgb / u.r);                       // colour: the area's mean towards the cheek's
-          d.x = max(ck.x - toLab(lc.rgb).x, 0.0);                  // lightness: each place by how much darker it is than the cheek
+          d.x = 0.7 * max(ck.x - toLab(lc.rgb).x, 0.0);            // lightness: by most of how much darker the area is than the cheek
           d = mix(d, max(d, 0.0), mk);
           return vec4(toRGB(toLab(lo.rgb) + k * m.r * d), 1.0);
         }

@@ -26,8 +26,9 @@ local function ask(count, photo, previews)
         local prefs = LrPrefs.prefsForPlugin()
         local props = LrBinding.makePropertyTable(context)
         props.style = prefs.simple_style or 'd'
-        props.level = prefs.simple_level or 'natural'
+        props.level = prefs.simple_level or (WIN_ENV and 'auto' or 'natural')
         props.slim = prefs.simple_slim == true
+        if WIN_ENV then props.light = prefs.simple_light == true end
         props.denoise = prefs.simple_denoise == true
         local f = LrView.osFactory()
 
@@ -46,7 +47,7 @@ local function ask(count, photo, previews)
         local perRow = w > h and 4 or 7
         local rows = { spacing = 14 }
         local row
-        for n, c in ipairs(Simple.cards()) do
+        for n, c in ipairs(Simple.cards(true)) do
             if (n - 1) % perRow == 0 then
                 row = { spacing = 14 }
                 rows[#rows + 1] = row
@@ -56,37 +57,44 @@ local function ask(count, photo, previews)
         for n = 1, #rows do rows[n] = f:row(rows[n]) end
 
         local result = LrDialogs.presentModalDialog {
-            title = 'LRCDF 一键修图',
-            actionVerb = count > 1 and ('修好这 ' .. count .. ' 张') or '修好这张',
+            title = LOC("$$$/LRCDF/Title/OneClick=LRCDF 一键修图"),
+            actionVerb = count > 1 and LOC("$$$/LRCDF/OneClick/RetouchMany=修好这 ^1 张", count) or LOC("$$$/LRCDF/OneClick/RetouchOne=修好这张"),
             contents = f:column {
                 bind_to_object = props,
                 spacing = 14,
-                f:static_text { title = '① 选一个喜欢的效果', font = '<system/bold>' },
-                f:static_text { title = '下面是这张照片在每种风格下的样子，点图片下面的圆点选择。', font = '<system/small>', text_color = grey },
+                f:static_text { title = LOC("$$$/LRCDF/OneClick/LookHeading=① 选一个喜欢的效果"), font = '<system/bold>' },
+                f:static_text { title = LOC("$$$/LRCDF/OneClick/LookHelp=下面是这张照片在每种风格下的样子，点图片下面的圆点选择。"), font = '<system/small>', text_color = grey },
                 f:column(rows),
                 f:separator { fill_horizontal = 1 },
-                f:static_text { title = '② 美颜', font = '<system/bold>' },
+                f:static_text { title = LOC("$$$/LRCDF/OneClick/BeautyHeading=② 美颜"), font = '<system/bold>' },
                 f:row {
                     spacing = 18,
-                    f:radio_button { title = '关闭', value = LrView.bind 'level', checked_value = 'off' },
-                    f:radio_button { title = '自然（推荐）', value = LrView.bind 'level', checked_value = 'natural' },
-                    f:radio_button { title = '精致', value = LrView.bind 'level', checked_value = 'refined' },
+                    f:radio_button { title = LOC("$$$/LRCDF/Off=关闭"), value = LrView.bind 'level', checked_value = 'off' },
+                    LrView.conditionalItem(WIN_ENV, f:radio_button {
+                        title = LOC("$$$/LRCDF/OneClick/AutoRecommended=自动（推荐）"), value = LrView.bind 'level', checked_value = 'auto' }),
+                    f:radio_button { title = WIN_ENV and LOC("$$$/LRCDF/Natural=自然") or LOC("$$$/LRCDF/OneClick/NaturalRecommended=自然（推荐）"), value = LrView.bind 'level', checked_value = 'natural' },
+                    f:radio_button { title = LOC("$$$/LRCDF/Refined=精致"), value = LrView.bind 'level', checked_value = 'refined' },
                     f:spacer { width = 24 },
-                    f:checkbox { title = '轻微瘦脸', value = LrView.bind 'slim',
+                    f:checkbox { title = LOC("$$$/LRCDF/OneClick/SlightFaceSlim=轻微瘦脸"), value = LrView.bind 'slim',
                         enabled = LrView.bind { key = 'level', transform = function(v) return v ~= 'off' end } },
+                    LrView.conditionalItem(WIN_ENV, f:checkbox {
+                        title = LOC("$$$/LRCDF/EvenLighting=匀光"), value = LrView.bind 'light',
+                        enabled = LrView.bind { key = 'level', transform = function(v) return v ~= 'off' end } }),
                 },
-                f:static_text { title = '祛痘、匀肤、淡化黑眼圈、提亮眼神和牙齿，保留真实皮肤纹理。会生成一张新照片叠在原片上方。',
+                f:static_text { title = LOC("$$$/LRCDF/OneClick/BeautyHelp=祛痘、匀肤、淡化黑眼圈、提亮眼神和牙齿，保留真实皮肤纹理。会生成一张新照片叠在原片上方。"),
                     font = '<system/small>', text_color = grey },
-                f:checkbox { title = 'AI 降噪（高感光、夜景照片建议勾选，每张多花约 10 秒）', value = LrView.bind 'denoise' },
+                f:checkbox { title = LOC("$$$/LRCDF/OneClick/AIDenoise=AI 降噪（高感光、夜景照片建议勾选，每张多花约 10 秒）"), value = LrView.bind 'denoise' },
                 f:separator { fill_horizontal = 1 },
-                f:static_text { title = '原片不会被改动，调色可随时撤销。想逐项微调：图库 → 增效工具额外信息 → 高级。',
+                f:static_text { title = LOC("$$$/LRCDF/OneClick/FineTuneHelp=原片不会被改动，调色可随时撤销。想逐项微调：图库 → 增效工具额外信息 → 高级。"),
                     font = '<system/small>', text_color = grey },
             },
         }
         if result ~= 'ok' then return nil end
         prefs.simple_style, prefs.simple_level, prefs.simple_slim = props.style, props.level, props.slim
         prefs.simple_denoise = props.denoise
-        return props.style, props.level, props.slim and props.level ~= 'off', props.denoise
+        if WIN_ENV then prefs.simple_light = props.light end
+        return props.style, props.level, props.slim and props.level ~= 'off', props.denoise,
+            WIN_ENV and props.light and props.level ~= 'off'
     end)
 end
 
@@ -97,54 +105,76 @@ local function run()
     local active = catalog:getTargetPhoto() or photos[1]
 
     -- The desktop app does the talking when it is installed; the dialog below is the fallback.
-    if LrFileUtils.exists(config.app) then
+    if (WIN_ENV or MAC_ENV) and LrFileUtils.exists(config.app) then
         LrFileUtils.createAllDirectories(config.appData)
         local ids = {}
         for _, photo in ipairs(photos) do ids[#ids + 1] = tostring(photo.localIdentifier) end
-        local name = tostring(active:getFormattedMetadata('fileName')):gsub('[\\"]', '')
+        local name = tostring(active:getFormattedMetadata('fileName'))
+        if WIN_ENV then
+            name = name:gsub('[%z\1-\31\\"]', function(character)
+                if character == '"' or character == '\\' then return '\\' .. character end
+                return string.format('\\u%04x', character:byte())
+            end)
+        else
+            name = name:gsub('[\\"]', '')
+        end
         local iso = 0   -- the highest ISO among the photos: the app suggests denoising from it
         for _, values in pairs(catalog:batchGetRawMetadata(photos, { 'isoSpeedRating' })) do
             iso = math.max(iso, tonumber(values.isoSpeedRating) or 0)
         end
         local path = LrPathUtils.child(config.appData, 'session.json')
         local file = assert(io.open(path .. '.tmp', 'w'))
-        file:write('{"time":', os.time(), ',"active":', active.localIdentifier, ',"ids":[', table.concat(ids, ','),
+        local stamp = os.time()
+        if WIN_ENV then
+            local LrDate = import 'LrDate'
+            stamp = string.format('%.6f', LrDate.timeToPosixDate(LrDate.currentTime())):gsub(',', '.')
+        end
+        file:write('{"time":', stamp, ',"active":', active.localIdentifier, ',"ids":[', table.concat(ids, ','),
             '],"name":"', name, '","iso":', iso, '}\n')
         file:close()
         LrFileUtils.delete(path)
-        LrFileUtils.move(path .. '.tmp', path)
-        LrTasks.execute('open -a "' .. config.app .. '"')
+        local moved, message = LrFileUtils.move(path .. '.tmp', path)
+        if WIN_ENV then
+            assert(moved, message)
+            local tone = fresh 'Tone'
+            local status = tone.execute('start "" /b ' .. tone.shellQuote(config.app))
+            if status ~= 0 then LrDialogs.message('LRCDF', LOC("$$$/LRCDF/Errors/LaunchWindows=无法打开 LRCDF 一键修图。"), 'critical') end
+        else
+            LrTasks.execute('open -a "' .. config.app .. '"')
+        end
         return
     end
 
-    local scope = LrProgressScope { title = 'LRCDF：正在用这张照片生成各风格预览（只需一次）' }
+    local scope = LrProgressScope { title = LOC("$$$/LRCDF/Progress/OneClickPreviews=LRCDF：正在用这张照片生成各风格预览（只需一次）") }
     local previews, message = Simple.previews(active, {
+        localized = true,
         caption = function(text) scope:setCaption(text) end,
         portion = function(n, total) scope:setPortionComplete(n, total) end,
     })
     scope:done()
     if not previews then
-        LrDialogs.message('LRCDF', message or '预览生成失败。', 'critical')
+        LrDialogs.message('LRCDF', message or LOC("$$$/LRCDF/Errors/PreviewFailed=预览生成失败。"), 'critical')
         return
     end
 
-    local style, level, slim, denoise = ask(#photos, active, previews)
+    local style, level, slim, denoise, light = ask(#photos, active, previews)
     if not style then return end
     if style == 'none' and level == 'off' and not denoise then return end
 
-    scope = LrProgressScope { title = 'LRCDF 一键修图' }
+    scope = LrProgressScope { title = LOC("$$$/LRCDF/Title/OneClick=LRCDF 一键修图") }
     local result, failure = Simple.run(photos, style, level, slim, {
+        localized = true,
         caption = function(text) scope:setCaption(text) end,
         portion = function(n, total) scope:setPortionComplete(n, total) end,
         canceled = function() return scope:isCanceled() end,
-    }, nil, denoise)
+    }, light and { light = true } or nil, denoise)
     scope:done()
     if not result then
-        if failure ~= '已取消' then LrDialogs.message('LRCDF', failure, 'critical') end
+        if failure ~= LOC("$$$/LRCDF/Errors/Cancelled=已取消") then LrDialogs.message('LRCDF', failure, 'critical') end
     elseif result.failed > 0 then
-        LrDialogs.message('LRCDF', '有 ' .. result.failed .. ' 张没有处理成功。日志：' .. tostring(result.log), 'warning')
+        LrDialogs.message('LRCDF', LOC("$$$/LRCDF/OneClick/SomeFailed=有 ^1 张没有处理成功。日志：^2", result.failed, tostring(result.log)), 'warning')
     else
-        LrDialogs.showBezel('LRCDF：' .. #photos .. ' 张已修好')
+        LrDialogs.showBezel(LOC("$$$/LRCDF/OneClick/Done=LRCDF：^1 张已修好", #photos))
     end
 end
 

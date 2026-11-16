@@ -23,7 +23,10 @@ itself is on GitHub, it is larger than Gitee allows).
 The ready-to-use app (everything inside: Python, packages, models, the Lightroom plug-in) is on the
 [Releases page](https://github.com/dinghao581-cyber/LRCDF/releases). Unzip, double-click `LRCDF.app`; it installs itself the first time, then open
 Lightroom Classic and choose Library → Plug-in Extras → 开始一键修图…. The app is not signed with an Apple developer
-certificate: the first time, right-click it and choose Open (or allow it under System Settings → Privacy & Security).
+certificate, so macOS blocks it the first time. Click Done in the message, open System Settings → Privacy & Security,
+click Open Anyway next to the note about LRCDF (enter your login password), then double-click the app again and confirm
+with Open Anyway. The button only shows for about an hour after the attempt; right-click → Open no longer works since
+macOS 15. You only do this once.
 
 ## Status
 

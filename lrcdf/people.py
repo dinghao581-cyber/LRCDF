@@ -1,7 +1,7 @@
 """Who is who: one vector per face (OpenCV's SFace, Apache 2.0), so that the same person is found again in the other
 photos of a shoot and can be given their own retouching ("leave the groom natural, the bride refined, the child alone").
 Also a guess at age and sex per face (ViT trained on UTKFace, Apache 2.0), for a lighter default on men and children."""
-import json, os
+import json, os, sys
 import cv2, numpy as np
 
 MODEL = os.path.expanduser("~/LRCDF/models/sface/face_recognition_sface_2021dec.onnx")
@@ -14,7 +14,11 @@ TWICE = 0.60     # two faces in ONE photo are the same person only from here (a 
 
 class Reader:
     def __init__(self):
-        self.net = cv2.FaceRecognizerSF.create(MODEL, "")
+        if sys.platform == "win32" and not MODEL.isascii():
+            self.net = cv2.FaceRecognizerSF.create("onnx", np.fromfile(MODEL, dtype=np.uint8),
+                                                   np.empty(0, dtype=np.uint8))
+        else:
+            self.net = cv2.FaceRecognizerSF.create(MODEL, "")
         self.guess = None
 
     def vector(self, rgb8, box, points):

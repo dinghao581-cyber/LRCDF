@@ -31,15 +31,24 @@ enum L {
     static var lastStop: String { String(localized: "lastRun.stop", defaultValue: "不修了", comment: "Button on the first screen: give up the photos left over from the last run.") }
     static var viewResults: String { String(localized: "run.viewResults", defaultValue: "查看成片", comment: "Button: look at the finished pictures next to the originals.") }
     static var lastUndo: String { String(localized: "lastRun.undo", defaultValue: "撤销上次修图", comment: "Button on the first screen: undo the previous retouching run.") }
-    static var preparingTitle: String { String(localized: "preparing.title", defaultValue: "正在用你的照片试每一种效果", comment: "Title while the looks of the first photo are being rendered (about 20 seconds).") }
+    static var progressFirst: String { String(localized: "progress.first", defaultValue: "正在准备这张照片", comment: "Small progress line on the main screen, right after photos were sent from Lightroom: the photo on screen is being rendered. Keep it short.") }
     static func lastUnfinished(_ remaining: Int, _ done: Int) -> String {
         String(localized: "lastRun.unfinished", defaultValue: "上次有 \(remaining) 张还没修完（已完成 \(done) 张）", comment: "First screen: photos left over from the last run. %1 = photos still to do, %2 = photos done.")
     }
     static func lastDone(_ count: Int) -> String {
         String(localized: "lastRun.done", defaultValue: "上次修了 \(count) 张", comment: "First screen: how many photos the last run retouched.")
     }
-    static func preparingNote(_ name: String) -> String {
-        String(localized: "preparing.note", defaultValue: "\(name)，大约 20 秒，同一张照片下次直接打开", comment: "Line under the preparing title. %@ = the photo's file name.")
+    static func progressReading(_ done: Int, _ total: Int) -> String {
+        String(localized: "progress.reading", defaultValue: "正在读取照片 \(done) / \(total)", comment: "Small progress line on the main screen: small pictures of the photos are being read. %1 = photos read so far, %2 = photos in all. Keep it short.")
+    }
+    static func progressLoading(_ done: Int, _ total: Int) -> String {
+        String(localized: "progress.loading", defaultValue: "正在加载照片 \(done) / \(total)", comment: "Small progress line on the main screen: every photo is being prepared in the background (its original and the chosen look), so that clicking any photo shows it at once. %1 = photos ready, %2 = photos in all. Keep it short.")
+    }
+    static func progressLooks(_ done: Int, _ total: Int) -> String {
+        String(localized: "progress.looks", defaultValue: "正在生成效果 \(done) / \(total)", comment: "Small progress line on the main screen: the remaining looks (styles) of all the photos are being rendered one by one in the background. %1 = looks ready, %2 = looks in all. Keep it short.")
+    }
+    static func progressChecking(_ done: Int, _ total: Int) -> String {
+        String(localized: "progress.checking", defaultValue: "正在检查闭眼和虚焦 \(done) / \(total)", comment: "Small progress line on the main screen: the photos are being checked for closed eyes and missed focus. %1 = photos checked, %2 = photos in all. Keep it short.")
     }
 
     // MARK: Failure
@@ -98,10 +107,20 @@ enum L {
     static var saveStyleBusy: String { String(localized: "look.saveMine.busy", defaultValue: "正在学习你的调法…", comment: "Shown in the dialog while the look is being learnt.") }
     static var defaultStyleName: String { String(localized: "look.saveMine.defaultName", defaultValue: "我的风格", comment: "Name given to an own look when the user typed none.") }
     static var keepOriginal: String { String(localized: "look.none.note", defaultValue: "保持原片的颜色", comment: "Line under the look's name when the look is the unedited original.") }
-    static var darker: String { String(localized: "tweak.darker", defaultValue: "暗", comment: "Left end of the brightness row (five steps). As short as possible, ideally one word.") }
+    static var darker: String { String(localized: "tweak.darker", defaultValue: "暗", comment: "Left end of the brightness slider. As short as possible, ideally one word.") }
     static var brighter: String { String(localized: "tweak.brighter", defaultValue: "亮", comment: "Right end of the brightness row. As short as possible.") }
     static var cooler: String { String(localized: "tweak.cooler", defaultValue: "冷", comment: "Left end of the colour-temperature row. As short as possible.") }
     static var warmer: String { String(localized: "tweak.warmer", defaultValue: "暖", comment: "Right end of the colour-temperature row. As short as possible.") }
+    static var pinker: String { String(localized: "tweak.pinker", defaultValue: "粉", comment: "Top of the white-balance colour wheel: towards pink / magenta. As short as possible.") }
+    static var greener: String { String(localized: "tweak.greener", defaultValue: "绿", comment: "Bottom of the white-balance colour wheel: towards green. As short as possible.") }
+    static var pageTone: String { String(localized: "page.tone", defaultValue: "色盘", comment: "Tab of the bottom bar in a narrow window: the colour wheels. One short word.") }
+    static var wheelBalance: String { String(localized: "wheel.balance", defaultValue: "白平衡", comment: "First of three segments above the colour wheel: white balance. Short.") }
+    static var wheelShadows: String { String(localized: "wheel.shadows", defaultValue: "阴影", comment: "Second segment above the colour wheel: a colour for the dark parts of the picture. Short.") }
+    static var wheelHighlights: String { String(localized: "wheel.highlights", defaultValue: "高光", comment: "Third segment above the colour wheel: a colour for the bright parts of the picture. Short.") }
+    static var wheelWarmth: String { String(localized: "wheel.warmth", defaultValue: "冷暖", comment: "Label of a number under the white-balance wheel: cool to warm, -100 to +100. Short.") }
+    static var wheelTint: String { String(localized: "wheel.tint", defaultValue: "绿粉", comment: "Label of a number under the white-balance wheel: green to pink, -100 to +100. Short.") }
+    static var wheelHue: String { String(localized: "wheel.hue", defaultValue: "色相", comment: "Label of a number under the shadows / highlights wheel: hue in degrees. Short.") }
+    static var wheelAmount: String { String(localized: "wheel.amount", defaultValue: "浓度", comment: "Label of a number under the shadows / highlights wheel: how strong the colour is, 0 to 100. Short.") }
     static var paler: String { String(localized: "tweak.paler", defaultValue: "淡", comment: "Left end of the colour-strength row (less saturated). As short as possible.") }
     static var richer: String { String(localized: "tweak.richer", defaultValue: "浓", comment: "Right end of the colour-strength row (more saturated). As short as possible.") }
 

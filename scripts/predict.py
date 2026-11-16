@@ -20,6 +20,7 @@ import numpy as np
 import torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from lrcdf import params as P
+from lrcdf.device import pick
 from lrcdf.model import ToneNet, load_image, wb_feature
 
 
@@ -176,6 +177,46 @@ def embedded_wb(path):
     return None
 
 
+def skin_notes(job, out, dev):
+    """<out without .lua>.skin.lua / .skin.npz: the photos of the job with dark skin, and where their skin is."""
+    base, found = os.path.splitext(out)[0], {}
+    try:
+        from lrcdf import skinkeep
+        from lrcdf.image_io import imread
+        for line in open(job, encoding="utf-8"):
+            pid, path = line.rstrip("\n").split("\t")[:2]
+            try:
+                seen = skinkeep.read(np.ascontiguousarray(imread(path)[..., ::-1]), dev)
+                if seen:
+                    found[pid] = seen
+                    print("skin depth %s: %.2f (score %.2f)" % (pid, seen["s"], seen["score"]), flush=True)
+            except Exception as ex:
+                print("skin depth %s not read: %s" % (pid, ex), flush=True)
+        skinkeep.save(base, found)
+    except Exception as ex:     # without the reading every photo simply keeps the look as the model gives it
+        print("skin depth not read:", ex, flush=True)
+
+
+def skin_strokes(job, dev):
+    """{ id: where the skin is, as brush strokes (lrcdf/skinmask.py) } for the photos of the job that show skin."""
+    found = {}
+    try:
+        from lrcdf import skinmask
+        from lrcdf.image_io import imread
+        for line in open(job, encoding="utf-8"):
+            pid, path = line.rstrip("\n").split("\t")[:2]
+            try:
+                seen = skinmask.strokes(np.ascontiguousarray(imread(path)[..., ::-1]), dev)
+                if seen:
+                    found[pid] = seen
+            except Exception as ex:
+                print("skin of %s not found: %s" % (pid, ex), flush=True)
+        print("skin mask for %d of the photos" % len(found), flush=True)
+    except Exception as ex:     # without it the look's skin corrections go to the whole picture, as before
+        print("skin masks not made:", ex, flush=True)
+    return found
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", required=True); ap.add_argument("--job", required=True)
@@ -194,7 +235,7 @@ def main():
         open(a.out, "w").write("return {}\n")
         return
     ck = torch.load(a.ckpt, map_location="cpu", weights_only=False)
-    dev = "mps" if torch.backends.mps.is_available() else "cpu"
+    dev = pick()
     model = ToneNet(len(ck["styles"]), pretrained=False)
     model.load_state_dict(ck["model"]); model.to(dev).eval()
     recipes = json.load(open(os.path.join(os.path.dirname(__file__), "..", "styles.json"), encoding="utf-8"))
@@ -238,6 +279,10 @@ def main():
         save_my_styles(a.mystyles, styles)
         open(a.out, "w").write("return {}\n")
         return
+    if not a.reference:     # dark skin is noted for the plug-in, which then holds the look's brightening back
+        skin_notes(a.job, a.out, dev)   # (lrcdf/skinkeep.py); a reference photo's edit is followed as it is
+    # where the skin is, so that the look's skin corrections touch nothing else (lrcdf/skinmask.py, Tone.lua)
+    strokes = {} if a.reference else skin_strokes(a.job, dev)
     out = {}
     for name in names:
         recipe = recipes.get(name, {})
@@ -255,6 +300,8 @@ def main():
                 harmonise(shoot)
         for pid, v, ref, _ in vecs:
             res[pid] = dict(P.decode(v, *ref, strength=1.0 if a.reference else a.strength), **extra)
+            if pid in strokes:
+                res[pid]["_skin"] = strokes[pid]
         out[name] = res
     tmp = a.out + ".tmp"
     open(tmp, "w", encoding="utf-8").write("return " + lua(out if a.style == "all" else out[a.style]) + "\n")

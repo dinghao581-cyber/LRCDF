@@ -1,0 +1,25 @@
+LRCDF-Komplett-App. Alles Nötige ist enthalten und die App funktioniert offline.
+
+Erste Schritte
+  1. Ziehe LRCDF.app in den Ordner „Programme“. Du kannst sie auch in einem anderen Ordner lassen.
+  2. Öffne die App per Doppelklick. Die erste Einrichtung dauert etwa eine Minute. Sie kopiert App und Modelle nach ~/LRCDF (etwa 2,7 GB) und installiert das Zusatzmodul in Lightroom Classic.
+  3. Öffne Lightroom Classic. Wenn es schon läuft, beende und starte es erneut.
+  4. Wähle deine Fotos und dann Bibliothek → Plug-in-Extras → Ein-Klick-Retusche starten….
+
+  Wenn macOS nach dem Doppelklick meldet, dass der Entwickler nicht überprüft werden kann, oder „Apple konnte nicht überprüfen, ob ‚LRCDF‘ frei von Schadsoftware ist …“ anzeigt
+  Die App hat keine Apple-Entwicklersignatur. Du musst das Öffnen beim ersten Mal manuell erlauben.
+  1. Klicke in der Meldung auf „Fertig“ (nicht auf „In den Papierkorb legen“).
+  2. Öffne Systemeinstellungen → Datenschutz & Sicherheit, scrolle zum Hinweis zu LRCDF und klicke auf „Dennoch öffnen“. Gib bei Aufforderung das Anmeldepasswort deines Mac ein.
+  3. Doppelklicke erneut auf LRCDF.app und klicke in der Bestätigung auf „Dennoch öffnen“.
+  „Dennoch öffnen“ erscheint nur etwa eine Stunde nach dem Öffnungsversuch. Wenn die Taste fehlt, doppelklicke erneut auf die App. Das ist nur einmal nötig.
+  (Seit macOS 15 lässt sich dieser Schritt mit Rechtsklick → „Öffnen“ nicht mehr überspringen.)
+
+Voraussetzungen
+  - Ein Mac mit Apple-Chip (M1 oder neuer), macOS 26 oder neuer und installiertem Lightroom Classic.
+  - 6 GB freier Speicher (je etwa 2,7 GB für die App und die installierten Dateien).
+
+Lizenzen und Datenschutz
+  - Alles läuft auf deinem Mac und es wird nichts hochgeladen.
+  - Lizenzen und Nutzungsbedingungen findest du nach der Installation in ~/LRCDF/project/legal/.
+
+Für ein Update ersetzt du die alte LRCDF.app durch die neue und öffnest sie per Doppelklick. Die App aktualisiert sich selbst.

@@ -1,0 +1,25 @@
+Kompletní aplikace LRCDF. Obsahuje vše potřebné a funguje bez internetu.
+
+Začínáme
+  1. Přetáhněte LRCDF.app do složky „Aplikace“ nebo ji nechte v jiné složce.
+  2. Otevřete ji dvojitým kliknutím. První nastavení trvá přibližně minutu. Aplikace a modely se zkopírují do ~/LRCDF (asi 2,7 GB) a do Lightroom Classic se nainstaluje zásuvný modul.
+  3. Otevřete Lightroom Classic. Pokud už běží, ukončete ho a spusťte znovu.
+  4. Vyberte snímky a otevřete LRCDF z nabídky. V anglickém rozhraní Lightroom Classic použijte Library → Plug-in Extras → Start One-Click Retouch….
+
+  Pokud se po dvojitém kliknutí objeví varování, že vývojáře nelze ověřit, nebo zpráva „Společnosti Apple se nepodařilo ověřit, že soubor ‚LRCDF‘ neobsahuje malware…“
+  Aplikace nemá podpis vývojáře Apple. Při prvním spuštění je potřeba její otevření ručně povolit.
+  1. Ve varovném okně klikněte na „Hotovo“ (neklikejte na „Přesunout do koše“).
+  2. Otevřete „Nastavení systému → Soukromí a zabezpečení“. Posuňte zobrazení dolů k upozornění týkajícímu se LRCDF, klikněte na „Přesto otevřít“ a na vyžádání zadejte přihlašovací heslo k Macu.
+  3. Znovu dvakrát klikněte na LRCDF.app a v potvrzovacím okně klikněte na „Přesto otevřít“.
+  Tlačítko „Přesto otevřít“ je k dispozici jen asi hodinu od pokusu o otevření aplikace. Pokud ho nevidíte, znovu dvakrát klikněte na aplikaci. Stačí to udělat jednou.
+  (Od macOS 15 už tento krok nelze přeskočit kliknutím pravým tlačítkem a volbou „Otevřít“.)
+
+Požadavky
+  - Mac s čipem Apple (M1 nebo novějším), macOS 26 nebo novější a nainstalovaný Lightroom Classic.
+  - 6 GB volného místa (asi 2,7 GB pro aplikaci a 2,7 GB pro nainstalované soubory).
+
+Licence a soukromí
+  - Vše probíhá na vašem Macu a žádná data se neodesílají.
+  - Po instalaci najdete licence a podmínky v ~/LRCDF/project/legal/.
+
+Chcete-li aktualizovat, nahraďte starou LRCDF.app novou a otevřete ji dvojitým kliknutím. Aplikace se sama aktualizuje.

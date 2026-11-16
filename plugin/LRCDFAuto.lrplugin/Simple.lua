@@ -11,23 +11,51 @@ local function fresh(name)
     return assert(loadstring(LrFileUtils.readFile(path), name))()
 end
 
+local messages = fresh 'Messages'
 local config = fresh 'Config'
 local Tone = fresh 'Tone'
 local Simple = {}
 
+-- What a photo's preview folder is called. The number Lightroom gives a photo is only unique inside one catalog:
+-- with a second catalog the previews of another photo with the same number were shown (found during the Windows
+-- port). The photo's own id is the same in every catalog and belongs to this photo alone.
+local function previewName(photo)
+    local uuid = photo:getRawMetadata('uuid')
+    return (uuid and uuid ~= '') and tostring(uuid) or tostring(photo.localIdentifier)
+end
+
 local function previewDir(photo)
-    return LrPathUtils.child(LrPathUtils.child(config.work, 'previews'), tostring(photo.localIdentifier))
+    return LrPathUtils.child(LrPathUtils.child(config.work, 'previews'), previewName(photo))
 end
 
 -- The looks on offer: the built-in ones, then the user's own (learned from their edits).
-function Simple.cards()
+function Simple.cards(localized)
     local cards = {}
-    for _, card in ipairs(config.cards) do cards[#cards + 1] = card end
+    for _, card in ipairs(config.cards) do
+        if localized then
+            local key = "$$$/LRCDF/Looks/" .. card.value
+            cards[#cards + 1] = { value = card.value,
+                title = LOC(key .. "/Title=" .. card.title), note = LOC(key .. "/Note=" .. card.note) }
+        else
+            cards[#cards + 1] = card
+        end
+    end
     local list = LrPathUtils.replaceExtension(config.myStyles, 'lua')
     if LrFileUtils.exists(list) then
         local ok, mine = pcall(function() return assert(loadstring(LrFileUtils.readFile(list)))() end)
         if ok and type(mine) == 'table' then
-            for _, card in ipairs(mine) do cards[#cards + 1] = card end
+            for _, card in ipairs(mine) do
+                if localized and card.note == '我的风格' then
+                    cards[#cards + 1] = { value = card.value, title = card.title,
+                        note = LOC("$$$/LRCDF/MyLook=我的风格") }
+                elseif localized and type(card.note) == 'string' then
+                    local count = card.note:match('^我的风格 · 学自 (%d+) 张照片$')
+                    cards[#cards + 1] = { value = card.value, title = card.title,
+                        note = count and LOC("$$$/LRCDF/Looks/Custom/Learned=我的风格 · 学自 ^1 张照片", count) or card.note }
+                else
+                    cards[#cards + 1] = card
+                end
+            end
         end
     end
     return cards
@@ -36,16 +64,11 @@ end
 -- Show `settings` on the photo and render it into `target`.
 local function shoot(photo, settings, target, size)
     if settings then
-        LrApplication.activeCatalog():withWriteAccessDo('LRCDF 预览', function()
-            photo:applyDevelopSettings(settings, 'LRCDF 预览')
+        local written
+        LrApplication.activeCatalog():withWriteAccessDo(LOC("$$$/LRCDF/History/Preview=LRCDF 预览"), function()
+            written = Tone.write(photo, settings, LOC("$$$/LRCDF/History/Preview=LRCDF 预览"))
         end, { timeout = 30 })
-        for _ = 1, 20 do   -- the write lands a moment later; render only once it is there
-            local now = photo:getDevelopSettings()
-            if now.Temperature == settings.Temperature and now.Contrast2012 == settings.Contrast2012
-                and now.Exposure2012 == settings.Exposure2012 then break end
-            LrTasks.sleep(0.2)
-        end
-        LrTasks.sleep(config.previewSettle)
+        Tone.arrived(photo, written or settings)      -- the write lands a moment later; render only once it is there
     end
     local staging = target .. '.staging'
     local path = Tone.render({ photo }, staging, size)[photo.localIdentifier]
@@ -57,6 +80,46 @@ local function shoot(photo, settings, target, size)
     return path ~= nil
 end
 
+-- Dark skin (Tone.skinNotes): the preview `target` just made shows the look as the model gave it. It is measured and
+-- the look corrected, twice at most, the preview made again each time; `settings` is changed in place. What was
+-- changed is kept next to the previews (skin_<look>.lua) for the tweaked previews of this look.
+local function keepSkin(photo, settings, look, dir, target, size)
+    local id = tostring(photo.localIdentifier)
+    local state = LrPathUtils.child(dir, 'skin_' .. look .. '.json')
+    local kept = LrPathUtils.child(dir, 'skin_' .. look .. '.lua')
+    for _, path in ipairs { state, kept } do
+        if LrFileUtils.exists(path) then LrFileUtils.delete(path) end
+    end
+    local all, ok = {}, true
+    for _ = 1, 2 do
+        local change = Tone.skinChanges({ { id = id, path = target, settings = settings } }, LrPathUtils.child(dir, 'analysis'), state)[id]
+        if not change then break end
+        for name, value in pairs(change) do settings[name], all[name] = value, value end
+        ok = shoot(photo, settings, target, size)
+        if not ok then break end
+    end
+    local out = io.open(kept, 'w')
+    if out then
+        out:write('return {')
+        for name, value in pairs(all) do out:write(name, '=', tostring(value), ',') end
+        out:write('}\n')
+        out:close()
+    end
+    return ok
+end
+
+-- The look's settings with what keepSkin changed for this photo (nothing for most photos).
+local function withKeptSkin(settings, dir, look)
+    local kept = LrPathUtils.child(dir, 'skin_' .. look .. '.lua')
+    if LrFileUtils.exists(kept) then
+        local ok, all = pcall(function() return assert(loadstring(LrFileUtils.readFile(kept)))() end)
+        if ok and type(all) == 'table' then
+            for name, value in pairs(all) do settings[name] = value end
+        end
+    end
+    return settings
+end
+
 -- Pictures of one photo in every look of Simple.cards(): { [card value] = path }, or nil, message.
 -- Made once per photo and kept (only the missing ones are made); the photo's own settings are put back afterwards.
 -- size and base are optional: long edge in pixels and the folder to keep them in (the desktop app asks for large ones
@@ -65,10 +128,11 @@ end
 -- and for the others one by one afterwards); the paths of all cards are returned, made or not.
 function Simple.previews(photo, progress, size, base, only)
     progress = progress or {}
+    local message = progress.localized and LOC or messages.source
     local caption = progress.caption or function() end
     size = size or config.previewSize
-    local dir = base and LrPathUtils.child(base, photo.localIdentifier .. '_' .. size) or previewDir(photo)
-    local cards = Simple.cards()
+    local dir = base and LrPathUtils.child(base, previewName(photo) .. '_' .. size) or previewDir(photo)
+    local cards = Simple.cards(progress.localized)
     local paths, missing = {}, {}
     for _, card in ipairs(cards) do
         paths[card.value] = LrPathUtils.child(dir, card.value .. '.jpg')
@@ -90,12 +154,20 @@ function Simple.previews(photo, progress, size, base, only)
     if results then
         before = { [photo] = photo:getDevelopSettings() }
     else
-        caption('正在分析这张照片…')
-        results, before, file = Tone.apply({ photo }, 'all', 1.0, 'none')
+        caption(message("$$$/LRCDF/Progress/AnalyzePhoto=正在分析这张照片…"))
+        results, before, file = Tone.apply({ photo }, 'all', 1.0, 'none', {
+            localized = progress.localized,
+        })
         if not results then return nil, before end
         if LrFileUtils.exists(analysis) then LrFileUtils.delete(analysis) end
         LrFileUtils.copy(file, analysis)
+        for _, ending in ipairs { '.skin.lua', '.skin.npz' } do      -- the skin notes belong to the analysis
+            local from, to = LrPathUtils.removeExtension(file) .. ending, LrPathUtils.removeExtension(analysis) .. ending
+            if LrFileUtils.exists(to) then LrFileUtils.delete(to) end
+            if LrFileUtils.exists(from) then LrFileUtils.copy(from, to) end
+        end
     end
+    local dark = Tone.skinNotes(LrPathUtils.removeExtension(analysis))[id]
     local ok = true
     for n, card in ipairs(missing) do
         if card.value == 'none' then
@@ -103,22 +175,81 @@ function Simple.previews(photo, progress, size, base, only)
         else
             local settings = results[card.value] and results[card.value][id]
             if settings and not settings.error then
-                caption('正在生成预览：' .. card.title .. '（' .. n .. '/' .. #missing .. '）')
+                caption(message("$$$/LRCDF/Progress/LookPreview=正在生成预览：^1（^2/^3）", card.title, n, #missing))
                 if progress.portion then progress.portion(n, #missing + 1) end
                 ok = shoot(photo, settings, paths[card.value], size) and ok
+                if dark and ok then ok = keepSkin(photo, settings, card.value, dir, paths[card.value], size) end
             else
                 ok = false
             end
         end
     end
     Tone.restore(before)
-    if not ok then return nil, '预览生成失败。' end
+    if not ok then return nil, message("$$$/LRCDF/Errors/PreviewFailed=预览生成失败。") end
     return paths, dir
 end
 
 -- One look with a tweak ({ bright, warm, rich }), rendered next to the other previews. Returns the picture's path.
+-- The file name of a tweaked look: the three values in hundredths of a step, "d_t35_-120_0" (a whole step is 100),
+-- then what the colour wheels ask for, in this order and only when there: _n<tint x 100>, _s<hue>-<amount> (shadows),
+-- _h<hue>-<amount> (highlights): "d_t35_-120_0_n40_s210-30_h45-20".
+function Simple.tweakName(look, tweak)
+    local parts = {}
+    for i = 1, 3 do parts[i] = string.format('%d', math.floor((tweak[i] or 0) * 100 + 0.5)) end
+    local name = look .. '_t' .. table.concat(parts, '_')
+    if tweak.tint and tweak.tint ~= 0 then name = name .. string.format('_n%d', math.floor(tweak.tint * 100 + 0.5)) end
+    if tweak.shadow then name = name .. string.format('_s%d-%d', tweak.shadow[1], tweak.shadow[2]) end
+    if tweak.high then name = name .. string.format('_h%d-%d', tweak.high[1], tweak.high[2]) end
+    return name
+end
+
+-- A look's name as an app gives it. Apps from before the stepless tweaks say "d_t1_0_-1" (whole steps); a name in
+-- hundredths never has all three values within -2..2 (the smallest one that is not zero is 5), so those are old ones.
+function Simple.lookName(look)
+    local base, b, w, r = look:match('^(.+)_t(-?%d+)_(-?%d+)_(-?%d+)$')
+    if not base then return look end
+    b, w, r = tonumber(b), tonumber(w), tonumber(r)
+    if math.max(math.abs(b), math.abs(w), math.abs(r)) <= 2 then return Simple.tweakName(base, { b, w, r }) end
+    return look
+end
+
+-- A stepless tweak can ask for many pictures: of one look's tweaked previews only the latest KEPT stay (by the time
+-- they were made), with the retouched previews made from them.
+local KEPT = 8
+
+-- "d_t35_-120_0_n40_s210-30_natural_slim" -> "d", "d_t35_-120_0_n40_s210-30", "_natural_slim" (nil for other names)
+local function tweaked(name)
+    local look, values, rest = name:match('^(.-)(_t%-?%d+_%-?%d+_%-?%d+)(.*)$')
+    if not look then return nil end
+    for _, pattern in ipairs { '^_n%-?%d+', '^_s%d+%-%d+', '^_h%d+%-%d+' } do
+        local segment = rest:match(pattern)
+        if segment then values, rest = values .. segment, rest:sub(#segment + 1) end
+    end
+    return look, look .. values, rest
+end
+
+local function forgetOld(dir, look)
+    local found = {}
+    for path in LrFileUtils.files(dir) do
+        local leaf = LrPathUtils.leafName(path)
+        local of, name, rest = tweaked(leaf:match('^(.*)%.jpg$') or '')
+        if of == look and rest == '' then
+            local attributes = LrFileUtils.fileAttributes(path)
+            found[#found + 1] = { name = name, made = attributes and attributes.fileModificationDate or 0 }
+        end
+    end
+    if #found <= KEPT then return end
+    table.sort(found, function(x, y) return x.made > y.made end)
+    local gone = {}
+    for i = KEPT + 1, #found do gone[found[i].name] = true end
+    for path in LrFileUtils.files(dir) do
+        local _, name = tweaked(LrPathUtils.leafName(path):match('^(.*)%.jpg$') or '')
+        if name and gone[name] then LrFileUtils.delete(path) end
+    end
+end
+
 function Simple.tweakPreview(photo, dir, look, tweak, size)
-    local name = look .. '_t' .. table.concat(tweak, '_')
+    local name = Simple.tweakName(look, tweak)
     local target = LrPathUtils.child(dir, name .. '.jpg')
     if LrFileUtils.exists(target) then return target, name end
     local analysis = LrPathUtils.child(dir, 'analysis.lua')
@@ -127,9 +258,10 @@ function Simple.tweakPreview(photo, dir, look, tweak, size)
     local settings = results[look] and results[look][tostring(photo.localIdentifier)]
     if not settings or settings.error then return nil, '没有这个效果的数据。' end
     local before = { [photo] = photo:getDevelopSettings() }
-    local ok = shoot(photo, Tone.tweak(settings, tweak), target, size or config.previewSize)
+    local ok = shoot(photo, Tone.tweak(withKeptSkin(settings, dir, look), tweak), target, size or config.previewSize)
     Tone.restore(before)
     if not ok then return nil, '预览生成失败。' end
+    forgetOld(dir, look)
     return target, name
 end
 

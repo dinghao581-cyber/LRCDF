@@ -1,0 +1,25 @@
+Aplikasi LRCDF lengkap. Semua yang Anda perlukan sudah disertakan dan aplikasi bisa dipakai tanpa internet.
+
+Mulai
+  1. Seret LRCDF.app ke folder “Aplikasi” atau simpan di folder lain.
+  2. Klik dua kali untuk membuka. Penyiapan pertama membutuhkan sekitar satu menit. Aplikasi dan model disalin ke ~/LRCDF (sekitar 2,7 GB) dan plugin dipasang di Lightroom Classic.
+  3. Buka Lightroom Classic. Jika sudah terbuka, tutup lalu buka kembali.
+  4. Pilih foto lalu buka LRCDF dari menu. Pada Lightroom Classic berbahasa Inggris, pilih Library → Plug-in Extras → Start One-Click Retouch….
+
+  Jika setelah diklik dua kali macOS menyatakan bahwa pengembang tidak dapat diverifikasi atau muncul pesan “Apple tidak dapat memverifikasi apakah ‘LRCDF’ bebas dari malware…”
+  App ini tidak memiliki tanda tangan pengembang Apple. Izinkan app dibuka secara manual saat pertama kali.
+  1. Di dialog peringatan, klik “Selesai” (jangan klik “Pindahkan ke Tong Sampah”).
+  2. Buka “Pengaturan Sistem → Privasi & Keamanan”. Gulir ke bawah ke pemberitahuan tentang LRCDF, klik “Tetap Buka”, lalu masukkan kata sandi masuk Mac ketika diminta.
+  3. Klik dua kali LRCDF.app lagi, lalu klik “Tetap Buka” pada dialog konfirmasi.
+  Tombol “Tetap Buka” hanya muncul selama sekitar satu jam setelah Anda mencoba membuka app. Jika tombolnya tidak terlihat, klik dua kali app lagi. Anda hanya perlu melakukan ini sekali.
+  (Sejak macOS 15, klik kanan → “Buka” tidak lagi dapat melewati langkah ini.)
+
+Persyaratan
+  - Mac dengan cip Apple (M1 atau yang lebih baru), macOS 26 atau yang lebih baru, dan Lightroom Classic yang sudah terpasang.
+  - Ruang kosong 6 GB (sekitar 2,7 GB untuk aplikasi dan 2,7 GB untuk berkas yang terpasang).
+
+Lisensi dan privasi
+  - Semua diproses di Mac Anda tanpa mengunggah data.
+  - Setelah instalasi, lihat lisensi dan ketentuan penggunaan di ~/LRCDF/project/legal/.
+
+Untuk memperbarui, ganti LRCDF.app lama dengan versi baru lalu klik dua kali. Aplikasi akan diperbarui secara otomatis.

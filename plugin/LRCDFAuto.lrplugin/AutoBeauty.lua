@@ -20,16 +20,16 @@ local config = fresh 'Config'
 local Beauty = fresh 'Beauty'
 
 local sliders = {
-    { key = 'blemish', title = '祛痘祛斑' },
-    { key = 'smooth', title = '匀肤' },
-    { key = 'undereye', title = '淡化黑眼圈' },
-    { key = 'eyes', title = '提亮眼神' },
-    { key = 'teeth', title = '牙齿美白' },
-    { key = 'slim', title = '瘦脸' },
-    { key = 'bigeyes', title = '大眼' },
-    { key = 'chest', title = '丰胸' },
-    { key = 'waist', title = '收腰' },
-    { key = 'legs', title = '长腿' },
+    { key = 'blemish', title = LOC("$$$/LRCDF/AutoBeauty/Blemishes=祛痘祛斑") },
+    { key = 'smooth', title = LOC("$$$/LRCDF/AutoBeauty/EvenSkin=匀肤") },
+    { key = 'undereye', title = LOC("$$$/LRCDF/AutoBeauty/UnderEye=淡化黑眼圈") },
+    { key = 'eyes', title = LOC("$$$/LRCDF/AutoBeauty/BrightenEyes=提亮眼神") },
+    { key = 'teeth', title = LOC("$$$/LRCDF/AutoBeauty/WhitenTeeth=牙齿美白") },
+    { key = 'slim', title = LOC("$$$/LRCDF/AutoBeauty/SlimFace=瘦脸") },
+    { key = 'bigeyes', title = LOC("$$$/LRCDF/AutoBeauty/EnlargeEyes=大眼") },
+    { key = 'chest', title = LOC("$$$/LRCDF/AutoBeauty/FullerChest=丰胸") },
+    { key = 'waist', title = LOC("$$$/LRCDF/AutoBeauty/SlimWaist=收腰") },
+    { key = 'legs', title = LOC("$$$/LRCDF/AutoBeauty/LengthenLegs=长腿") },
 }
 
 local function askOptions(count)
@@ -47,11 +47,11 @@ local function askOptions(count)
             }
         end
         props.deep = prefs.beauty_deep == true
-        rows[#rows + 1] = f:checkbox { title = '保留最大画质：16 位广色域 TIFF（文件大约是三倍）', value = LrView.bind 'deep' }
-        rows[#rows + 1] = f:static_text { title = '会为每张照片生成一张新的 TIFF 并叠在原片上方，原片不会被改动。' }
+        rows[#rows + 1] = f:checkbox { title = LOC("$$$/LRCDF/AutoBeauty/MaxQuality=保留最大画质：16 位广色域 TIFF（文件大约是三倍）"), value = LrView.bind 'deep' }
+        rows[#rows + 1] = f:static_text { title = LOC("$$$/LRCDF/AutoBeauty/StackHelp=会为每张照片生成一张新的 TIFF 并叠在原片上方，原片不会被改动。") }
         local result = LrDialogs.presentModalDialog {
-            title = 'LRCDF 一键美颜',
-            actionVerb = '美颜 ' .. count .. ' 张照片',
+            title = LOC("$$$/LRCDF/Title/Beauty=LRCDF 一键美颜"),
+            actionVerb = LOC("$$$/LRCDF/AutoBeauty/RetouchCount=美颜 ^1 张照片", count),
             contents = f:column(rows),
         }
         if result ~= 'ok' then return nil end
@@ -71,17 +71,18 @@ local function run()
     if #photos == 0 then return end
     local options = askOptions(#photos)
     if not options then return end
-    local scope = LrProgressScope { title = 'LRCDF 一键美颜' }
+    local scope = LrProgressScope { title = LOC("$$$/LRCDF/Title/Beauty=LRCDF 一键美颜") }
     local done, failed, log = Beauty.apply(photos, options, {
+        localized = true,
         caption = function(text) scope:setCaption(text) end,
         portion = function(n, total) scope:setPortionComplete(n, total) end,
         canceled = function() return scope:isCanceled() end,
     })
     scope:done()
     if not done then
-        if failed ~= '已取消' then LrDialogs.message('LRCDF', failed, 'critical') end
+        if failed ~= LOC("$$$/LRCDF/Errors/Cancelled=已取消") then LrDialogs.message('LRCDF', failed, 'critical') end
     elseif failed > 0 then
-        LrDialogs.message('LRCDF', '已完成 ' .. done .. ' 张，' .. failed .. ' 张失败。日志：' .. log, 'warning')
+        LrDialogs.message('LRCDF', LOC("$$$/LRCDF/AutoBeauty/Result=已完成 ^1 张，^2 张失败。日志：^3", done, failed, log), 'warning')
     end
 end
 

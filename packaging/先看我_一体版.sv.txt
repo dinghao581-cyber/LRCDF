@@ -1,0 +1,25 @@
+Kompletta LRCDF-appen. Allt du behöver ingår och appen fungerar offline.
+
+Kom igång
+  1. Dra LRCDF.app till ”Program” eller låt den ligga i en annan mapp.
+  2. Dubbelklicka för att öppna. Den första installationen tar ungefär en minut. Appen och modellerna kopieras till ~/LRCDF (cirka 2,7 GB) och pluginmodulen installeras i Lightroom Classic.
+  3. Öppna Lightroom Classic. Om det redan är öppet, avsluta och öppna det igen.
+  4. Markera fotona och välj Bibliotek → Plugin-tillbehör → Starta retusch med ett klick….
+
+  Om macOS efter dubbelklicket säger att utvecklaren inte kan verifieras eller visar ”Apple kunde inte verifiera att ’LRCDF’ är fri från sabotageprogram …”
+  Appen saknar utvecklarsignatur från Apple. Första gången behöver du tillåta att den öppnas manuellt.
+  1. Klicka på ”Klar” i varningen (inte på ”Flytta till papperskorgen”).
+  2. Öppna Systeminställningar → Integritet och säkerhet, rulla ned till meddelandet om LRCDF och klicka på ”Öppna ändå”. Ange datorns inloggningslösenord när du ombeds göra det.
+  3. Dubbelklicka på LRCDF.app igen och klicka på ”Öppna ändå” i bekräftelserutan.
+  ”Öppna ändå” visas bara i ungefär en timme efter att du har försökt öppna appen. Om du inte ser knappen dubbelklickar du på appen igen. Du behöver bara göra det en gång.
+  (Från och med macOS 15 går det inte längre att hoppa över det här steget med högerklick → ”Öppna”.)
+
+Krav
+  - Mac med Apple-chip (M1 eller senare), macOS 26 eller senare och Lightroom Classic installerat.
+  - 6 GB ledigt utrymme (cirka 2,7 GB för appen och 2,7 GB för de installerade filerna).
+
+Licenser och integritet
+  - Allt körs på din Mac och ingenting laddas upp.
+  - Efter installationen finns licenser och villkor i ~/LRCDF/project/legal/.
+
+För att uppdatera, byt ut den gamla LRCDF.app mot den nya och dubbelklicka på den. Appen uppdateras automatiskt.

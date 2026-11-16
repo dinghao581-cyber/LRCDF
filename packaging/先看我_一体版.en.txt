@@ -1,0 +1,25 @@
+LRCDF all-in-one app. Everything you need is included and it works offline.
+
+Get started
+  1. Drag LRCDF.app to Applications, or keep it in another folder.
+  2. Double-click it. First-time setup takes about a minute. It copies the app and models to ~/LRCDF (about 2.7 GB) and installs the plug-in in Lightroom Classic.
+  3. Open Lightroom Classic. If it's already open, quit and reopen it.
+  4. Select your photos and choose Library → Plug-in Extras → Start One-Click Retouch….
+
+If macOS says it can't verify the developer, or that Apple could not check the app for malicious software
+  The app has no Apple developer signature, so you allow it once by hand:
+  1. In the message, click Done (not Move to Trash).
+  2. Open System Settings → Privacy & Security, scroll down to the note about LRCDF, click Open Anyway and enter your Mac's login password when asked.
+  3. Double-click LRCDF.app again and click Open Anyway in the confirmation.
+  Open Anyway only appears for about an hour after you tried to open the app; if you don't see it, double-click the app again. You only need to do this once.
+  (Since macOS 15, right-click → Open no longer skips this step.)
+
+What you need
+  - An Apple-silicon Mac (M1 or newer), macOS 26 or later, and Lightroom Classic.
+  - 6 GB of free space (about 2.7 GB for the app and 2.7 GB for the installed files).
+
+Licenses and privacy
+  - Everything runs on your Mac. Nothing is uploaded.
+  - After installation, see ~/LRCDF/project/legal/ for the licenses and terms.
+
+To update later, replace the old LRCDF.app with the new one and double-click it. The app updates itself.

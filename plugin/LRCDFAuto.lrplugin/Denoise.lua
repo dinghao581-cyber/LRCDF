@@ -4,8 +4,11 @@ local LrApplication = import 'LrApplication'
 local LrApplicationView = import 'LrApplicationView'
 local LrDevelopController = import 'LrDevelopController'
 local LrTasks = import 'LrTasks'
+local LrFileUtils = import 'LrFileUtils'
+local LrPathUtils = import 'LrPathUtils'
 
 local Denoise = {}
+local messages = assert(loadstring(LrFileUtils.readFile(LrPathUtils.child(_PLUGIN.path, 'Messages.lua')), 'Messages'))()
 
 local function state()
     local ok, s = LrTasks.pcall(LrDevelopController.getEnhancePanelState)
@@ -16,6 +19,7 @@ end
 -- progress is optional: { caption = function(text), portion = function(done, total), canceled = function() }
 function Denoise.apply(photos, progress)
     progress = progress or {}
+    local message = progress.localized and LOC or messages.source
     local catalog = LrApplication.activeCatalog()
     local selected, active = catalog:getTargetPhotos(), catalog:getTargetPhoto()
     local module = LrApplicationView.getCurrentModuleName()
@@ -26,7 +30,7 @@ function Denoise.apply(photos, progress)
     local done, skipped, failed, switched = 0, 0, 0, {}
     for n, photo in ipairs(photos) do
         if progress.canceled and progress.canceled() then break end
-        if progress.caption then progress.caption('正在降噪（' .. n .. '/' .. #photos .. '）…') end
+        if progress.caption then progress.caption(message("$$$/LRCDF/Progress/Denoise=正在降噪（^1/^2）…", n, #photos)) end
         catalog:setSelectedPhotos(photo, {})
         for _ = 1, 20 do   -- until Develop shows this photo
             if catalog:getTargetPhoto() == photo then break end

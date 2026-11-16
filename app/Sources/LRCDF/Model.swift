@@ -14,6 +14,9 @@ struct Look: Identifiable, Equatable {
     let title: String
     let note: String
     let image: NSImage
+    /// Where the look itself puts the shadows and the highlights (split toning), as points of the colour wheels:
+    /// a wheel starts there, because what it sends replaces the look's value.
+    var shadow = CGPoint.zero, high = CGPoint.zero
     var mine: Bool { id.hasPrefix("u") }
     // the same look of another photo is a different picture
     static func == (a: Look, b: Look) -> Bool { a.id == b.id && a.image === b.image }
@@ -35,11 +38,73 @@ enum BeautyLevel: String, CaseIterable, Identifiable {
     }
 }
 
-/// Small nudges on top of a look, each from -2 to 2.
+/// Small nudges on top of a look. The three rows run from -2 to 2, stepless, and are shown as -100 … +100
+/// (value x 50). The colour wheels: white balance = (warm, tint), each -2 … 2 and together inside the circle;
+/// shadows and highlights = a point in the unit circle, its angle the hue, its length the amount (0 … 100).
+/// Lightroom's side works on a coarser grid (rows and tint in twentieths, hue and amount in fives), so what is
+/// sent, and what pictures are kept under, is rounded to that; the difference to the numbers on screen cannot be seen.
 struct Tweak: Equatable, Codable {
-    var bright = 0, warm = 0, rich = 0
-    var isZero: Bool { bright == 0 && warm == 0 && rich == 0 }
-    var argument: String { "\(bright),\(warm),\(rich)" }
+    var bright = 0.0, warm = 0.0, rich = 0.0
+    var tint = 0.0                                   // + = pink (magenta), - = green
+    var shadow: CGPoint?, high: CGPoint?             // x to the right, y upwards; nil = as the look has it
+
+    init() {}
+    init(from decoder: Decoder) throws {             // runs saved before the wheels have only the first three
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        bright = try c.decodeIfPresent(Double.self, forKey: .bright) ?? 0
+        warm = try c.decodeIfPresent(Double.self, forKey: .warm) ?? 0
+        rich = try c.decodeIfPresent(Double.self, forKey: .rich) ?? 0
+        tint = try c.decodeIfPresent(Double.self, forKey: .tint) ?? 0
+        shadow = try c.decodeIfPresent(CGPoint.self, forKey: .shadow)
+        high = try c.decodeIfPresent(CGPoint.self, forKey: .high)
+    }
+
+    /// The white-balance wheel's point: right = warmer, up = pinker.
+    var balance: CGPoint {
+        get { CGPoint(x: warm / 2, y: tint / 2) }
+        set { warm = Double(newValue.x) * 2; tint = Double(newValue.y) * 2 }
+    }
+    /// Hue in degrees (red to the right, counter-clockwise) and amount 0 … 100 of a shadows / highlights point.
+    static func grade(_ point: CGPoint, step: Double = 1) -> (hue: Int, amount: Int) {
+        let amount = Int((min(1, Double(hypot(point.x, point.y))) * 100 / step).rounded() * step)
+        guard amount > 0 else { return (0, 0) }
+        var degrees = atan2(Double(point.y), Double(point.x)) * 180 / .pi
+        if degrees < 0 { degrees += 360 }
+        return (Int((degrees / step).rounded() * step) % 360, amount)
+    }
+
+    static func point(hue: Double, amount: Double) -> CGPoint {
+        let (angle, length) = (hue * .pi / 180, min(1, max(0, amount / 100)))
+        return CGPoint(x: (cos(angle) * length * 100).rounded() / 100, y: (sin(angle) * length * 100).rounded() / 100)
+    }
+
+    private static func hundredths(_ value: Double) -> Int { Int((value * 20).rounded()) * 5 }
+    private static func text(_ hundredths: Int) -> String { String(format: "%g", Double(hundredths) / 100) }
+    private var rows: [Int] { [bright, warm, rich].map(Self.hundredths) }
+    /// The wheels, as far as they are off their centres: argument name, its value, and the piece of the file name.
+    private var wheels: [(name: String, value: String, piece: String)] {
+        var list: [(String, String, String)] = []
+        let n = Self.hundredths(tint)
+        if n != 0 { list.append(("tint", Self.text(n), "_n\(n)")) }
+        for (name, letter, point) in [("shadow", "s", shadow), ("high", "h", high)] {
+            guard let point else { continue }
+            // set to the centre = no colour there, also where the look has one (amount 0 says so)
+            let g = Self.grade(point, step: 5)
+            list.append((name, "\(g.hue),\(g.amount)", "_\(letter)\(g.hue)-\(g.amount)"))
+        }
+        return list
+    }
+    var isZero: Bool { rows == [0, 0, 0] && wheels.isEmpty }
+    /// What is sent to Lightroom's side: tweak=0.35,-1.2,0 and, where set, tint=0.4 shadow=210,30 high=45,20.
+    var arguments: [(String, String)] {
+        [("tweak", rows.map(Self.text).joined(separator: ","))] + wheels.map { ($0.name, $0.value) }
+    }
+    /// Under this the pictures of a tweak are kept.
+    var key: String { rows.map(String.init).joined(separator: ",") + wheels.map { $0.piece }.joined() }
+    /// The preview Lightroom's side renders for this tweak of a look is called this (Simple.tweakName).
+    func fileName(_ look: String) -> String {
+        "\(look)_t" + rows.map(String.init).joined(separator: "_") + wheels.map { $0.piece }.joined()
+    }
 }
 
 /// Someone who appears in the photos handed over (found by the selection help), and can get their own retouching.
@@ -80,7 +145,6 @@ struct Run: Codable, Equatable {
 
 enum Stage: Equatable {
     case waiting                      // nothing sent from Lightroom yet
-    case preparing                    // pictures of the looks are being made for the first photo
     case choosing
     case working
     case paused
@@ -89,9 +153,39 @@ enum Stage: Equatable {
     case failed(String)
 }
 
+/// What goes on behind the main screen after photos have been handed over, for the small progress line. Every
+/// number is a count of answers that really came back from Lightroom's side.
+struct Opening: Equatable {
+    var first = false                 // the photo on show has its picture
+    var read = 0, toRead = 0          // small pictures for the strip
+    var loaded = 0, toLoad = 0        // photos with their original and the chosen look (first round of the loading)
+    var checked = 0, toCheck = 0      // closed eyes, out of focus
+    var made = 0, toMake = 0          // the other looks of every photo (second round)
+}
+
 @MainActor
 final class Studio: ObservableObject {
     @Published var stage: Stage = .waiting
+    /// The background work on the photos just handed over; nil once all of it is done.
+    @Published var opening: Opening?
+    /// The photo on show has no picture yet: the screen is there, the button is not to be pressed.
+    var starting: Bool { opening?.first == false }
+    /// How many looks there were last time: that many empty cards stand in until the real ones come.
+    var lookGuess: Int { max(2, UserDefaults.standard.integer(forKey: "lookCount") == 0 ? 8 : UserDefaults.standard.integer(forKey: "lookCount")) }
+    /// The line beside the progress bar, and how far the bar has got.
+    var openingLine: (text: String, fraction: Double)? {
+        guard let o = opening, stage == .choosing else { return nil }
+        let text: String
+        if !o.first { text = o.toRead > 0 && o.read == 0 ? L.progressReading(0, o.toRead) : L.progressFirst }
+        else if o.read < o.toRead { text = L.progressReading(o.read, o.toRead) }
+        else if o.loaded < o.toLoad { text = L.progressLoading(o.loaded, o.toLoad) }
+        else if o.checked < o.toCheck { text = L.progressChecking(o.checked, o.toCheck) }
+        else { text = L.progressLooks(o.made, o.toMake) }
+        // the second round's size is only known once the first has asked every photo: until then a guess
+        let more = o.loaded < o.toLoad ? o.toLoad * max(0, lookGuess - 2) : o.toMake
+        let total = o.toRead + o.toLoad + o.toCheck + more
+        return (text, Double(o.read + o.loaded + o.checked + o.made) / Double(max(total, 1)))
+    }
     @Published var session: Session?
     @Published var photo: Int = 0                         // the photo being looked at
     @Published var previews: [Int: PhotoPreview] = [:]
@@ -140,6 +234,10 @@ final class Studio: ObservableObject {
     static let shapeOrder = ["slim", "bigeyes", "chest", "waist", "legs", "light"]      // light = 匀光: not a shape, but a switch like them
     private var shapeList: [String] { level == .off ? [] : Self.shapeOrder.filter { shapes.contains($0) } }
     @Published var tweak = Tweak() { didSet { wantPictures() } }
+    private var names: [String: String] = [:]             // what Lightroom's side called the tweaked previews, by key
+    /// While a tweak row is being dragged: Lightroom is asked for the exact picture only once the drag has ended
+    /// (one takes about ten seconds); until then the approximation (Quick) follows the knob.
+    var dragging = false { didSet { if !dragging { wantPictures() } } }
     @Published var denoise: Bool = UserDefaults.standard.bool(forKey: "denoise")
     @Published var best: Bool = UserDefaults.standard.bool(forKey: "best")   // keep the most picture quality
     @Published var skipFlagged = false
@@ -158,9 +256,15 @@ final class Studio: ObservableObject {
     private var ticker: Timer?
     private var wish = 0
     private var culling = false
+    private var preloading = false
+    private var userAt = Date.distantPast           // the user's last wish: background work keeps out of its way a moment
+    private var unloadable: Set<Int> = []           // photos whose pictures could not be made: not asked again
     private var chunkBase = 0.0, chunkSpan = 0.0
 
     var looks: [Look] { previews[photo]?.looks ?? [] }
+    /// The looks of each photo still to be made: empty cards hold their places.
+    @Published var toCome: [Int: [String]] = [:]
+    var looksToCome: Int { previews[photo] == nil ? lookGuess : (toCome[photo]?.count ?? 0) }
     var faces: [CGRect] { previews[photo]?.faces ?? [] }
     var original: Look? { looks.first { $0.id == "none" } }
     var chosen: Look? { looks.first { $0.id == look } }
@@ -171,21 +275,23 @@ final class Studio: ObservableObject {
     var nothingToDo: Bool { (look == "none" && level == .off && !denoise) || targets.isEmpty }
     /// High ISO photos are worth denoising; the switch says so.
     var noisy: Bool { (session?.iso ?? 0) >= 1600 }
-    var busy: Bool { stage == .preparing || stage == .working || loading != nil || !making.isEmpty || culling || savingStyle }
+    var busy: Bool { starting || stage == .working || loading != nil || !making.isEmpty || culling || preloading || savingStyle }
 
     // MARK: pictures on the "after" side
 
+    /// Where the look on show itself puts shadows and highlights.
+    var own: (shadow: CGPoint, high: CGPoint) { (chosen?.shadow ?? .zero, chosen?.high ?? .zero) }
     private var tweakNow: Tweak { look == "none" ? Tweak() : tweak }
-    private func lookKey(_ t: Tweak) -> String { "\(photo)|\(look)|\(t.argument)" }
+    private func lookKey(_ t: Tweak) -> String { "\(photo)|\(look)|\(t.key)" }
     private func beautyKey(_ t: Tweak, _ level: BeautyLevel) -> String {
-        "\(photo)|\(look)|\(t.argument)|\(level.rawValue)|\(shapeList.joined(separator: "+"))|\(choiceList)"
+        "\(photo)|\(look)|\(t.key)|\(level.rawValue)|\(shapeList.joined(separator: "+"))|\(choiceList)"
     }
     /// The look, with the tweak: Lightroom's picture when it is ready, until then an immediate approximation (Quick).
     private var base: NSImage? {
         if tweakNow.isZero { return chosen?.image }
         if let exact = pictures[lookKey(tweakNow)] { return exact }
         guard let plain = chosen?.image else { return nil }
-        return Quick.picture(plain, key: "\(photo)|\(look)", tweak: tweakNow)
+        return Quick.picture(plain, key: "\(photo)|\(look)", tweak: tweakNow, own: own)
     }
     /// What the "after" side shows: look, tweak and beautification, as far as they are ready. While a tweaked picture
     /// is on its way, the tweak is approximated on the beautified picture of the untouched look, so the face does not
@@ -194,7 +300,7 @@ final class Studio: ObservableObject {
         if level == .off { return base }
         if let exact = pictures[beautyKey(tweakNow, level)] { return exact }
         if !tweakNow.isZero, let plain = pictures[beautyKey(Tweak(), level)] {
-            return Quick.picture(plain, key: beautyKey(Tweak(), level), tweak: tweakNow)
+            return Quick.picture(plain, key: beautyKey(Tweak(), level), tweak: tweakNow, own: own)
         }
         return base
     }
@@ -204,7 +310,32 @@ final class Studio: ObservableObject {
     }
 
     func start() {
+        #if DEBUG
+        // Layout checks of the progress line without Lightroom (debug builds only, never in the app that is shipped):
+        // LRCDF_PROGRESS=first|reading|loading|checking|looks shows the main screen standing at that step.
+        if let step = ProcessInfo.processInfo.environment["LRCDF_PROGRESS"] {
+            session = Session(time: 0, active: 1, ids: Array(1...80), name: "IMG_0001.CR2", iso: 400)
+            photo = 1
+            // each step as it stands while that work is under way: what comes before it is done
+            var o = Opening(first: step != "first", read: 80, toRead: 80, loaded: 80, toLoad: 80, checked: 80, toCheck: 80, made: 120, toMake: 400)
+            switch step {
+            case "first", "reading": o.read = 13; o.loaded = 0; o.checked = 0; o.made = 0
+            case "loading": o.loaded = 5; o.checked = 0; o.made = 0
+            case "checking": o.checked = 24; o.made = 0
+            default: break
+            }
+            opening = o
+            stage = .choosing
+            return
+        }
+        #endif
         if let data = try? Data(contentsOf: Bridge.run), let last = try? JSONDecoder().decode(Run.self, from: data) { run = last }
+        // The preview folder is kept below 3 GB (Cache.swift). Not when photos have just been handed over - Lightroom
+        // starts the app with them: then it is done once their first round is loaded, when their folders are known.
+        Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            if opening == nil { await PreviewCache.trim(keep: Set(previews.values.map(\.folder))) }
+        }
         check()
         ticker = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.check() }
@@ -221,7 +352,7 @@ final class Studio: ObservableObject {
             }
             if parts.count > 1, !parts[1].isEmpty { caption = parts[1] }
         }
-        guard stage != .preparing, stage != .working, stage != .paused,
+        guard !starting, stage != .working, stage != .paused,
               let data = try? Data(contentsOf: Bridge.session),
               let incoming = try? JSONDecoder().decode(Session.self, from: data),
               incoming.time > seen else { return }
@@ -233,34 +364,150 @@ final class Studio: ObservableObject {
 
     private func open(_ incoming: Session) {
         session = incoming
-        previews = [:]; thumbs = [:]; pictures = [:]; Quick.forget(); making = []; flags = [:]; face = nil; loading = nil
+        previews = [:]; toCome = [:]; unloadable = []; thumbs = [:]; pictures = [:]; Quick.forget(); making = []; flags = [:]; face = nil; loading = nil
         people = []; choices = [:]; everyone = []
         zoom = 1; centre = CGPoint(x: 0.5, y: 0.5); tweak = Tweak(); skipFlagged = false; notice = nil
         photo = incoming.active
-        stage = .preparing
+        // Straight to the main screen (user: as on the iPad, do not make me wait in front of nothing): the photo
+        // on show first - its small picture, then the original and the look - then the strip, the other looks and
+        // the selection help, all behind the screen, told by the progress line.
+        let strip = incoming.ids.count > 1 ? Array(incoming.ids.prefix(120)) : []
+        opening = Opening(toRead: strip.count, toLoad: incoming.ids.count, toCheck: incoming.ids.count)
+        withAnimation(.easeInOut(duration: 0.5)) { stage = .choosing }
         NSApp.activate(ignoringOtherApps: true)
-        if incoming.ids.count > 1 { loadThumbs(incoming) }
         Task {
+            await loadThumbs([incoming.active], incoming, counted: !strip.isEmpty)
             do {
                 try await loadLooks(of: incoming.active)
-                withAnimation(.easeInOut(duration: 0.5)) { stage = .choosing }
-                wantPictures()
-                judge(incoming)
             } catch {
+                guard session == incoming else { return }
+                opening = nil
                 stage = .failed(error.localizedDescription)
+                return
             }
+            guard session == incoming else { return }
+            opening?.first = true
+            wantPictures()
+            await loadThumbs(strip.filter { $0 != incoming.active }, incoming, counted: true)
+            await preload(incoming)
+            if session == incoming { withAnimation(.easeInOut(duration: 0.4)) { opening = nil } }
         }
     }
 
-    /// Small pictures of every photo that was handed over, for the strip on the left.
-    private func loadThumbs(_ incoming: Session) {
-        let ids = Array(incoming.ids.prefix(120))
-        Task {
-            guard let lines = try? await Bridge.send([("action", "thumbs"), ("size", "240"), ("dir", Bridge.thumbs.path),
-                                                      ("ids", ids.map(String.init).joined(separator: ","))], timeout: 300) else { return }
+    /// Every photo handed over is loaded without being clicked (user: "as soon as photos come in, start loading all of
+    /// them"). One request at a time, the next only when it is back, and only while the user asks for nothing: what they
+    /// do always comes first and waits at most for the one request under way. In this order:
+    ///   - the other looks of the photo on show (whichever photo that is by then)
+    ///   - every photo's original and the chosen look, from the one on show onwards, so that any photo clicked is there
+    ///   - closed eyes and focus, six photos at a time
+    ///   - the other looks of every photo
+    /// Stops for good when retouching starts or other photos are handed over; what is cached is skipped by Lightroom's side.
+    private func preload(_ incoming: Session) async {
+        preloading = true
+        defer { if session == incoming { preloading = false } }
+        let ids = incoming.ids
+        var unchecked = ids
+        var firstCull = true
+        var trimmed = false
+        while session == incoming, stage == .choosing {
+            // keep out of the user's way: something of theirs under way, or asked for a moment ago
+            if loading != nil || !making.isEmpty || dragging || savingStyle || Date().timeIntervalSince(userAt) < 1.2 {
+                try? await Task.sleep(nanoseconds: 300_000_000); continue
+            }
+            let here = ids.firstIndex(of: photo) ?? 0
+            let around = Array(ids[here...] + ids[..<here])
+            if let name = nextLook(of: photo) {
+                await makeLook(name, of: photo, incoming)
+            } else if let id = around.first(where: { previews[$0] == nil && !unloadable.contains($0) }) {
+                await firstRound(id, incoming)
+            } else if !trimmed {
+                // every photo of this batch has its folder by now: older batches' folders can go if there are too many
+                trimmed = true
+                await PreviewCache.trim(keep: Set(previews.values.map(\.folder)))
+                continue
+            } else if !unchecked.isEmpty {
+                let chunk = Array(unchecked.prefix(6)); unchecked.removeFirst(chunk.count)
+                await cull(chunk, fresh: firstCull, incoming); firstCull = false
+            } else if let id = around.first(where: { nextLook(of: $0) != nil }), let name = nextLook(of: id) {
+                await makeLook(name, of: id, incoming)
+            } else {
+                break
+            }
+            refreshCounts(incoming)
+        }
+    }
+
+    /// The look of a photo to make next: the one chosen first (it is what a click on the photo shows).
+    private func nextLook(of id: Int) -> String? {
+        guard let rest = toCome[id], !rest.isEmpty else { return nil }
+        return rest.contains(look) ? look : rest.first
+    }
+
+    private func refreshCounts(_ incoming: Session) {
+        guard session == incoming, opening != nil else { return }
+        let ids = incoming.ids
+        opening?.loaded = ids.filter { previews[$0] != nil || unloadable.contains($0) }.count
+        let left = ids.reduce(0) { $0 + (toCome[$1]?.count ?? 0) }
+        let made = ids.reduce(0) { $0 + max(0, (previews[$1]?.looks.count ?? 0) - 2) }     // beyond the original and the first look
+        opening?.made = made; opening?.toMake = made + left
+    }
+
+    private func firstRound(_ id: Int, _ incoming: Session) async {
+        let wanted = look == "none" ? "d" : look
+        guard let (found, folder, missing) = try? await askLooks(of: id, only: "none,\(wanted)"), session == incoming else {
+            unloadable.insert(id); return
+        }
+        guard let folder, found.contains(where: { $0.id == "none" }), found.count > 1 else { unloadable.insert(id); return }
+        if previews[id] == nil { previews[id] = PhotoPreview(looks: found, folder: folder, faces: readFaces(folder)) }
+        toCome[id] = missing
+    }
+
+    private func makeLook(_ name: String, of id: Int, _ incoming: Session) async {
+        let more = try? await askLooks(of: id, only: name)
+        guard session == incoming else { return }
+        toCome[id]?.removeAll { $0 == name }             // made, or failed: not asked again
+        if let more, previews[id] != nil { withAnimation(.easeInOut(duration: 0.3)) { previews[id]?.looks = more.0 } }
+    }
+
+    private func cull(_ chunk: [Int], fresh: Bool, _ incoming: Session) async {
+        culling = true
+        defer { culling = false }
+        let lines = (try? await patiently([("action", "cull"), ("size", "1400"), ("dir", Bridge.before.path), ("fresh", fresh ? "1" : "0"),
+                                           ("ids", chunk.map(String.init).joined(separator: ","))], timeout: 240)) ?? []
+        guard session == incoming else { return }
+        readPeople()
+        for line in lines {
+            let parts = line.components(separatedBy: "\t")
+            if parts.count >= 2, let id = Int(parts[0]) { flags[id] = parts[1].split(separator: ",").map(String.init) }
+        }
+        opening?.checked += chunk.count                  // also when the answer failed: it is not asked again
+    }
+
+    /// Small pictures of the photos that were handed over, for the strip on the left: a few at a time, so that the
+    /// strip fills as they come and the count on the progress line is a real one.
+    private func loadThumbs(_ ids: [Int], _ incoming: Session, counted: Bool) async {
+        var rest = ids
+        var stopped = false
+        while !rest.isEmpty, session == incoming {
+            let chunk = Array(rest.prefix(12)); rest.removeFirst(chunk.count)
+            guard let lines = try? await patiently([("action", "thumbs"), ("size", "240"), ("dir", Bridge.thumbs.path),
+                                                    ("ids", chunk.map(String.init).joined(separator: ","))], timeout: 300) else { stopped = true; break }
             guard session == incoming else { return }
             for (id, image) in Self.images(lines) { thumbs[id] = image }
+            if counted { opening?.read += chunk.count }
         }
+        // whatever could not be read is not waited for
+        if session == incoming, counted, stopped, let o = opening { opening?.toRead = o.read }
+    }
+
+    /// A command sent right after a long one. The plug-in cannot write its sign of life while it works, so for a
+    /// moment after a long answer Lightroom looks closed although it is not: that is waited out, a few seconds at most.
+    private func patiently(_ arguments: [(String, String)], timeout: TimeInterval) async throws -> [String] {
+        for _ in 0..<8 {
+            do { return try await Bridge.send(arguments, timeout: timeout) }
+            catch Bridge.Failure.lightroomAway { try? await Task.sleep(nanoseconds: 500_000_000) }
+        }
+        return try await Bridge.send(arguments, timeout: timeout)
     }
 
     private static func images(_ lines: [String]) -> [(Int, NSImage)] {
@@ -269,33 +516,6 @@ final class Studio: ObservableObject {
             guard parts.count >= 2, let id = Int(parts[0]), let data = try? Data(contentsOf: URL(fileURLWithPath: parts[1])),
                   let image = NSImage(data: data) else { return nil }
             return (id, image)
-        }
-    }
-
-    /// Selection help: closed eyes and out-of-focus photos get a mark on the strip. A few photos at a time, so that
-    /// whatever the user clicks meanwhile is not kept waiting long.
-    private func judge(_ incoming: Session) {
-        guard !culling else { return }
-        culling = true
-        Task {
-            var rest = incoming.ids
-            var first = true
-            while !rest.isEmpty, session == incoming {
-                if stage == .working || stage == .paused || stage == .finished || stage == .reviewing { break }
-                let chunk = Array(rest.prefix(6)); rest.removeFirst(chunk.count)
-                guard let lines = try? await Bridge.send([("action", "cull"), ("size", "1400"), ("dir", Bridge.before.path), ("fresh", first ? "1" : "0"),
-                                                          ("ids", chunk.map(String.init).joined(separator: ","))], timeout: 240) else { break }
-                guard session == incoming else { break }
-                first = false
-                readPeople()
-                for line in lines {
-                    let parts = line.components(separatedBy: "\t")
-                    if parts.count >= 2, let id = Int(parts[0]) {
-                        flags[id] = parts[1].split(separator: ",").map(String.init)
-                    }
-                }
-            }
-            culling = false
         }
     }
 
@@ -310,17 +530,9 @@ final class Studio: ObservableObject {
         }
         if !found.contains(where: { $0.id == look }) { look = found.first(where: { $0.id != "none" })?.id ?? "d" }
         previews[id] = PhotoPreview(looks: found, folder: folder, faces: readFaces(folder))
-        guard !missing.isEmpty else { return }
-        let incoming = session
-        Task {
-            for name in missing {
-                try? await Task.sleep(nanoseconds: 700_000_000)
-                while !making.isEmpty { try? await Task.sleep(nanoseconds: 300_000_000) }     // the user's wishes first
-                guard session == incoming, stage == .choosing, previews[id] != nil else { return }
-                guard let (more, _, _) = try? await askLooks(of: id, only: name), session == incoming, previews[id] != nil else { continue }
-                withAnimation(.easeInOut(duration: 0.3)) { previews[id]?.looks = more }
-            }
-        }
+        toCome[id] = missing                              // made in the background (preload), this photo's first
+        UserDefaults.standard.set(found.count + missing.count, forKey: "lookCount")
+        if let incoming = session { refreshCounts(incoming) }
     }
 
     /// (the looks that exist, their folder, the ones still to be made)
@@ -337,7 +549,12 @@ final class Studio: ObservableObject {
                 missing.append(parts[0]); continue
             }
             folder = URL(fileURLWithPath: parts[1]).deletingLastPathComponent()
-            found.append(Look(id: parts[0], title: parts[2], note: parts[3], image: image))
+            var look = Look(id: parts[0], title: parts[2], note: parts[3], image: image)
+            if parts.count >= 5, parts[4].hasPrefix("wheels=") {      // shadow hue, amount, highlight hue, amount
+                let v = parts[4].dropFirst(7).split(separator: ",").compactMap { Double($0) }
+                if v.count == 4 { look.shadow = Tweak.point(hue: v[0], amount: v[1]); look.high = Tweak.point(hue: v[2], amount: v[3]) }
+            }
+            found.append(look)
         }
         return (found, folder, missing)
     }
@@ -352,6 +569,7 @@ final class Studio: ObservableObject {
     func show(_ id: Int) {
         if stage == .reviewing { review(id); return }
         guard stage == .choosing, loading == nil, id != photo else { return }
+        userAt = Date()
         face = nil; zoom = 1; centre = CGPoint(x: 0.5, y: 0.5)
         if previews[id] != nil {
             withAnimation(.easeInOut(duration: 0.3)) { photo = id }
@@ -398,42 +616,53 @@ final class Studio: ObservableObject {
     }
 
     private func wantPictures() {
+        userAt = Date()
         wish += 1
         let mine = wish
-        guard stage == .choosing, previews[photo] != nil, chosen != nil else { return }
+        guard !dragging, stage == .choosing, previews[photo] != nil, chosen != nil else { return }
         Task {
             try? await Task.sleep(nanoseconds: 450_000_000)
-            guard mine == wish, stage == .choosing, let preview = previews[photo] else { return }
+            guard mine == wish, !dragging, stage == .choosing, let preview = previews[photo] else { return }
             let (id, style, t, lvl, shaped, own, ownArguments) = (photo, look, tweakNow, level, shapeList, choiceList, choiceArguments)
             var name = style
             if !t.isZero {
                 let key = lookKey(t)
-                name = "\(style)_t\(t.bright)_\(t.warm)_\(t.rich)"
+                name = t.fileName(style)
                 if pictures[key] == nil {
                     guard !making.contains(key) else { return }
                     making.insert(key)
-                    let lines = (try? await Bridge.send([("action", "tweakpreview"), ("dir", preview.folder.path), ("look", style),
-                                                         ("tweak", t.argument), ("size", "2600"), ("ids", String(id))], timeout: 120)) ?? []
+                    let lines = (try? await Bridge.send([("action", "tweakpreview"), ("dir", preview.folder.path), ("look", style)] + t.arguments
+                                                        + [("size", "2600"), ("ids", String(id))], timeout: 120)) ?? []
                     making.remove(key)
                     guard let parts = lines.first?.components(separatedBy: "\t"), parts.count >= 2,
                           let data = try? Data(contentsOf: URL(fileURLWithPath: parts[1])), let image = NSImage(data: data) else { return }
+                    names[key] = parts[0]
                     withAnimation(.easeInOut(duration: 0.3)) { pictures[key] = image }
                 }
+                name = names[key] ?? name                  // as Lightroom's side called it
             }
             guard lvl != .off else { return }
-            let keys = [BeautyLevel.auto, .natural, .refined].map { ($0, "\(id)|\(style)|\(t.argument)|\($0.rawValue)|\(shaped.joined(separator: "+"))|\(own)") }
+            let keys = [BeautyLevel.auto, .natural, .refined].map { ($0, "\(id)|\(style)|\(t.key)|\($0.rawValue)|\(shaped.joined(separator: "+"))|\(own)") }
             guard let wanted = keys.first(where: { $0.0 == lvl })?.1, pictures[wanted] == nil, !making.contains(wanted) else { return }
-            keys.forEach { making.insert($0.1) }
-            let lines = (try? await Bridge.send([("action", "beautypreview"), ("dir", preview.folder.path), ("look", name),
-                                                 ("levels", "auto,natural,refined")] + shaped.map { ($0, "1") } + ownArguments, timeout: 240)) ?? []
-            for line in lines {
-                let parts = line.components(separatedBy: "\t")
-                guard parts.count >= 2, let pair = keys.first(where: { $0.0.rawValue == parts[0] }),
-                      let data = try? Data(contentsOf: URL(fileURLWithPath: parts[1])), let image = NSImage(data: data) else { continue }
-                withAnimation(.easeInOut(duration: 0.35)) { pictures[pair.1] = image }
+            // The level on show first, alone: the three together take about 15 s, 自然 or 精致 alone about 4 s,
+            // 自动 alone about 12 s (it tries the levels to choose). The other two follow while nothing else is asked for.
+            for batch in [keys.filter { $0.0 == lvl }, keys.filter { $0.0 != lvl }] {
+                let todo = batch.filter { pictures[$0.1] == nil && !making.contains($0.1) }
+                guard !todo.isEmpty else { continue }
+                todo.forEach { making.insert($0.1) }
+                let lines = (try? await Bridge.send([("action", "beautypreview"), ("dir", preview.folder.path), ("look", name),
+                                                     ("levels", todo.map { $0.0.rawValue }.joined(separator: ","))]
+                                                    + shaped.map { ($0, "1") } + ownArguments, timeout: 240)) ?? []
+                for line in lines {
+                    let parts = line.components(separatedBy: "\t")
+                    guard parts.count >= 2, let pair = todo.first(where: { $0.0.rawValue == parts[0] }),
+                          let data = try? Data(contentsOf: URL(fileURLWithPath: parts[1])), let image = NSImage(data: data) else { continue }
+                    withAnimation(.easeInOut(duration: 0.35)) { pictures[pair.1] = image }
+                }
+                todo.forEach { making.remove($0.1) }
+                if previews[id]?.faces.isEmpty == true { previews[id]?.faces = readFaces(preview.folder) }
+                guard mine == wish else { return }           // something else is wanted by now: that comes first
             }
-            keys.forEach { making.remove($0.1) }
-            if previews[id]?.faces.isEmpty == true { previews[id]?.faces = readFaces(preview.folder) }
         }
     }
 
@@ -510,7 +739,7 @@ final class Studio: ObservableObject {
     // MARK: retouching, in pieces that can be paused, resumed and retried
 
     func retouch() {
-        guard session != nil, !nothingToDo else { return }
+        guard session != nil, !nothingToDo, chosen != nil else { return }
         UserDefaults.standard.set(look, forKey: "look")
         UserDefaults.standard.set(level.rawValue, forKey: "beautyLevel")
         UserDefaults.standard.set(Array(shapes), forKey: "shapes")
@@ -575,7 +804,7 @@ final class Studio: ObservableObject {
                     for chunk in job.ids.chunked(150) {
                         if pauseAsked { return pause() }
                         var arguments = [("action", "oneclick"), ("style", job.look), ("beauty", "off")]
-                        if !job.tweak.isZero { arguments.append(("tweak", job.tweak.argument)) }
+                        if !job.tweak.isZero { arguments += job.tweak.arguments }
                         _ = try await step(arguments, ids: chunk, weight: wTone)
                     }
                     job.toned = true; keep(job)

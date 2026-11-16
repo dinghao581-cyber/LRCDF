@@ -5,6 +5,9 @@ options:
     iOS: "27.0"
     macOS: "27.0"
 settings:
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG TESTHOOKS     # self-test launch arguments (App.swift, SelfTest.swift)
   base:
     SWIFT_VERSION: "5.0"
     SWIFT_STRICT_CONCURRENCY: minimal
@@ -17,10 +20,17 @@ targets:
     type: application
     supportedDestinations: [iOS, macOS]
     sources: [LRCDF]
+    info:                     # merged with the generated Info.plist: keys the INFOPLIST_KEY_ settings do not cover
+      path: Info.plist
+      properties:
+        UIFileSharingEnabled: true      # the app's Documents folder shows in Files ("我的 iPad › 一键修图"): photos can be put there
+        CFBundleShortVersionString: $(MARKETING_VERSION)     # the update notice compares this (xcodegen would write 1.0)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ding.lrcdf.ipad
         PRODUCT_NAME: 一键修图
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon      # LRCDF/Assets.xcassets: the Mac app's icon, cropped square (iPadOS rounds it)
         TARGETED_DEVICE_FAMILY: "2"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: 一键修图
@@ -32,6 +42,11 @@ targets:
         ENABLE_APP_SANDBOX: YES
         ENABLE_USER_SELECTED_FILES: readonly
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.photography
+        INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: 联机拍摄：在局域网里接收相机通过“自动 FTP 传输”发来的照片。
+        INFOPLIST_KEY_NSCameraUsageDescription: 联机拍摄（有线）：读取用 USB 线连接的相机新拍的照片。
+        ENABLE_RESOURCE_ACCESS_USB: YES              # 联机拍摄 over USB (CameraUSB.swift; macOS sandbox only)
+        ENABLE_INCOMING_NETWORK_CONNECTIONS: YES    # 联机拍摄 receiver (macOS sandbox; the iPad build needs no entitlement)
         ENABLE_OUTGOING_NETWORK_CONNECTIONS: YES     # the update notice (Updater.swift); macOS sandbox only
     preBuildScripts:
       - name: Build time for the update notice

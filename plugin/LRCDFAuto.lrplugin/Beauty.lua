@@ -12,12 +12,13 @@ local function fresh(name)
     return assert(loadstring(LrFileUtils.readFile(path), name))()
 end
 
+local messages = fresh 'Messages'
 local config = fresh 'Config'
 local Tone = fresh 'Tone'
 local Beauty = {}
 
 -- Per-person retouching for the command line: file = people.json of the shoot (scripts/cull.py), choices = "3:off,5:refined".
-function Beauty.who(file, choices)
+function Beauty.who(file, choices, quote)
     local levels = {}       -- always told: the automatic level needs them too
     for name, v in pairs(config.beautyLevels) do
         levels[#levels + 1] = name .. '=' .. table.concat({ v.blemish / 100, v.smooth / 100, v.undereye / 100, v.eyes / 100, v.teeth / 100 }, ',')
@@ -25,15 +26,24 @@ function Beauty.who(file, choices)
     local told = ' --levels ' .. table.concat(levels, '/')
     if not file or not LrFileUtils.exists(file) then return told end       -- without choices it still tells who is a man
     if choices and not choices:match('^[%d%a:,]+$') then choices = nil end
-    return ' --people ' .. Tone.shellQuote(file) .. (choices and choices ~= '' and ' --choices ' .. choices or '') .. told
+    return ' --people ' .. (quote or Tone.shellQuote)(file) .. (choices and choices ~= '' and ' --choices ' .. choices or '') .. told
 end
 
 -- The preview process that stays loaded (scripts/preview_beauty.py --serve): starting Python and loading the models
 -- takes longer than a preview. Beauty.warm() starts it unless it is there; Beauty.preview(arguments) hands it one
 -- request and waits. Returns true when the pictures were made; false = make them the slow way.
-local function serverAlive()
+-- The process writes its file `alive` every second, also while it loads and while it works. A file older than GONE
+-- seconds means the process is not there any more (it was ended, or it crashed): a request is then not left waiting.
+local GONE = 15        -- a starting Python needs a moment before its first sign of life; Beauty.warm writes one for it
+
+local function sinceAlive()
     local attributes = LrFileUtils.fileAttributes(LrPathUtils.child(config.previewServer, 'alive'))
-    return attributes and attributes.fileModificationDate and LrDate.currentTime() - attributes.fileModificationDate < 60
+    return attributes and attributes.fileModificationDate and LrDate.currentTime() - attributes.fileModificationDate
+end
+
+local function serverAlive()
+    local age = sinceAlive()
+    return age ~= nil and age < GONE
 end
 
 function Beauty.warm()
@@ -42,26 +52,38 @@ function Beauty.warm()
     local mark = io.open(LrPathUtils.child(config.previewServer, 'alive'), 'w')     -- at once: loading takes seconds, and a second call must not start another
     if mark then mark:close() end
     local q = Tone.shellQuote
-    LrTasks.execute('nohup ' .. q(config.python) .. ' ' .. q(config.previewBeauty) .. ' --serve ' .. q(config.previewServer) ..
-        ' > ' .. q(LrPathUtils.child(config.previewServer, 'server.log')) .. ' 2>&1 &')
+    local command = Tone.python(config.previewBeauty) .. ' --serve ' .. q(config.previewServer) ..
+        ' > ' .. q(LrPathUtils.child(config.previewServer, 'server.log')) .. ' 2>&1'
+    if WIN_ENV then
+        Tone.execute('start "" /b ' .. command)
+    else
+        LrTasks.execute('nohup ' .. command .. ' &')
+    end
 end
 
 function Beauty.preview(arguments)
-    Beauty.warm()
-    local name = LrPathUtils.child(config.previewServer, 'r' .. os.time() .. math.random(100000, 999999))
-    local file = io.open(name .. '.tmp', 'w')
-    if not file then return false end
-    file:write(arguments); file:close()
-    LrFileUtils.move(name .. '.tmp', name .. '.req')
-    for _ = 1, 1200 do                                  -- two minutes: the first request also waits for the models
-        if LrFileUtils.exists(name .. '.done') then
-            LrFileUtils.delete(name .. '.done')
-            return true
+    local function ask()            -- true: made; false: no answer in two minutes; nil: the process is gone
+        Beauty.warm()
+        local name = LrPathUtils.child(config.previewServer, 'r' .. os.time() .. math.random(100000, 999999))
+        local file = io.open(name .. '.tmp', 'w')
+        if not file then return false end
+        file:write(arguments); file:close()
+        LrFileUtils.move(name .. '.tmp', name .. '.req')
+        local answer = false
+        for step = 1, 1200 do                               -- two minutes: the first request also waits for the models
+            if LrFileUtils.exists(name .. '.done') then
+                LrFileUtils.delete(name .. '.done')
+                return true
+            end
+            if step % 10 == 0 and not serverAlive() then answer = nil break end
+            LrTasks.sleep(0.1)
         end
-        LrTasks.sleep(0.1)
+        if LrFileUtils.exists(name .. '.req') then LrFileUtils.delete(name .. '.req') end
+        return answer
     end
-    if LrFileUtils.exists(name .. '.req') then LrFileUtils.delete(name .. '.req') end
-    return false
+    local made = ask()
+    if made == nil then made = ask() end        -- gone: a new process is started and asked once more
+    return made == true
 end
 
 -- The full-size run loads the models itself: the preview process makes room first.
@@ -78,17 +100,18 @@ end
 function Beauty.apply(photos, options, progress)
     options = options or {}
     progress = progress or {}
+    local message = progress.localized and LOC or messages.source
     local caption = progress.caption or function() end
     local catalog = LrApplication.activeCatalog()
     local session = LrPathUtils.child(config.work, 'beauty-' .. os.date('%Y%m%d-%H%M%S'))
-    caption('正在导出全尺寸图像…')
+    caption(message("$$$/LRCDF/Progress/ExportFullSize=正在导出全尺寸图像…"))
     -- 16-bit results are made in ProPhoto RGB (nothing of the photo's colour is cut off); 8-bit ones in sRGB
     local wide = (options.bits or config.beautyBits) == 16
     local rendered = Tone.render(photos, session, nil, function(done)
         if progress.portion then progress.portion(done * 0.5, #photos) end
         if progress.canceled and progress.canceled() then return false end
     end, wide)
-    if not rendered then return nil, '已取消' end
+    if not rendered then return nil, message("$$$/LRCDF/Errors/Cancelled=已取消") end
 
     local job = LrPathUtils.child(session, 'job.tsv')
     local file = assert(io.open(job, 'w'))
@@ -107,22 +130,22 @@ function Beauty.apply(photos, options, progress)
     end
     file:close()
 
-    caption('正在美颜…')
+    caption(message("$$$/LRCDF/Progress/Beauty=正在美颜…"))
     Beauty.rest()
     local q = Tone.shellQuote
     local log = LrPathUtils.child(session, 'beautify.log')
-    local command = q(config.python) .. ' ' .. q(config.beautify) .. ' --job ' .. q(job)
+    local command = Tone.python(config.beautify) .. ' --job ' .. q(job)
     for _, key in ipairs { 'blemish', 'smooth', 'undereye', 'eyes', 'teeth', 'slim', 'bigeyes', 'chest', 'waist', 'legs', 'light' } do
         command = command .. ' --' .. key .. ' ' .. tostring(options[key] or config.beauty[key] / 100)
     end
     command = command .. Beauty.who(options.peoplefile, options.people)
     if options.auto then command = command .. ' --auto 1' end
     command = command .. ' --bits ' .. ((options.bits or config.beautyBits) == 16 and 16 or 8)
-    local status = LrTasks.execute(command .. ' > ' .. q(log) .. ' 2>&1')
+    local status = Tone.execute(command .. ' > ' .. q(log) .. ' 2>&1')
 
-    caption('正在导入成片…')
+    caption(message("$$$/LRCDF/Progress/ImportResults=正在导入成片…"))
     local done, failed, created = 0, 0, {}
-    catalog:withWriteAccessDo('LRCDF 一键美颜', function()
+    catalog:withWriteAccessDo(LOC("$$$/LRCDF/Title/Beauty=LRCDF 一键美颜"), function()
         for _, item in ipairs(outputs) do
             if LrFileUtils.exists(item.output) then
                 if options.import ~= false then item.added = catalog:addPhoto(item.output, item.photo, 'above') end
@@ -136,7 +159,7 @@ function Beauty.apply(photos, options, progress)
         LrFileUtils.delete(item.input)
         if item.added then created[item.photo.localIdentifier] = item.added.localIdentifier end
     end
-    if done == 0 and status ~= 0 then return nil, '美颜运行失败。日志：' .. log end
+    if done == 0 and status ~= 0 then return nil, message("$$$/LRCDF/Errors/BeautyFailed=美颜运行失败。日志：^1", log) end
     return done, failed, log, created
 end
 

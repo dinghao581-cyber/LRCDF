@@ -153,48 +153,149 @@ struct DialogPanel<Content: View>: View {
 
 // MARK: - Controls
 
-/// 暗 ●●●●● 亮: press an end to go one step, or slide along the dots. Five stops, never a free slider.
-/// A row of a `Grid` (see `Tweaks`).
-struct StepRow: View {
+/// 暗 ───●─── 亮 +37: a stepless row with its number. Drag anywhere on the track: the knob moves from where it
+/// stands, it does not jump to the pointer (the middle catches); the words
+/// at the ends go five at a time and repeat while held; a double click on the track, or a click on the number,
+/// goes back to 0. The value runs from -2 to 2 and is shown as -100 … +100. A row of a `Grid` (see `Tweaks`).
+struct ToneRow: View {
     let low: String, high: String
-    @Binding var value: Int
-    @Namespace private var space
+    @Binding var value: Double
+    var dragging: (Bool) -> Void = { _ in }       // told when a drag starts and when it ends
+    @State private var start: Int?
+    private var units: Int { Int((value * 50).rounded()) }
+    private func set(_ next: Int) {
+        let clamped = min(100, max(-100, next))
+        if clamped != units { value = Double(clamped) / 50 }
+    }
 
     var body: some View {
         GridRow {
-            end(low) { if value > -2 { value -= 1 } }
+            end(low, -5)
             GeometryReader { box in
-                HStack(spacing: 0) {
-                    ForEach(-2...2, id: \.self) { step in
-                        ZStack {
-                            Circle().fill(step == 0 ? DS.soft : DS.faint).frame(width: step == 0 ? 5 : 4, height: step == 0 ? 5 : 4)
-                            if step == value {
-                                Circle().fill(value == 0 ? DS.ink : DS.focus).frame(width: 14, height: 14)
-                                    .matchedGeometryEffect(id: "knob", in: space)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
+                let knob: CGFloat = 16, width = box.size.width
+                let at = CGFloat(units + 100) / 200 * (width - knob)
+                ZStack(alignment: .leading) {
+                    Capsule().fill(DS.faint).frame(height: 2).padding(.horizontal, knob / 2)
+                    Circle().fill(DS.soft).frame(width: 5, height: 5).offset(x: width / 2 - 2.5)
+                    Capsule().fill(DS.focus.opacity(0.8)).frame(width: abs(at + knob / 2 - width / 2), height: 2)
+                        .offset(x: min(at + knob / 2, width / 2))
+                    Circle().fill(units == 0 ? DS.ink : DS.focus).frame(width: knob, height: knob)
+                        .shadow(color: .black.opacity(0.35), radius: 3).offset(x: at)
                 }
-                .background { Capsule().fill(DS.faint).frame(height: 2) }
-                .contentShape(Rectangle())
-                .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
-                    let next = min(2, max(-2, Int((drag.location.x / max(box.size.width, 1) * 5).rounded(.down)) - 2))
-                    if next != value { withAnimation(DS.pick) { value = next } }
-                })
+                .frame(height: DS.touch).contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 1).onChanged { drag in      // from where it stands, wherever the press lands
+                    let from = start ?? units
+                    if start == nil { dragging(true) }
+                    start = from
+                    let next = from + Int((drag.translation.width / max(width - knob, 1) * 200).rounded())
+                    set(abs(next) < 4 ? 0 : next)                  // the middle catches
+                }.onEnded { _ in start = nil; dragging(false) })
+                .simultaneousGesture(TapGesture(count: 2).onEnded { withAnimation(DS.pick) { set(0) } })
             }
             .frame(minWidth: 90).frame(height: DS.touch)
-            end(high) { if value < 2 { value += 1 } }
+            end(high, 5)
+            Button { withAnimation(DS.pick) { set(0) } } label: {
+                Text(units == 0 ? "0" : units.formatted(.number.sign(strategy: .always())))
+                    .font(.system(size: 12, weight: .medium)).monospacedDigit()
+                    .foregroundStyle(units == 0 ? DS.soft : DS.focus)
+                    .frame(minWidth: 38, minHeight: DS.touch, alignment: .trailing).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain).accessibilityHidden(true)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(low) / \(high)").accessibilityValue(units.formatted())
+        .accessibilityAdjustableAction { direction in set(units + (direction == .increment ? 5 : -5)) }
     }
 
-    private func end(_ title: String, _ action: @escaping () -> Void) -> some View {
-        Button { withAnimation(DS.pick) { action() } } label: {
+    private func end(_ title: String, _ step: Int) -> some View {
+        Button { withAnimation(DS.pick) { set(units + step) } } label: {
             Text(title).font(.system(size: 13, weight: .medium)).foregroundStyle(DS.ink)
                 .lineLimit(1).fixedSize()        // one character in Chinese, a word elsewhere: the column takes the widest
                 .padding(.horizontal, 6).frame(minWidth: DS.touch, minHeight: DS.touch).contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.plain).buttonRepeatBehavior(.enabled)
+    }
+}
+
+/// A round colour wheel: the knob is dragged towards a colour, the centre is "as the look made it". The knob moves
+/// from where it stands (it does not jump to the pointer), stays inside the circle, and is caught by the centre;
+/// a double click goes back to the centre. `point` lies in the unit circle, x to the right, y upwards.
+struct ColourWheel: View {
+    enum Kind { case balance, grade }
+    let kind: Kind
+    @Binding var point: CGPoint
+    var home = CGPoint.zero                           // where a double click goes back to: what the look itself has
+    var size: CGFloat = 150
+    var words: (left: String, right: String, top: String, bottom: String)? = nil
+    var name = "", value = ""                         // for VoiceOver
+    var dragging: (Bool) -> Void = { _ in }
+    @State private var start: CGPoint?
+
+    private var moved: Bool { point != home }
+    private func set(_ p: CGPoint) {
+        var (x, y) = (p.x, p.y)
+        let length = hypot(x, y)
+        if length > 1 { x /= length; y /= length }
+        if length < 0.04 { x = 0; y = 0 }
+        let next = CGPoint(x: (x * 100).rounded() / 100, y: (y * 100).rounded() / 100)
+        if next != point { point = next }
+    }
+
+    /// Clockwise from three o'clock, as AngularGradient runs.
+    private var colours: [Color] {
+        switch kind {
+        case .balance:
+            let warm = Color(red: 1, green: 0.67, blue: 0.35), green = Color(red: 0.35, green: 0.82, blue: 0.47)
+            let cool = Color(red: 0.35, green: 0.59, blue: 1), pink = Color(red: 1, green: 0.43, blue: 0.75)
+            return [warm, green, cool, pink, warm]
+        case .grade:
+            return (0...12).map { Color(hue: (1 - Double($0) / 12).truncatingRemainder(dividingBy: 1), saturation: 0.75, brightness: 0.9) }
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            if let words { word(words.left) }
+            VStack(spacing: 2) {
+                if let words { word(words.top) }
+                disc
+                if let words { word(words.bottom) }
+            }
+            if let words { word(words.right) }
+        }
+        .accessibilityElement(children: .ignore).accessibilityLabel(name).accessibilityValue(value)
+    }
+
+    private func word(_ text: String) -> some View {
+        Text(text).font(.system(size: 13, weight: .medium)).foregroundStyle(DS.ink).lineLimit(1).fixedSize().frame(minWidth: 18)
+    }
+
+    private var disc: some View {
+        let reach = size / 2 - 9, middle = size / 2
+        let knob = CGPoint(x: middle + point.x * reach, y: middle - point.y * reach)
+        return ZStack {
+            Circle().fill(AngularGradient(colors: colours, center: .center))
+            Circle().fill(RadialGradient(colors: [Color(white: 0.46), Color(white: 0.46).opacity(0)], center: .center, startRadius: 0, endRadius: middle))
+            Circle().fill(Color(white: 0.25).opacity(0.3))            // never pure colours next to the photo
+            Circle().strokeBorder(Color.white.opacity(0.2), lineWidth: 1)
+            Rectangle().fill(Color.white.opacity(0.16)).frame(width: size - 12, height: 1)
+            Rectangle().fill(Color.white.opacity(0.16)).frame(width: 1, height: size - 12)
+            Circle().fill(DS.soft).frame(width: 5, height: 5)
+            if point != .zero {
+                Path { p in p.move(to: CGPoint(x: middle, y: middle)); p.addLine(to: knob) }.stroke(moved ? DS.focus : DS.soft, lineWidth: 2)
+            }
+            Circle().fill(moved ? DS.focus : DS.ink).frame(width: 18, height: 18)
+                .shadow(color: .black.opacity(0.4), radius: 3).position(knob)
+        }
+        .frame(width: size, height: size)
+        .contentShape(Circle().inset(by: -12))
+        .gesture(DragGesture(minimumDistance: 1).onChanged { drag in
+            let from = start ?? point
+            if start == nil { dragging(true) }
+            start = from
+            set(CGPoint(x: from.x + drag.translation.width / reach, y: from.y - drag.translation.height / reach))
+        }.onEnded { _ in start = nil; dragging(false) })
+        .simultaneousGesture(TapGesture(count: 2).onEnded { withAnimation(DS.pick) { point = home } })
     }
 }
 
@@ -204,13 +305,24 @@ struct LevelBar: View {
     @Namespace private var space
 
     var body: some View {
+        // Chinese names are two or three characters and the four share the width; where a language's names are
+        // longer, each segment takes what its word needs, then smaller type, and only then is a word squeezed
+        ViewThatFits(in: .horizontal) {
+            row(size: 13, fixed: true)
+            row(size: 11.5, fixed: true)
+            row(size: 11.5, fixed: false)
+        }
+    }
+
+    private func row(size: CGFloat, fixed: Bool) -> some View {
         HStack(spacing: 0) {
             ForEach(BeautyLevel.allCases) { level in
                 let on = studio.level == level
                 Button { withAnimation(DS.pick) { studio.level = level } } label: {
-                    Text(level.title).font(.system(size: 13, weight: on ? .semibold : .regular))
+                    Text(level.title).font(.system(size: size, weight: on ? .semibold : .regular))
                         .foregroundStyle(on ? DS.onFocus : DS.ink)
-                        .lineLimit(1).minimumScaleFactor(0.7).padding(.horizontal, 4)
+                        .lineLimit(1).minimumScaleFactor(fixed ? 1 : 0.7).fixedSize(horizontal: fixed, vertical: false)
+                        .padding(.horizontal, fixed ? 9 : 4)
                         .frame(maxWidth: .infinity).frame(height: DS.touch - 6)
                         .background { if on { Capsule().fill(DS.focus).matchedGeometryEffect(id: "level", in: space) } }
                         .contentShape(Rectangle())
@@ -232,7 +344,8 @@ struct ShapeChip: View {
         Button {
             withAnimation(.bouncy(duration: 0.3)) { if on { studio.shapes.remove(key) } else { studio.shapes.insert(key) } }
         } label: {
-            Text(title).font(.system(size: 13, weight: on ? .semibold : .regular)).lineLimit(1)
+            Text(title).font(.system(size: 13, weight: on ? .semibold : .regular))
+                .lineLimit(2).multilineTextAlignment(.center).lineSpacing(-2)      // two words may take two lines
                 .minimumScaleFactor(0.7).padding(.horizontal, 4)
                 .foregroundStyle(on ? DS.onFocus : DS.ink)
                 .frame(maxWidth: .infinity).frame(height: DS.touch)

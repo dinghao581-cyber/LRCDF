@@ -21,6 +21,7 @@ import SwiftUI
 ///    (no photos open), the user is told, and the replaced ones are kept for one step back.
 @MainActor
 final class UpdateNotice: ObservableObject {
+    var offering: Bool { if case .offer = models { return true }; return false }     // the settings button shows a dot
     static let shared = UpdateNotice()
     static let publicKey = "KIaPbT+ihd/fLIOCt51e3HrS5ZykKWXtVuWlmiGU6kU="
     static let sources = ["https://gitee.com/YMLFPV/LRCDF/raw/update/manifest.json",
@@ -325,7 +326,7 @@ struct UpdateRow: View {
             }
             Toggle(isOn: $notice.enabled) { Text("自动检查新版本").font(.system(size: 13)) }
                 .tint(Palette.glow)
-            Text("只下载公开的版本说明和修图模型，不发送任何照片或个人信息。关掉后完全不联网。")
+            Text("只下载公开的版本说明和修图模型，并请 iPad 向苹果下载一次标题用的宋体；不发送任何照片或个人信息。关掉后完全不联网。“联机拍摄”只在你打开时接收同一局域网里相机发来的照片，不连接任何外部地址。")
                 .font(.system(size: 11)).foregroundStyle(Palette.soft)
         }
         .padding(.top, 10)
