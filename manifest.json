@@ -6,11 +6,11 @@
  },
  "releases": {
   "mac-arm64": {
-   "version": "0.1.3",
-   "min_os": "26.0",
+   "version": "0.1.4",
+   "min_os": "14.0",
    "notes": {
-    "zh": "小更新：窄布局下照片上的标签在亮背景上看得清；更新提示条不再挡住分页栏和效果卡名字；清理了安装包里一份不该带的文档。",
-    "en": "Small update: labels on the photo stay readable over bright areas in the narrow layout; the update line no longer covers the page bar or the look names; removed a document that did not belong in the package."
+    "zh": "现在从 macOS 14 Sonoma 起就能运行（macOS 26 上仍是 Liquid Glass 外观，14、15 上是深色面板）。",
+    "en": "Now runs from macOS 14 Sonoma (Liquid Glass on macOS 26, plain dark panels on 14 and 15)."
    },
    "components": [
     "app-mac",
@@ -23,7 +23,7 @@
  },
  "components": {
   "code": {
-   "version": "e3244ae86d68d8ac",
+   "version": "fa004ff9f9aa01d2",
    "install": "project",
    "keep": [
     "project/runs"
@@ -31,10 +31,10 @@
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 905285,
-     "sha256": "129801f22af1b90f18cee379e868c9b7f4c48090e0e4f026e34fe9014aea5926",
+     "size": 907816,
+     "sha256": "efc38ce2b422f9bc6b3885a33eacb8c88b026602a449a905af20dc27db68dc95",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-e3244ae86d68d8ac.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-fa004ff9f9aa01d2.zip"
      ]
     }
    ]
@@ -224,20 +224,20 @@
    "sha256_joined": "47604b0438f8ddf2dfeb8e523024cfbc95cccef9f22a2fa128accefe127cf994"
   },
   "app-mac": {
-   "version": "f62c6611e2d895dd",
+   "version": "12eb19151ebfd726",
    "install": "app",
    "keep": [],
    "restart": "app",
    "files": [
     {
-     "size": 1401239,
-     "sha256": "755c8c8bfcf56bc910829cec297d40e73d9780ea7822b0c219c35a44ad0c1d81",
+     "size": 1446961,
+     "sha256": "7de75e8f313ae8ecccb48d39b7a7edbf409f9fbba897900b87fd14c684e07245",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-f62c6611e2d895dd.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-12eb19151ebfd726.zip"
      ]
     }
    ]
   }
  },
- "published": "2026-11-16T11:39:49Z"
+ "published": "2026-11-16T15:57:03Z"
 }
