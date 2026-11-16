@@ -1,0 +1,243 @@
+{
+ "schema": 1,
+ "channel": "stable",
+ "keys": {
+  "next": null
+ },
+ "releases": {
+  "mac-arm64": {
+   "version": "0.1.2",
+   "min_os": "26.0",
+   "notes": {
+    "zh": "深肤色保持本身深浅；橙黄修正只作用在皮肤上；20 种语言；自动更新。",
+    "en": "Dark skin keeps its depth; the orange correction acts on skin only; 20 languages; automatic updates."
+   },
+   "components": [
+    "app-mac",
+    "code",
+    "models-own",
+    "models-third",
+    "python-mac"
+   ]
+  }
+ },
+ "components": {
+  "code": {
+   "version": "92a81df83e802795",
+   "install": "project",
+   "keep": [
+    "project/runs"
+   ],
+   "restart": "lightroom-if-menu-changed",
+   "files": [
+    {
+     "size": 955083,
+     "sha256": "b165cc17471df5bf7ece7236ca8d4301d032c58dd4a40c41dc204b88274e3f32",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/code-92a81df83e802795.zip"
+     ]
+    }
+   ]
+  },
+  "models-own": {
+   "version": "d352071638a1ebbe",
+   "install": "project/runs",
+   "keep": [],
+   "restart": "none",
+   "files": [
+    {
+     "size": 95000000,
+     "sha256": "3c1d3db4742e1c96362c6379251746792454a4426904426659e2ce25e9dcd55a",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-own-d352071638a1ebbe.zip.001"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "5103c4795d1340cb3c4d942d747e89060d731df7669bd2395a849871e7013087",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-own-d352071638a1ebbe.zip.002"
+     ]
+    },
+    {
+     "size": 9119583,
+     "sha256": "63b673fa6f2492b99a460ad8094e0bd149bb1c7e1b23212fd048ba0d1123d72d",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-own-d352071638a1ebbe.zip.003"
+     ]
+    }
+   ],
+   "sha256_joined": "43aa26f45a79c686ea727c819c3d3f209dd7eddfa4a25eeb30bd58e5987c2764"
+  },
+  "models-third": {
+   "version": "51b78f0cfdd57f02",
+   "install": [
+    "models",
+    "legacy"
+   ],
+   "keep": [],
+   "restart": "none",
+   "files": [
+    {
+     "size": 95000000,
+     "sha256": "19f51f43c9b43c13ddf57a204cb3407a09bb86e2ac96bd696188360fbd3caf1a",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.001"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "146cfe0f3093b261047df35d9aaf982a6c416ef7d1c5737b988df11486d63c84",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.002"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "d106fdd837c82cc7f292461b46cdfbf3087b03e82633ab36e029d23acbdb54ea",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.003"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "e706e13324f377ed1ba658b2c24052138b3fb14f43b78ce23f8d95ce90238b10",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.004"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "3c9e82ca83e878068374db9a63daa302a643fbfb9230e3eb9e9b17d9d8b4ea5a",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.005"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "d3bacde1eaabfa30af2b213185bfcee255bfd4f92c87bde5c543b238f30392ed",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.006"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "1c50730629eb52a58e5eaec1825e542dcb5428aac808b972e56b81d72b520f6e",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.007"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "bd4b13d7285b38aba3fef316a0c1580ca625c15af07f40e891c3ba8d2b7fcff1",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.008"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "507f42b3dfa3a907e6f33c5e11730c82d1770609a778790f47006551939548fe",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.009"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "614da227abdcb784e851a0aa7d013d436e52fbd956630036a850cb04a3850cfb",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.010"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "1aa15132213a6e1c39d8d3cc8c8b0da1a8a006648b64a609b89335794146f221",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.011"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "1201d6891f68eeaf969b371aa5f25425e8538cb7fdcdb05d88e94e947cb5cce8",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.012"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "d30eeb535296890fdc9a14b19a40a2758889388c0b1d6c300f67d04ccc169cf1",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.013"
+     ]
+    },
+    {
+     "size": 12149917,
+     "sha256": "1f89ff7efc00dd9a711104958d6e729de7c9979498b2bc94d014f7a15ef62915",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/models-third-51b78f0cfdd57f02.zip.014"
+     ]
+    }
+   ],
+   "sha256_joined": "eda33cdae4485d34a28dbc642092fee78cd2f88c5aaf2016a176612c57f63c04"
+  },
+  "python-mac": {
+   "version": "959927db0f1fa94c",
+   "install": "python",
+   "keep": [],
+   "restart": "app",
+   "files": [
+    {
+     "size": 95000000,
+     "sha256": "e5691178279f7a464d7b93408844966e3d7ebd6a766e18897d6432c0528d205b",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/python-mac-959927db0f1fa94c.zip.001"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "11b75ef1090f2d1439484d6d2e3c8692c7ba71aeaf6a0db4e2bc96eeb4fba935",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/python-mac-959927db0f1fa94c.zip.002"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "d2b610b15caa65aa1f40f7021e00677de5de5eb3efa28eb0ad57850ad7c519c9",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/python-mac-959927db0f1fa94c.zip.003"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "50c18b4d68cca0c62eb8f899276e5159663209fd53d49ce2030e6aa897cbd914",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/python-mac-959927db0f1fa94c.zip.004"
+     ]
+    },
+    {
+     "size": 9409346,
+     "sha256": "d0d46c28286bc5c2e68cdaba8c24a32efb2628dd9a56fe23ac51f960bd805df3",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/python-mac-959927db0f1fa94c.zip.005"
+     ]
+    }
+   ],
+   "sha256_joined": "f5160ae21cd36e0012a11428ba0984f4b681bb8f1d3a5561a7a3b983386fb93c"
+  },
+  "app-mac": {
+   "version": "f6dc6980c8c96750",
+   "install": "app",
+   "keep": [],
+   "restart": "app",
+   "files": [
+    {
+     "size": 1396697,
+     "sha256": "8825c90028a689f4534f5485e0d45320c68f5bb6e8be29f313eca7f09b3d77d5",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/v0.1.2/app-mac-f6dc6980c8c96750.zip"
+     ]
+    }
+   ]
+  }
+ },
+ "published": "2026-11-16T10:20:36Z"
+}
