@@ -7,8 +7,9 @@ import os
 import cv2
 import numpy as np
 from lrcdf.mediapipe_io import base_options
+from lrcdf import paths
 
-MODELS = os.path.expanduser("~/LRCDF/models/mediapipe")
+MODELS = paths.models("mediapipe")
 SLIM = 0.05      # face: at amount 1 the jaw angle moves in by this fraction of the face width, each side
 EYES = 0.10      # eyes: at amount 1 they are magnified by this much at their centre
 WAIST = 0.055    # waist: at amount 1 each side moves in by this fraction of the shoulder width

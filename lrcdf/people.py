@@ -3,9 +3,10 @@ photos of a shoot and can be given their own retouching ("leave the groom natura
 Also a guess at age and sex per face (ViT trained on UTKFace, Apache 2.0), for a lighter default on men and children."""
 import json, os, sys
 import cv2, numpy as np
+from lrcdf import paths
 
-MODEL = os.path.expanduser("~/LRCDF/models/sface/face_recognition_sface_2021dec.onnx")
-ABOUT = os.path.expanduser("~/LRCDF/models/agegender/model.onnx")
+MODEL = paths.models("sface", "face_recognition_sface_2021dec.onnx")
+ABOUT = paths.models("agegender", "model.onnx")
 SAME = 0.40      # cosine similarity from which a face is taken for a known person (the model's own threshold is 0.363; at 0.36 two strangers merged)
 TWICE = 0.60     # two faces in ONE photo are the same person only from here (a mirror: 0.63-0.70 measured); relatives
                  # reach 0.55, the same person in different photos 0.34-0.70 - which is why one photo's faces are told

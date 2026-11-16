@@ -27,6 +27,7 @@ import os
 
 import cv2
 import numpy as np
+from lrcdf import paths
 
 P0 = dict(L_REF=62.0, L_SLOPE=20.0, ALLOW=2.0, D0=3.0, R_BASE=0.5, C_CAP=28.0, S_LO=0.5, S_HI=3.5, CAST_LO=28.0, CAST_HI=36.0)
 K_EXP, C_EXP, K_SO, K_LO, L_PER_EV = 0.82, 0.10, 0.0105, 0.145, 19.0
@@ -37,7 +38,7 @@ EASE_TOP = 60.0         # unedited skin this light is lifted by less than EASE_A
 FACE_MIN = 0.08         # the face must be this wide, as a fraction of the picture's long edge
 SAMPLE = 20000
 KEYS = ("Exposure2012", "LuminanceAdjustmentOrange", "SaturationAdjustmentOrange")
-MODELS = os.path.expanduser("~/LRCDF/models")
+MODELS = paths.models()
 
 
 def sstep(x, a, b):

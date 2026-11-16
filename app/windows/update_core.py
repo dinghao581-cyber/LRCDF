@@ -27,8 +27,8 @@ PIECE_LIMIT = 95_000_000
 _BLOCK = 1024 * 1024
 _RESTART = {"none", "app", "lightroom", "lightroom-if-menu-changed"}
 _TARGETS = {"project", "project/runs", "models", "legacy", "python", "app"}
-_COMMON = {"code": {"project"}, "models-own": {"project/runs"},
-           "models-third": {"models", "legacy"}, "app-win": {"app"}}
+_COMMON = {"code-win": {"project"}, "models-own-win": {"project/runs"},
+           "models-third-win": {"models", "legacy"}, "app-win": {"app"}}
 _PLATFORM_PYTHON = {"win-x64-cpu": "python-win-cpu", "win-x64-cu124": "python-win-cu124"}
 
 
@@ -155,7 +155,7 @@ def _component(name: str, data: dict, platform: str) -> Component:
     targets = _entries(data["install"], _TARGETS)
     _require(name in allowed and set(targets) == allowed[name], "Component targets do not match ownership")
     keep = _keep(data, targets)
-    if name == "code":
+    if name == "code-win":
         # Windows keeps its separately versioned desktop app at the plug-in's existing launch path.
         keep = tuple(dict.fromkeys((*keep, "project/runs", "project/app/windows")))
     restart = data.get("restart", "none")

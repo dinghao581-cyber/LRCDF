@@ -42,7 +42,7 @@ enum BeautyLevel: String, CaseIterable, Identifiable {
 
 struct Strength {
     var blemish, smooth, undereye, eyes, teeth: Float
-    var skip: Set<String> = Set((ProcessInfo.processInfo.environment["LRCDF_SKIP"] ?? "").split(separator: ",").map(String.init))   // self-test only
+    var skip: Set<String> = Set((Beauty.testEnv["LRCDF_SKIP"] ?? "").split(separator: ",").map(String.init))   // self-test only
     var spots: Float { skip.contains("spots") ? 0 : blemish }     // beauty.DEFAULTS spots 1.0 × level
     var shine: Float { skip.contains("shine") ? 0 : 0.5 * min(1.6, smooth / 0.6) }             // follows the level (beautify.retouch)
 }
@@ -100,6 +100,15 @@ final class Beauty: @unchecked Sendable {
     }
     var ready: Bool { seg != nil && ModelStore.url("RetouchNet") != nil }
     /// Self-test only: intermediate images of each face are written here.
+    /// Self-test switches (LRCDF_SKIP, LRCDF_DEBUG, LRCDF_NOBODY, LRCDF_NOGUARD): read only in TESTHOOKS builds; a published
+    /// build always behaves as with none set.
+    static let testEnv: [String: String] = {
+        #if TESTHOOKS
+        return ProcessInfo.processInfo.environment
+        #else
+        return [:]
+        #endif
+    }()
     nonisolated(unsafe) static var debugDir: URL?
     nonisolated(unsafe) static var debugName = ""
     private var debugFace = 0
@@ -161,7 +170,7 @@ final class Beauty: @unchecked Sendable {
                 let (sc, dp) = makeupScore(srgbImage, out[i].box, mm)
                 out[i].makeup = min(max((sc + 0.4) / 0.7, 0), 1)
                 out[i].depth = dp
-                if Beauty.debugDir != nil || ProcessInfo.processInfo.environment["LRCDF_DEBUG"] != nil { print(String(format: "  face %d make-up score %.2f -> %.2f", i, sc, out[i].makeup)) }
+                if Beauty.debugDir != nil || Beauty.testEnv["LRCDF_DEBUG"] != nil { print(String(format: "  face %d make-up score %.2f -> %.2f", i, sc, out[i].makeup)) }
             }
         }
         return out
@@ -432,12 +441,12 @@ final class Beauty: @unchecked Sendable {
         }
         // 3. skin below and beside the faces
         let t0 = Date()
-        let env = ProcessInfo.processInfo.environment
+        let env = Beauty.testEnv
         if env["LRCDF_NOBODY"] == nil { out = body(out, raw: enc, faces: faces, st: st, memo: memo) }
         let t1 = Date()
         // 4. faces retouched more than professionals would are taken back (beautify.guard)
         if env["LRCDF_NOGUARD"] == nil { out = guardFaces(enc, out, faces: faces, sts: sts, tag: tag, memo: memo, scale: fullWidth > 0 ? fullWidth / W : 1) }
-        if ProcessInfo.processInfo.environment["LRCDF_DEBUG"] != nil { print(String(format: "  build: body %.2fs guard %.2fs", t1.timeIntervalSince(t0), Date().timeIntervalSince(t1))) }
+        if Beauty.testEnv["LRCDF_DEBUG"] != nil { print(String(format: "  build: body %.2fs guard %.2fs", t1.timeIntervalSince(t0), Date().timeIntervalSince(t1))) }
         return out
     }
 
@@ -822,7 +831,7 @@ final class Beauty: @unchecked Sendable {
                 func med(_ idx: [Int], _ c: Int) -> Float { let s = idx.map { px[$0 * 4 + c] }.sorted(); return s[s.count / 2] }
                 let d = SIMD2(med(onFace, 1) - med(onBody, 1), med(onFace, 2) - med(onBody, 2))
                 let size = simd_length(d)
-                if ProcessInfo.processInfo.environment["LRCDF_DEBUG"] != nil { print("  unify: face-body ab", d, "cells face/body", onFace.count, onBody.count) }
+                if Beauty.testEnv["LRCDF_DEBUG"] != nil { print("  unify: face-body ab", d, "cells face/body", onFace.count, onBody.count) }
                 if size > 1.5, size < 8 { shift = d * min(1, 3 / size) * min(1, Self.UNIFY) }
             }
             var x0 = n, y0 = n, x1 = -1, y1 = -1, count = 0

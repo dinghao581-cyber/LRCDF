@@ -45,10 +45,54 @@ enum DS {
     static let wipe = 0.42, iris = 0.6                                           // a new picture coming in
 }
 
+extension DS {
+    /// macOS 26 has Liquid Glass; macOS 14 and 15 get plain dark panels instead (user, 2026-11-17: one package for
+    /// all; on older systems "把毛玻璃删掉，其他不改"). Debug builds can force the older look with LRCDF_OLDLOOK=1, to see it here.
+    #if DEBUG
+    static let forceOldLook = ProcessInfo.processInfo.environment["LRCDF_OLDLOOK"] == "1"
+    #else
+    static let forceOldLook = false
+    #endif
+    static var liquidGlass: Bool {
+        if forceOldLook { return false }
+        if #available(macOS 26, *) { return true }
+        return false
+    }
+}
+
 extension View {
     /// Smoked Liquid Glass. `clear` for small labels that sit on the photo itself.
+    /// Before macOS 26: no glass and no blur at all - the same shape filled with the room's shade and the smoke over it
+    /// (about 76 % black, darker than the room as the glass is), with a hairline where the glass has its edge.
+    @ViewBuilder
     func glass<S: Shape>(_ shape: S, smoked: Bool = true, interactive: Bool = false, clear: Bool = false) -> some View {
-        glassEffect((clear ? Glass.clear : Glass.regular).tint(smoked && !clear ? DS.smoke : nil).interactive(interactive), in: shape)
+        if #available(macOS 26, *), !DS.forceOldLook {
+            glassEffect((clear ? Glass.clear : Glass.regular).tint(smoked && !clear ? DS.smoke : nil).interactive(interactive), in: shape)
+        } else {
+            background {
+                ZStack {
+                    // unsmoked glass (the divider's handle) and clear glass let more of the picture through
+                    shape.fill(Color.black.opacity(smoked && !clear ? DS.roomShade : 0))
+                    shape.fill(DS.smoke)
+                    shape.stroke(DS.line, lineWidth: 1)
+                }
+            }
+        }
+    }
+
+    /// Glass shapes that move between places as one (glassEffectID); before macOS 26 they simply move.
+    @ViewBuilder
+    func glassID(_ id: String, in space: Namespace.ID) -> some View {
+        if #available(macOS 26, *), !DS.forceOldLook { glassEffectID(id, in: space) } else { self }
+    }
+}
+
+/// Glass panels close together that melt into each other (GlassEffectContainer); before macOS 26 a plain group.
+struct GlassGroup<Content: View>: View {
+    let spacing: CGFloat
+    @ViewBuilder let content: () -> Content
+    var body: some View {
+        if #available(macOS 26, *), !DS.forceOldLook { GlassEffectContainer(spacing: spacing) { content() } } else { content() }
     }
 }
 

@@ -347,12 +347,12 @@ final class Engine: @unchecked Sendable {
     /// LRCDF_TIME: seconds since the previous lap, for finding what makes opening a photo slow.
     nonisolated(unsafe) private static var lastLap = Date()
     static func lap(_ what: String) {
-        guard ProcessInfo.processInfo.environment["LRCDF_TIME"] != nil else { return }
+        guard Beauty.testEnv["LRCDF_TIME"] != nil else { return }
         print(String(format: "  time %@: %.2fs", what, -lastLap.timeIntervalSinceNow)); lastLap = Date()
     }
 
     static func mem(_ what: String) {
-        let env = ProcessInfo.processInfo.environment
+        let env = Beauty.testEnv
         guard env["LRCDF_DEBUG"] != nil || env["LRCDF_MEM"] != nil else { return }
         var info = task_vm_info_data_t(); var n = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<integer_t>.size)
         _ = withUnsafeMutablePointer(to: &info) { $0.withMemoryRebound(to: integer_t.self, capacity: Int(n)) { task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &n) } }
@@ -365,7 +365,7 @@ final class Engine: @unchecked Sendable {
     }
 
     /// The image rendered into memory (half float, working space), a band of rows at a time.
-    nonisolated(unsafe) static var stripRows = Int(ProcessInfo.processInfo.environment["LRCDF_STRIP"] ?? "") ?? 512
+    nonisolated(unsafe) static var stripRows = Int(Beauty.testEnv["LRCDF_STRIP"] ?? "") ?? 512
     func strips(_ image: CIImage, context: CIContext? = nil) throws -> CIImage {
         let context = context ?? self.context
         let e = image.extent.integral, w = Int(e.width), h = Int(e.height)

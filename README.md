@@ -18,6 +18,16 @@ computer; nothing is uploaded.
 Mirror for users in China / 国内镜像: https://gitee.com/YMLFPV/LRCDF (source and release notes; the app download
 itself is on GitHub, it is larger than Gitee allows).
 
+## Help us reach the App Store (US$99 a year)
+
+LRCDF is free and made in spare time. To put the iPad app on the App Store, so nobody has to sideload it and
+re-install it every 7 days, we need Apple's developer membership: **US$99 a year**. The same membership also lets us
+sign the Mac app, so macOS no longer blocks it the first time. A sponsorship page is being set up; the link will be
+added here as soon as it is open.
+
+作者没有钱买中国网盘会员，也没有钱交苹果开发者年费。我们想攒 99 美元开通苹果开发者账户，把 iPad 版上架 App Store，
+大家就不用侧载、也不用每 7 天重装一次了；Mac 版也能签名，不再被系统拦。赞助通道正在开通，开通后会把链接放在这里。
+
 ## Download
 
 The ready-to-use app (everything inside: Python, packages, models, the Lightroom plug-in) is on the
@@ -30,7 +40,7 @@ macOS 15. You only do this once.
 
 ## Status
 
-Research-grade software by a very small team; expect rough edges. Apple-silicon Macs with macOS 26 or newer and Lightroom Classic only.
+Research-grade software by a very small team; expect rough edges. Apple-silicon Macs with macOS 14 or newer and Lightroom Classic only.
 
 ## Model weights
 

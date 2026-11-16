@@ -15,7 +15,7 @@ Aan de slag
   (Vanaf macOS 15 kun je deze stap niet meer overslaan via rechtsklik → ‘Open’.)
 
 Wat je nodig hebt
-  - Een Mac met een Apple-chip (M1 of nieuwer), met macOS 26 of nieuwer en Lightroom Classic geïnstalleerd.
+  - Een Mac met een Apple-chip (M1 of nieuwer), met macOS 14 of nieuwer en Lightroom Classic geïnstalleerd.
   - 6 GB vrije ruimte (ongeveer 2,7 GB voor de app en 2,7 GB voor de geïnstalleerde bestanden).
 
 Licenties en privacy

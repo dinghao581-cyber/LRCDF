@@ -15,7 +15,7 @@ usage:
       writes <app>/Contents/Resources/LRCDF/COMPONENTS.json (the versions of what the all-in-one app installs);
       packaging/make_bundle.sh calls it, first_run.sh copies it to ~/LRCDF/.components.json
   make_update.py pack <LRCDF.app> <out dir> --version 0.1.2 --url https://…/download/v0.1.2/ [--url …]
-                      [--notes zh=… en=…] [--merge <existing manifest.json>] [--min-os 26.0]
+                      [--notes zh=… en=…] [--merge <existing manifest.json>] [--min-os 14.0]
       writes the component zips (split into pieces of at most 95 MB), <out>/manifest.json and manifest.json.sig
       (signed with ~/.config/lrcdf/update_signing.key; see sign_manifest.swift). --merge keeps the other platforms'
       releases and components of an existing manifest. The zips go to the release as assets; manifest.json and
@@ -130,7 +130,7 @@ def main():
     one = sub.add_parser("ids"); one.add_argument("app")
     two = sub.add_parser("pack"); two.add_argument("app"); two.add_argument("out")
     two.add_argument("--version", required=True); two.add_argument("--url", action="append", required=True)
-    two.add_argument("--notes", nargs="*", default=[]); two.add_argument("--merge"); two.add_argument("--min-os", default="26.0")
+    two.add_argument("--notes", nargs="*", default=[]); two.add_argument("--merge"); two.add_argument("--min-os", default="14.0")
     three = sub.add_parser("ipad"); three.add_argument("ipa"); three.add_argument("out")
     three.add_argument("--url", action="append", required=True); three.add_argument("--notes", nargs="*", default=[])
     three.add_argument("--merge"); three.add_argument("--models", default=os.path.join(HERE, "..", "ipad", "app", "LRCDF"))

@@ -15,7 +15,7 @@ Začínáme
   (Od macOS 15 už tento krok nelze přeskočit kliknutím pravým tlačítkem a volbou „Otevřít“.)
 
 Požadavky
-  - Mac s čipem Apple (M1 nebo novějším), macOS 26 nebo novější a nainstalovaný Lightroom Classic.
+  - Mac s čipem Apple (M1 nebo novějším), macOS 14 nebo novější a nainstalovaný Lightroom Classic.
   - 6 GB volného místa (asi 2,7 GB pro aplikaci a 2,7 GB pro nainstalované soubory).
 
 Licence a soukromí

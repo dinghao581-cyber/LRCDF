@@ -264,7 +264,7 @@ private struct Pane: View {
         ZStack {
             Rectangle().fill(.white).frame(width: grabbed ? 2.5 : 1.5).shadow(color: .black.opacity(0.45), radius: 3)
             if !working {
-                Image(systemName: "chevron.left.chevron.right")
+                HandleArrows()
                     .font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
                     .frame(width: DS.touch, height: DS.touch)
                     .glass(Circle(), smoked: false, interactive: true)
@@ -406,3 +406,11 @@ struct PhotoStepper: View {
     }
 }
 
+
+/// ‹› on the divider's handle. The symbol is new in macOS 15 (it would be blank on 14): there two single chevrons.
+struct HandleArrows: View {
+    var body: some View {
+        if #available(macOS 15, *), !DS.forceOldLook { Image(systemName: "chevron.left.chevron.right") }
+        else { HStack(spacing: 1) { Image(systemName: "chevron.left"); Image(systemName: "chevron.right") }.scaleEffect(0.82) }
+    }
+}

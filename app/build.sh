@@ -7,6 +7,7 @@ swift build -c release
 APP=.build/LRCDF.app
 rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/LRCDF "$APP/Contents/MacOS/LRCDF"
+./stamp_sdk.sh "$APP/Contents/MacOS/LRCDF"      # made for macOS 26, runs from 14 (see the script)
 cp Info.plist "$APP/Contents/Info.plist"
 [ -f AppIcon.icns ] && cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp ../packaging/update_install.sh "$APP/Contents/Resources/"      # the updater's installer (Updater.swift)

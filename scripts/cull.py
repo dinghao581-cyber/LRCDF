@@ -8,12 +8,12 @@ better one (no other flag, then sharper). Photos without a face get no flags exc
 import argparse, json, os, sys
 import cv2, numpy as np, torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from lrcdf import beauty, people
+from lrcdf import beauty, people, paths
 from lrcdf.device import pick
 from lrcdf.image_io import imread, imwrite
 from lrcdf.mediapipe_io import base_options
 
-LEGACY = os.path.expanduser("~/LRCDF/legacy/mac_project")
+LEGACY = paths.legacy("mac_project")
 BLUR = 0.065   # sharpness below this: clearly out of focus (Gaussian blur of 4 px on a 1400 px picture gives 0.05-0.07, sharp faces 0.11+)
 FACE = 30       # faces from this width (on the 1400 px picture) are told apart as people (at 26 px all 17 test faces still matched)
 ABOUT = 60      # ... and from this width their age and sex are guessed

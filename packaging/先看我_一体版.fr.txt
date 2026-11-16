@@ -15,7 +15,7 @@ Commencer
   (Depuis macOS 15, un clic droit suivi de « Ouvrir » ne permet plus de passer cette étape.)
 
 Configuration requise
-  - Un Mac à puce Apple (M1 ou ultérieure) avec macOS 26 ou ultérieur et Lightroom Classic installé.
+  - Un Mac à puce Apple (M1 ou ultérieure) avec macOS 14 ou ultérieur et Lightroom Classic installé.
   - 6 Go d’espace libre (environ 2,7 Go pour l’application et 2,7 Go pour les fichiers installés).
 
 Licences et confidentialité

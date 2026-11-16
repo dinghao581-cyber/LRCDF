@@ -17,9 +17,9 @@ VARIANTS = ("cpu", "cu124")
 APP_TREE = ("app/windows", "project/app/windows")
 # Only project/app/windows belongs to the separate Windows app component.
 SHARED = (
-    ("code", (("project", "project"),), ("project/app/windows", "project/runs")),
-    ("models-own", (("project/runs", "project/runs"),), ()),
-    ("models-third", (("models", "models"), ("legacy", "legacy")), ()),
+    ("code-win", (("project", "project"),), ("project/app/windows", "project/runs")),
+    ("models-own-win", (("project/runs", "project/runs"),), ()),
+    ("models-third-win", (("models", "models"), ("legacy", "legacy")), ()),
 )
 SKIP = {"__pycache__", ".DS_Store"}
 
@@ -156,11 +156,26 @@ def pack_windows(out, urls, cpu, cuda, notes):
     app_version = component_version(app)
     if component_version(component_files(cuda, (APP_TREE,))) != app_version:
         raise ValueError("The CPU and CUDA desktop files must match. Reuse the CPU build's LRCDF.exe.")
+    shared = []
+    for component, trees, exclude in SHARED:
+        entries = component_files(cpu, trees, exclude)
+        identity = component_version(entries)
+        if component_version(component_files(cuda, trees, exclude)) != identity:
+            raise ValueError(f"The CPU and CUDA {component} files must match.")
+        shared.append((component, trees, exclude, identity, entries))
     out.mkdir(parents=True, exist_ok=True)
     if any(out.iterdir()):
         raise ValueError(f"Choose an empty output directory: {out}")
 
     components = {"app-win": pack_component(out, urls, "app-win", "app", app_version, app)}
+    for component, trees, exclude, identity, entries in shared:
+        targets = [logical for logical, _ in trees]
+        packed = pack_component(
+            out, urls, component, targets[0] if len(targets) == 1 else targets, identity, entries
+        )
+        packed["keep"] = list(exclude)
+        packed["restart"] = "lightroom-if-menu-changed" if component == "code-win" else "none"
+        components[component] = packed
     releases = {}
     for variant, bundle in zip(VARIANTS, (cpu, cuda)):
         component = f"python-win-{variant}"
@@ -172,10 +187,10 @@ def pack_windows(out, urls, cpu, cuda, notes):
             "version": version,
             "min_os": "10.0",
             "notes": notes,
-            "components": ["app-win", "code", "models-own", "models-third", component],
+            "components": ["app-win", "code-win", "models-own-win", "models-third-win", component],
         }
 
-    # The release Mac merges this input, adds shared components and published, and signs once.
+    # The release Mac merges these Windows components, adds published, and signs once.
     manifest = {
         "schema": 1, "channel": "stable", "keys": {"next": None},
         "releases": releases, "components": components,

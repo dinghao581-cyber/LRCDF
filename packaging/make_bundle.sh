@@ -8,6 +8,7 @@ OUT="${1:-$HOME/LRCDF/dist}"; APP="$OUT/LRCDF.app"; PAY="$APP/Contents/Resources
 (cd app && swift build -c release)
 rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$PAY/project/runs/tone" "$PAY/legacy/mac_project"
 cp app/.build/release/LRCDF "$APP/Contents/MacOS/LRCDF"; cp app/Info.plist "$APP/Contents/Info.plist"
+app/stamp_sdk.sh "$APP/Contents/MacOS/LRCDF"      # made for macOS 26, runs from 14 (app/stamp_sdk.sh)
 cp app/AppIcon.icns LICENSE NOTICE packaging/first_run.sh packaging/update_install.sh "$APP/Contents/Resources/"
 app/localize.sh "$APP/Contents/Resources"      # the app's texts, in every language of the String Catalog
 # the project, without what only development needs

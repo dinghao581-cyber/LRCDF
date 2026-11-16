@@ -15,7 +15,7 @@ Başlayın
   (macOS 15’ten itibaren sağ tıklayıp “Aç”ı seçerek bu adımı atlayamazsınız.)
 
 Gereksinimler
-  - Apple çipli Mac (M1 veya üzeri), macOS 26 veya üzeri ve yüklü Lightroom Classic.
+  - Apple çipli Mac (M1 veya üzeri), macOS 14 veya üzeri ve yüklü Lightroom Classic.
   - 6 GB boş alan (uygulama için yaklaşık 2,7 GB ve kurulan dosyalar için 2,7 GB).
 
 Lisanslar ve gizlilik

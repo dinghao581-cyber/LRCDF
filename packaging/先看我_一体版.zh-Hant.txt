@@ -15,7 +15,7 @@ LRCDF 一體版已包含所需元件，離線即可使用。
   （從 macOS 15 起，「按右鍵 → 打開」已無法略過這一步。）
 
 需要的設備
-  - Apple 晶片 Mac（M1 或更新）、macOS 26 或更新版本，以及 Lightroom Classic。
+  - Apple 晶片 Mac（M1 或更新）、macOS 14 或更新版本，以及 Lightroom Classic。
   - 6 GB 可用空間（應用程式約 2.7 GB，安裝檔案約 2.7 GB）。
 
 授權與隱私權

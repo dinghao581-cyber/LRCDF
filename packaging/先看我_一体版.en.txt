@@ -15,7 +15,7 @@ If macOS says it can't verify the developer, or that Apple could not check the a
   (Since macOS 15, right-click → Open no longer skips this step.)
 
 What you need
-  - An Apple-silicon Mac (M1 or newer), macOS 26 or later, and Lightroom Classic.
+  - An Apple-silicon Mac (M1 or newer), macOS 14 or later, and Lightroom Classic.
   - 6 GB of free space (about 2.7 GB for the app and 2.7 GB for the installed files).
 
 Licenses and privacy

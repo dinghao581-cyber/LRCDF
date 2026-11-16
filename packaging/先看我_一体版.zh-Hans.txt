@@ -16,7 +16,7 @@ LRCDF 一体版：所有东西都在这一个 App 里，不用联网，不用装
   （从 macOS 15 起，"右键 → 打开"已经不能跳过这一步。）
 
 前提
-  - Apple 芯片的 Mac（M1 及以后），macOS 26 或更新，装有 Lightroom Classic。
+  - Apple 芯片的 Mac（M1 及以后），macOS 14 或更新，装有 Lightroom Classic。
   - 磁盘留 6 GB（App 本身 2.7 GB + 安装后 2.7 GB）。
 
 许可和隐私

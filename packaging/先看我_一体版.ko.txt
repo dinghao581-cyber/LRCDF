@@ -15,7 +15,7 @@ LRCDF 올인원 앱. 필요한 구성 요소가 모두 포함되어 있어 오�
   (macOS 15부터는 ‘마우스 오른쪽 버튼 클릭 → 열기’로 이 단계를 건너뛸 수 없습니다.)
 
 필요한 환경
-  - Apple 칩이 탑재된 Mac(M1 이상), macOS 26 이상, Lightroom Classic 설치 필요.
+  - Apple 칩이 탑재된 Mac(M1 이상), macOS 14 이상, Lightroom Classic 설치 필요.
   - 여유 공간 6 GB(앱과 설치된 파일이 각각 약 2.7 GB).
 
 라이선스와 개인정보 보호

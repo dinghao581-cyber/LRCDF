@@ -11,9 +11,10 @@ import os
 import cv2
 import numpy as np
 from lrcdf.mediapipe_io import base_options
+from lrcdf import paths
 from lrcdf import reuse      # filters asked for again with the same pixels and settings are not computed twice
 
-MODELS = os.path.expanduser("~/LRCDF/models/mediapipe")
+MODELS = paths.models("mediapipe")
 LIPS_OUT = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185]
 LIPS_IN = [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308, 415, 310, 311, 312, 13, 82, 81, 80, 191]
 EYE_L = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]

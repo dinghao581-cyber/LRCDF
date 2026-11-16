@@ -15,7 +15,7 @@ Erste Schritte
   (Seit macOS 15 lässt sich dieser Schritt mit Rechtsklick → „Öffnen“ nicht mehr überspringen.)
 
 Voraussetzungen
-  - Ein Mac mit Apple-Chip (M1 oder neuer), macOS 26 oder neuer und installiertem Lightroom Classic.
+  - Ein Mac mit Apple-Chip (M1 oder neuer), macOS 14 oder neuer und installiertem Lightroom Classic.
   - 6 GB freier Speicher (je etwa 2,7 GB für die App und die installierten Dateien).
 
 Lizenzen und Datenschutz

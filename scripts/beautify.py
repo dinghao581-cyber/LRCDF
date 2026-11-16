@@ -6,13 +6,13 @@ job.tsv lines: input.tif <TAB> output.tif     Prints one JSON line per photo."""
 import argparse, json, os, sys, time
 import cv2, numpy as np, tifffile, torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..")); sys.path.insert(0, os.path.dirname(__file__))
-from lrcdf import beauty, people, shape
+from lrcdf import beauty, people, shape, paths
 from lrcdf.device import pick, plan
 
 PLAN = plan()       # what this machine allows (lrcdf/device.py); on 32 GB and more everything runs as it was built
 from lrcdf import reuse
 reuse.limit({8: 96, 16: 192}.get(PLAN.tier, 384))     # MB of filter results kept for repeats (lrcdf/reuse.py)
-LEGACY = os.path.expanduser("~/LRCDF/legacy/mac_project")
+LEGACY = paths.legacy("mac_project")
 HIRES_FROM = 900     # face crops covering at least this many pixels of the photo are retouched at 1024 instead of 512
 sys.path.insert(0, f"{LEGACY}/scripts")
 import train_dodge
@@ -253,7 +253,7 @@ _MAKEUP = None
 MAKEUP_RAMP = (-0.4, 0.3)      # zero-shot score from .. to: bare .. made-up (the user's made-up faces 1.7-5.8, bare test faces -0.6 and lower)
 
 
-MAKEUP_MODEL = os.path.expanduser("~/LRCDF/models/makeup/makeup_s2.pt")
+MAKEUP_MODEL = paths.models("makeup", "makeup_s2.pt")
 
 
 def makeup_of(rgb8, box, device):

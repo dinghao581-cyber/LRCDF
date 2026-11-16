@@ -15,7 +15,7 @@ Kom i gang
   (Fra og med macOS 15 kan du ikke lenger hoppe over dette trinnet med høyreklikk → «Åpne».)
 
 Krav
-  - Mac med Apple-chip (M1 eller nyere), macOS 26 eller nyere og Lightroom Classic installert.
+  - Mac med Apple-chip (M1 eller nyere), macOS 14 eller nyere og Lightroom Classic installert.
   - 6 GB ledig plass (omtrent 2,7 GB til appen og 2,7 GB til de installerte filene).
 
 Lisenser og personvern

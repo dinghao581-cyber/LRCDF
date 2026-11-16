@@ -12,6 +12,10 @@ APP=$(ls -d build/ipa/Build/Products/Release-iphoneos/*.app | head -1)
 if strings "$APP/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Info.plist")" | grep -qE -- '--(skinlab|selftest|snapshot|shape|tweaks)'; then
   echo "STOP: test hooks in the release build"; exit 1
 fi
+# debug symbols carry this machine's build paths (one per source file): stripped, then checked (push session, 2026-11-16)
+EXE="$APP/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Info.plist")"
+xcrun strip -S -x "$EXE"
+if strings -a "$EXE" | grep -qE '/(Users|Volumes)/'; then echo "STOP: local paths in the executable"; exit 1; fi
 VER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist")
 TMP=$(mktemp -d); mkdir "$TMP/Payload"; ditto "$APP" "$TMP/Payload/$(basename "$APP")"
 find "$TMP" -name "._*" -delete

@@ -15,7 +15,7 @@ Bắt đầu sử dụng
   (Từ macOS 15, cách nhấp chuột phải → “Mở” không còn bỏ qua được bước này.)
 
 Yêu cầu
-  - Máy Mac dùng chip Apple (M1 trở lên), chạy macOS 26 trở lên và đã cài Lightroom Classic.
+  - Máy Mac dùng chip Apple (M1 trở lên), chạy macOS 14 trở lên và đã cài Lightroom Classic.
   - 6 GB dung lượng trống (khoảng 2,7 GB cho ứng dụng và 2,7 GB cho các tệp đã cài).
 
 Giấy phép và quyền riêng tư

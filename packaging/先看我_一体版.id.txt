@@ -15,7 +15,7 @@ Mulai
   (Sejak macOS 15, klik kanan → “Buka” tidak lagi dapat melewati langkah ini.)
 
 Persyaratan
-  - Mac dengan cip Apple (M1 atau yang lebih baru), macOS 26 atau yang lebih baru, dan Lightroom Classic yang sudah terpasang.
+  - Mac dengan cip Apple (M1 atau yang lebih baru), macOS 14 atau yang lebih baru, dan Lightroom Classic yang sudah terpasang.
   - Ruang kosong 6 GB (sekitar 2,7 GB untuk aplikasi dan 2,7 GB untuk berkas yang terpasang).
 
 Lisensi dan privasi

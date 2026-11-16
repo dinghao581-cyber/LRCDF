@@ -15,7 +15,7 @@ Pierwsze kroki
   (Od macOS 15 kliknięcie prawym przyciskiem → „Otwórz” nie pozwala pominąć tego kroku.)
 
 Wymagania
-  - Mac z układem Apple (M1 lub nowszym), macOS 26 lub nowszy i zainstalowany Lightroom Classic.
+  - Mac z układem Apple (M1 lub nowszym), macOS 14 lub nowszy i zainstalowany Lightroom Classic.
   - 6 GB wolnego miejsca (około 2,7 GB na aplikację i 2,7 GB na zainstalowane pliki).
 
 Licencje i prywatność

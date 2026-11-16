@@ -263,7 +263,7 @@ struct StudioView: View {
                         .transition(.opacity)
                 }
                 if studio.loading != nil, choosing { LoadingPhotoOverlay().transition(.scale(scale: 0.94).combined(with: .opacity)) }
-                GlassEffectContainer(spacing: DS.gap) {
+                GlassGroup(spacing: DS.gap) {
                     ZStack {
                         if choosing {
                             if wide { WideChrome(ids: ids, rail: rail) } else { NarrowChrome(ids: ids, page: $page, barHeight: $barHeight) }
@@ -396,7 +396,7 @@ struct NarrowChrome: View {
                 .padding(.horizontal, 18).padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
                 .glass(RoundedRectangle(cornerRadius: 28, style: .continuous))
-                .glassEffectID("panel", in: glassSpace)
+                .glassID("panel", in: glassSpace)
                 .padding(.horizontal, DS.gap)
                 HStack(spacing: 0) {
                     ForEach(Self.pages, id: \.0) { key, title in
@@ -414,7 +414,7 @@ struct NarrowChrome: View {
                 }
                 .padding(4)
                 .glass(Capsule(), interactive: true)
-                .glassEffectID("pages", in: glassSpace)
+                .glassID("pages", in: glassSpace)
             }
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { barHeight = $0 }
             .padding(.bottom, DS.gap)
@@ -1073,7 +1073,7 @@ struct ReviewView: View {
                         ProgressView().progressViewStyle(.linear).tint(.white).frame(width: 200)
                     }
                 }
-                GlassEffectContainer(spacing: DS.gap) {
+                GlassGroup(spacing: DS.gap) {
                     ZStack {
                         VStack {
                             HStack(spacing: 10) {
