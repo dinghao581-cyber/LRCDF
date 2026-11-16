@@ -41,7 +41,14 @@ enum Bridge {
     }
 
     /// Sends one command and waits for its answer (the lines after "ok").
+    #if DEBUG
+    static var demo = false             // the screenshot demo (Model.swift): never talks to a real Lightroom
+    #endif
+
     static func send(_ arguments: [(String, String)], timeout: TimeInterval) async throws -> [String] {
+        #if DEBUG
+        if demo { throw Failure.noAnswer }
+        #endif
         // The plug-in works on one command at a time and cannot write its sign of life meanwhile. So silence only
         // means "Lightroom is closed" when nothing of ours is being worked on.
         guard count(0) > 0 || lightroomIsOpen() else { throw Failure.lightroomAway }

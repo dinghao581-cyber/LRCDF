@@ -282,6 +282,10 @@ struct StudioView: View {
             .animation(DS.stage, value: studio.stage)
             .animation(DS.stage, value: wide)
             .animation(DS.stage, value: page)
+            .onChange(of: choosing ? (wide ? Self.trayHeight + DS.gap : barHeight + DS.gap) : 0, initial: true) { _, now in
+                studio.bottomChrome = now
+            }
+            .onDisappear { studio.bottomChrome = 0 }
             .animation(.smooth(duration: 0.3), value: studio.loading)
             .animation(.smooth(duration: 0.4), value: studio.starting)
             .animation(.smooth(duration: 0.3), value: studio.openingLine == nil)
@@ -292,11 +296,12 @@ struct StudioView: View {
         if studio.stage != .choosing {
             return EdgeInsets(top: 44, leading: 40, bottom: cardHeight + DS.gap * 2 + 6, trailing: 40)
         }
+        let line = studio.updateLine        // the update line, when it shows, sits between the photo and the controls
         if wide {
             return EdgeInsets(top: 62, leading: rail ? PhotoRail.width + DS.gap * 2 : 24,
-                              bottom: Self.trayHeight + DS.gap * 2 + 4, trailing: DS.side + DS.gap * 2 + 10)
+                              bottom: Self.trayHeight + DS.gap * 2 + 4 + line, trailing: DS.side + DS.gap * 2 + 10)
         }
-        return EdgeInsets(top: studio.openingLine == nil ? 64 : 64 + DS.touch + 8, leading: 16, bottom: barHeight + DS.gap + 10, trailing: 16)
+        return EdgeInsets(top: studio.openingLine == nil ? 64 : 64 + DS.touch + 8, leading: 16, bottom: barHeight + DS.gap + 10 + line, trailing: 16)
     }
 }
 

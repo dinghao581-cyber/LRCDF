@@ -158,7 +158,8 @@ When the app stops opening, connect the iPad to the same Mac and run the A5 line
 ## Route B: ready-made package and a signing tool (Mac or Windows)
 
 > ⚠️ **Not verified**: we have not yet completed this route with Sideloadly or AltStore. What is verified: this
-> unsigned package, signed with a free account, installs on an iPad (signed by hand on a Mac by the developer). The
+> unsigned package, signed with a free account, installs on an iPad and opens (signed by hand on a Mac by the
+> developer, tested on an iPad mini). The
 > steps below follow the tools' own instructions; their screens may differ a little. Both tools are third-party
 > software, and you type your Apple Account password into **their** windows; decide whether you trust them. A separate
 > Apple Account just for signing is an option.

@@ -282,6 +282,9 @@ struct UpdateHost: View {
                 .glass(RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .environment(\.colorScheme, .dark)
                 .padding(DS.gap)
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { studio.updateLine = $0 }
+                .onDisappear { studio.updateLine = 0 }
+                .padding(.bottom, studio.bottomChrome)      // above the look tray / paged bar, not over it
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }

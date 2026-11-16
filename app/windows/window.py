@@ -547,6 +547,22 @@ class PhotoStrip(Surface):
         self.mark.follow(next((t for t, id_ in zip(self.thumbs, ids) if id_ == active), None))
 
 
+class LookBar(QWidget):
+    """Where the line about the look goes, before the look is made (DESIGN.md 7): one capsule in the line colour,
+    as high as the line it stands for, at the Mac's width for it (5 x the headline size, 150 here)."""
+
+    def __init__(self):
+        super().__init__()
+        self.setFixedHeight(round(13 * 1.2))
+
+    def paintEvent(self, _e):
+        p = painter(self)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(LINE)
+        bar = QRectF(0, (self.height() - 7) / 2, min(150, self.width()), 7)
+        p.drawRoundedRect(bar, 3.5, 3.5)
+
+
 class BlankLookCard(Control):
     """A look that is not made yet (DESIGN.md 7): the card's shape in faint, two short bars where the name and the line
     about it go. A real card takes its place when the look comes."""
@@ -659,6 +675,8 @@ class Sidebar(Surface):
         v.addSpacing(8)
         self.look_note = para("", 13, color=SOFT, center=False)
         v.addWidget(self.look_note)
+        self.look_bar = LookBar()
+        v.addWidget(self.look_bar)
         v.addSpacing(10)
         self.tweaks = []
         tw = col(6)
@@ -747,6 +765,9 @@ class Sidebar(Surface):
         self.subtitle.set_full(tr("batch.settings", count=s.count) if s.count > 1 else (s.session or {}).get("name", ""))
         chosen = s.chosen
         self.look_note.setText(tr("look.original_colors") if s.look == "none" else (f"{chosen['title']} · {chosen['note']}" if chosen else ""))
+        waiting = chosen is None and s.look != "none"
+        self.look_note.setVisible(not waiting)
+        self.look_bar.setVisible(waiting)
         no_look = s.look == "none" or s.chosen is None
         for t in self.tweaks:
             t.set_value(s.tweak[t.index])

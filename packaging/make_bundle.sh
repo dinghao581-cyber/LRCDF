@@ -17,6 +17,7 @@ rsync -a --exclude __pycache__ --exclude .venv --exclude .git --exclude runs --e
       --exclude "legal/zh-CN" --exclude "legal/TODO_VERIFY.md" --exclude "legal/RIGHTS_WIRING.md" \
       --exclude "/CLAUDE.md" --exclude "/docs" --exclude "/scripts/win3090" --exclude "/packaging/windows_port" --exclude "/packaging/publish_source.sh" \
       --exclude "/ipad" --exclude "/packaging/ipad" --exclude "/app/windows" --exclude "/i18n" \
+      --exclude "/packaging/*Windows*" --exclude "/packaging/*windows*" \
       --exclude "._*" --exclude ".DS_Store" ./ "$PAY/project/"
 cp runs/tone/tone.pt "$PAY/project/runs/tone/"
 for f in retouch_model.pt critic_model.pt shadow_model.pt; do [ -f runs/$f ] && cp runs/$f "$PAY/project/runs/"; done

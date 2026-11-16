@@ -166,6 +166,11 @@ struct Opening: Equatable {
 @MainActor
 final class Studio: ObservableObject {
     @Published var stage: Stage = .waiting
+    /// How much of the window's bottom the controls of the main screen take (look tray or paged bar): the update line
+    /// sits above it instead of over it.
+    @Published var bottomChrome: CGFloat = 0
+    /// The height of the update line while it shows: the photo makes room for it, so it never covers the picture.
+    @Published var updateLine: CGFloat = 0
     /// The background work on the photos just handed over; nil once all of it is done.
     @Published var opening: Opening?
     /// The photo on show has no picture yet: the screen is there, the button is not to be pressed.
@@ -328,6 +333,7 @@ final class Studio: ObservableObject {
             stage = .choosing
             return
         }
+        if let screen = ProcessInfo.processInfo.environment["LRCDF_DEMO"] { demo(screen); return }
         #endif
         if let data = try? Data(contentsOf: Bridge.run), let last = try? JSONDecoder().decode(Run.self, from: data) { run = last }
         // The preview folder is kept below 3 GB (Cache.swift). Not when photos have just been handed over - Lightroom
@@ -943,3 +949,104 @@ extension Array {
         stride(from: 0, to: count, by: size).map { Array(self[$0..<Swift.min($0 + size, count)]) }
     }
 }
+
+#if DEBUG
+/// Reference screenshots for the Windows and iPad apps without Lightroom (debug builds only): the eight outdoor test
+/// photos as their pictures already lie in the preview cache. LRCDF_DEMO=closed|opening|main|tweak|working|paused|
+/// finished|review|update. Nothing is sent to Lightroom: the ticker that reads the session file is not started.
+extension Studio {
+    func demo(_ screen: String) {
+        Bridge.demo = true
+        if screen == "waiting" { lightroomOpen = true; return }
+        if screen.hasPrefix("failed") {
+            stage = .failed(screen == "failed_away" ? L.lightroomAway : L.noAnswer); return
+        }
+        if screen == "closed" { lightroomOpen = false; return }     // the first screen as it is with Lightroom not running
+        let ids = [50227, 50393, 50561, 50727, 50893, 51061, 51227, 51393]
+        let folders = ["8839BFAD-7B09-458D-8BE3-02B928B9B0D8", "539992F2-1592-4B8F-8774-3C1AC50E69AB", "BF3DBA21-1FC3-4761-998A-085B1C78DC77",
+                       "9CC8483D-0816-4E15-97E8-84F711EDD161", "B3D7C13B-B31B-47AA-AD13-95C851D143A0", "D8164A30-6714-45A4-B249-267A5483448F",
+                       "0B0E5A9D-9ADD-488A-97AC-3BB4045F5B27", "E2E61521-92A2-4A02-8F89-588BC122103A"]
+        let cards = [("none", "原片", "不调色"), ("d", "自然清透", "白里透粉，明亮柔和"), ("a", "明亮通透", "干净偏冷，肤色白皙"),
+                     ("e", "韩系", "奶白低饱和，柔和"), ("b", "柔和暖调", "温暖，低对比"), ("c", "鲜艳浓郁", "色彩饱满"), ("f", "港风", "浓郁暖调，胶片颗粒")]
+        session = Session(time: 0, active: 50727, ids: ids, name: "1557_0.CR2", iso: screen == "noisy" ? 3200 : 400)
+        photo = 50727
+        look = "d"
+        for id in ids {
+            if let image = NSImage(contentsOf: Bridge.thumbs.appendingPathComponent("\(id).jpg")) { thumbs[id] = image }
+        }
+        flags = [50393: ["eyes"], 51061: ["blur"]]
+        stage = .choosing
+        if screen == "opening" {
+            opening = Opening(first: false, read: 1, toRead: 8, loaded: 0, toLoad: 8, checked: 0, toCheck: 8)
+            return
+        }
+        if screen == "loading" {           // the photo on show is there, the rest still coming: some thumbnails not yet in
+            for id in ids.suffix(3) { thumbs[id] = nil }
+            opening = Opening(first: true, read: 5, toRead: 8, loaded: 1, toLoad: 8, checked: 0, toCheck: 8)
+        }
+        for (id, name) in zip(ids, folders) where screen != "loading" || id == 50727 {
+            let folder = Bridge.previews.appendingPathComponent(name + "_2600", isDirectory: true)
+            var looks = cards.compactMap { c -> Look? in
+                NSImage(contentsOf: folder.appendingPathComponent(c.0 + ".jpg")).map { Look(id: c.0, title: c.1, note: c.2, image: $0) }
+            }
+            // 港风 brings its own split toning: the wheels start there
+            if let k = looks.firstIndex(where: { $0.id == "f" }) {
+                looks[k].shadow = Tweak.point(hue: 195, amount: 35); looks[k].high = Tweak.point(hue: 45, amount: 30)
+            }
+            if screen == "mine", let image = NSImage(contentsOf: folder.appendingPathComponent("b.jpg")) {
+                looks.append(Look(id: "u1", title: "我的日系", note: "我的风格 · 学自 6 张照片", image: image))
+            }
+            previews[id] = PhotoPreview(looks: looks, folder: folder, faces: readFaces(folder))
+        }
+        let folder = previews[50727]!.folder
+        for level in [BeautyLevel.auto, .natural, .refined] {
+            if let image = NSImage(contentsOf: folder.appendingPathComponent("d_\(level.rawValue).jpg")) { pictures[beautyKey(Tweak(), level)] = image }
+        }
+        if screen == "tweak" { tweak.bright = 0.6; tweak.rich = -0.3; tweak.balance = CGPoint(x: 0.3, y: -0.15) }
+        if screen == "own" { look = "f" }                                   // a look with its own colour: wheels start off-centre
+        if screen == "ownmoved" { look = "f"; tweak.shadow = Tweak.point(hue: 240, amount: 55) }
+        if screen == "mine" { look = "u1" }
+        if screen == "saving" { savingStyle = true }                       // the save-style sheet while it learns
+        if screen == "zoomed" { zoom = 2.6; centre = CGPoint(x: 0.5, y: 0.32) }
+        if screen == "people" {
+            people = (1...5).compactMap { n in
+                NSImage(contentsOf: Bridge.before.appendingPathComponent("person_\(n).jpg")).map { Person(id: n, image: $0, photos: 6 - n) }
+            }
+            choices = [1: "follow", 2: "light", 3: "refined", 4: "off", 5: "follow"]
+        }
+        var job = Run(id: "demo", ids: ids, look: "d", level: "auto", slim: false, denoise: false, tweak: Tweak())
+        switch screen {
+        case "working", "working25", "working60":
+            let f = screen == "working25" ? 0.25 : screen == "working60" ? 0.6 : 0.42
+            job.done = Array(ids.prefix(Int(f * 8))); run = job; fraction = f; caption = "正在美颜第 \(Int(f * 8) + 1) 张"; stage = .working
+        case "paused":
+            job.done = Array(ids.prefix(3)); run = job; stage = .paused
+        case "finished_ok":
+            job.done = ids; job.finished = true
+            for id in job.done { job.created[String(id)] = id + 100000 }
+            run = job; stage = .finished
+        case "finished_undone":
+            job.done = ids; job.finished = true; job.undone = true
+            run = job; notice = L.undoneRejects(ids.count); stage = .finished
+        case "finished":
+            job.done = Array(ids.prefix(6)); job.failed = Array(ids.suffix(2)); job.finished = true
+            for id in job.done { job.created[String(id)] = id + 100000 }
+            run = job; stage = .finished
+        case "review":
+            job.done = Array(ids.prefix(6)); job.finished = true; run = job
+            for (id, name) in zip(ids, folders) {
+                let f = Bridge.previews.appendingPathComponent(name + "_2600", isDirectory: true)
+                befores[id] = NSImage(contentsOf: f.appendingPathComponent("none.jpg"))
+                results[id] = NSImage(contentsOf: f.appendingPathComponent("d_auto.jpg")) ?? NSImage(contentsOf: f.appendingPathComponent("d.jpg"))
+            }
+            stage = .reviewing
+        case "update", "update_downloading", "update_ready", "update_failed":
+            let state: Updater.State = screen == "update_downloading" ? .downloading(version: "1.4.0", done: 0.46)
+                : screen == "update_ready" ? .ready(version: "1.4.0")
+                : screen == "update_failed" ? .failed(L.updateUnreachable) : .available(version: "1.4.0", bytes: 48_300_000)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { Updater.shared.state = state }
+        default: break
+        }
+    }
+}
+#endif

@@ -257,7 +257,7 @@ private struct Pane: View {
         HStack(spacing: 6) { content() }
             .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
             .padding(.horizontal, 11).frame(height: 26)
-            .glass(Capsule(), clear: true)
+            .glass(Capsule())          // smoked, not clear: over a bright sky clear glass turned white and hid the white type
     }
 
     @ViewBuilder private func divider(_ x: CGFloat) -> some View {

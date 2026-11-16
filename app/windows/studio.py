@@ -5,6 +5,7 @@ import time
 from PySide6.QtCore import QObject, QSettings, QTimer, Signal
 from PySide6.QtGui import QImage
 
+from . import cache
 from .bridge import atomic_json
 from .i18n import look_text, tr
 from .quick import Quick
@@ -153,6 +154,11 @@ class Studio(QObject):
     def start(self):
         self._check()
         self._poller.start()
+        QTimer.singleShot(3000, lambda: None if self.opening is not None else self._trim_cache())
+
+    def _trim_cache(self):
+        """Keep the previews folder below 3 GB (cache.py); the folders of the batch on screen are kept."""
+        cache.trim(self.bridge.previews, {e["folder"] for e in self.previews.values() if e.get("folder")})
 
     @property
     def count(self):
@@ -696,6 +702,7 @@ class Studio(QObject):
             if id_ not in self.previews and id_ not in o["failed"]:
                 return "first", id_
         if o["to_more"] is None:                            # round two: decide once which photos it covers
+            self._trim_cache()                              # every photo of this batch has its folder by now
             order = [i for i in self._viewed if i in self.previews] + [i for i in ids if i not in self._viewed]
             if self._cache_size() > CACHE_LIMIT:
                 order = [i for i in self._viewed if i in self.previews]     # a big cache: only the photos looked at
