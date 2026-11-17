@@ -15,16 +15,16 @@ computer; nothing is uploaded.
 - **Selection help**: closed eyes, out of focus, overexposed, near-duplicates.
 - A desktop app (SwiftUI) that Lightroom opens: before/after, looks, levels, one button, undo.
 
-## Download / 下载
+## Download
 
-| Version / 版本 | Download / 下载 | Requires / 系统要求 | Needs Lightroom Classic / 需要 Lightroom Classic |
+| Version | Download | Requires | Needs Lightroom Classic |
 |---|---|---|---|
-| **LRCDF for Mac** (Lightroom plug-in) / Mac 插件版 | [Latest release / 最新版](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer / Apple 芯片 Mac（M1 起），macOS 14 或更新 | Yes / 需要 |
-| **Tonewell for Mac** (standalone app from the LRCDF project, no Lightroom needed) / 独立版，来自 LRCDF 项目，不需要 Lightroom | [Tonewell for Mac 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) | macOS 14 or newer, Apple silicon or Intel / macOS 14 或更新，Apple 芯片或 Intel | No / 不需要 |
-| **Tonewell for iPad** (from the LRCDF project, no Lightroom needed) / 独立版，来自 LRCDF 项目，不需要 Lightroom | [Tonewell for iPad 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC / iPadOS 27 或更新；用自己的 Apple 账号经 Mac 或 PC 安装 | No / 不需要 |
-| **Windows** | Coming soon / 即将推出 | Windows 10 or 11, 64-bit / Windows 10 或 11，64 位 | Yes / 需要 |
+| **LRCDF for Mac** (Lightroom plug-in) | [Latest release](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer | Yes |
+| **Tonewell for Mac** (standalone app from the LRCDF project) | [Tonewell for Mac 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) | macOS 14 or newer, Apple silicon or Intel | No |
+| **Tonewell for iPad** (standalone app from the LRCDF project) | [Tonewell for iPad 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
+| **Windows** | Coming soon | Windows 10 or 11, 64-bit | Yes |
 
-Mirror for users in China / 国内镜像：https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub / 安装包本身在 GitHub)
+Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 
 ## Help us reach the App Store (US$99 a year)
 
@@ -33,14 +33,11 @@ re-install it every 7 days, we need Apple's developer membership: **US$99 a year
 sign the Mac app, so macOS no longer blocks it the first time. A sponsorship page is being set up; the link will be
 added here as soon as it is open.
 
-作者没有钱买中国网盘会员，也没有钱交苹果开发者年费。我们想攒 99 美元开通苹果开发者账户，把 iPad 版上架 App Store，
-大家就不用侧载、也不用每 7 天重装一次了；Mac 版也能签名，不再被系统拦。赞助通道正在开通，开通后会把链接放在这里。
-
 ## Install the Mac plug-in version
 
 The ready-to-use app (everything inside: Python, packages, models, the Lightroom plug-in) is on the
 [Releases page](https://github.com/dinghao581-cyber/LRCDF/releases). Unzip, double-click `LRCDF.app`; it installs itself the first time, then open
-Lightroom Classic and choose Library → Plug-in Extras → 开始一键修图…. The app is not signed with an Apple developer
+Lightroom Classic and choose Library → Plug-in Extras → Start One-Click Retouch…. The app is not signed with an Apple developer
 certificate, so macOS blocks it the first time. Click Done in the message, open System Settings → Privacy & Security,
 click Open Anyway next to the note about LRCDF (enter your login password), then double-click the app again and confirm
 with Open Anyway. The button only shows for about an hour after the attempt; right-click → Open no longer works since
