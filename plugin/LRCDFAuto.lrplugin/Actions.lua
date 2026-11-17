@@ -36,8 +36,14 @@ local function targetPhotos(args)
     local catalog = LrApplication.activeCatalog()
     if not args.ids then return catalog:getTargetPhotos() end
     local photos = {}
+    args._missing = {}
     for id in args.ids:gmatch('%d+') do
-        photos[#photos + 1] = catalog:getPhotoByLocalId(tonumber(id))
+        -- for a photo no longer in the catalog getPhotoByLocalId still returns an object, and the first use of it
+        -- fails ("attempt to index a nil value"): such a photo is left out (previewsmany answers it with an error
+        -- line), the others are still done
+        local photo = catalog:getPhotoByLocalId(tonumber(id))
+        local ok, uuid = LrTasks.pcall(function() return photo:getRawMetadata('uuid') end)
+        if ok and uuid then photos[#photos + 1] = photo else args._missing[#args._missing + 1] = id end
     end
     return photos
 end
@@ -220,6 +226,8 @@ function actions.neutral(args, photos)
     return 'neutral=' .. #photos
 end
 
+local cardLines
+
 -- The simple workflow, as the "LRCDF 一键修图" dialog runs it.
 function actions.previews(args, photos)
     local t0 = os.time()
@@ -233,6 +241,44 @@ function actions.previews(args, photos)
     local paths, dir = Simple.previews(photos[1], nil, tonumber(args.size), args.dir, only)
     if not paths then error(dir, 0) end
     local lines = { 'seconds=' .. (os.time() - t0) }
+    cardLines(lines, photos[1], paths, dir)
+    return table.concat(lines, '\n')
+end
+
+-- Several photos in one go (Simple.previewsMany), for the app's loading in the background: same arguments as
+-- previews, ids=<several>. Each photo answers as previews does, after its own line "photo=<id>"; a photo that
+-- could not be made answers "photo=<id>" and "error=<message>".
+function actions.previewsmany(args, photos)
+    local t0 = os.time()
+    local Simple = fresh 'Simple'
+    fresh('Beauty').warm()
+    local only
+    if args.only and args.only ~= '' then
+        only = {}
+        for value in args.only:gmatch('[^,]+') do only[value] = true end
+    end
+    local jobs = {}
+    for i, photo in ipairs(photos) do jobs[i] = { photo = photo, only = only } end
+    local made = Simple.previewsMany(jobs, tonumber(args.size), args.dir)
+    local lines = { 'seconds=' .. (os.time() - t0) }
+    for _, id in ipairs(args._missing or {}) do
+        lines[#lines + 1] = 'photo=' .. id
+        lines[#lines + 1] = 'error=not in the catalog'
+    end
+    for _, photo in ipairs(photos) do
+        local paths, dir = made[photo][1], made[photo][2]
+        lines[#lines + 1] = 'photo=' .. photo.localIdentifier
+        if paths then
+            cardLines(lines, photo, paths, dir)
+        else
+            lines[#lines + 1] = 'error=' .. tostring(dir):gsub('[\r\n]+', ' ')
+        end
+    end
+    return table.concat(lines, '\n')
+end
+
+-- The card lines of one photo (previews / previewsmany).
+cardLines = function(lines, photo, paths, dir)
     -- a fifth column for the colour wheels: where the look itself puts shadows and highlights, in the wheels' own
     -- numbers ("wheels=<shadow hue>,<amount>,<highlight hue>,<amount>"; amount = saturation x 2, as shadow= / high=
     -- are halved when written). A wheel starts there: what it sends replaces the look's value, so a wheel starting
@@ -244,10 +290,10 @@ function actions.previews(args, photos)
         local ok, read = pcall(chunk or error)
         if ok and type(read) == 'table' then results = read end
     end
-    local id = tostring(photos[1].localIdentifier)
+    local id = tostring(photo.localIdentifier)
     local function amount(saturation) return math.min(100, math.floor((tonumber(saturation) or 0) * 2 / 5 + 0.5) * 5) end
     local function hue(value) return (math.floor((tonumber(value) or 0) / 5 + 0.5) * 5) % 360 end
-    for _, card in ipairs(Simple.cards(true)) do   -- value, picture, title, note, wheels: in the order they are shown
+    for _, card in ipairs(fresh('Simple').cards(true)) do   -- value, picture, title, note, wheels: in the order they are shown
         local made = LrFileUtils.exists(paths[card.value])
         local settings = results[card.value] and results[card.value][id]
         local wheels = ''
@@ -259,7 +305,6 @@ function actions.previews(args, photos)
         end
         lines[#lines + 1] = table.concat({ card.value, made and paths[card.value] or '', card.title, card.note, wheels }, '\t')
     end
-    return table.concat(lines, '\n')
 end
 
 -- tweak=bright,warm,rich: 1.0 is one of the old five steps, -2..2, in steps of 0.05 ("0.35,-1.2,0"; the old whole
@@ -382,9 +427,15 @@ function actions.cull(args, photos)
     LrFileUtils.delete(staging)
     local q = Tone.shellQuote
     local out = LrPathUtils.child(dir, 'cull_result.tsv')
-    Tone.execute(Tone.python(config.cull) .. ' --job ' .. q(job) .. ' --out ' .. q(out) ..
-        ' --people ' .. q(LrPathUtils.child(dir, 'people.json')) .. ' --fresh ' .. (args.fresh == '1' and 1 or 0) ..
-        ' > ' .. q(LrPathUtils.child(dir, 'cull.log')) .. ' 2>&1')
+    local p = Tone.posixQuote
+    if LrFileUtils.exists(out) then LrFileUtils.delete(out) end     -- an old result must not pass for this one
+    if not Tone.serviceTask('cull', '--job ' .. p(job) .. ' --out ' .. p(out) .. ' --people ' .. p(LrPathUtils.child(dir, 'people.json')) ..
+            ' --fresh ' .. (args.fresh == '1' and 1 or 0), LrPathUtils.child(dir, 'cull.log'), false) then
+        if LrFileUtils.exists(out) then LrFileUtils.delete(out) end
+        Tone.execute(Tone.python(config.cull) .. ' --job ' .. q(job) .. ' --out ' .. q(out) ..
+            ' --people ' .. q(LrPathUtils.child(dir, 'people.json')) .. ' --fresh ' .. (args.fresh == '1' and 1 or 0) ..
+            ' > ' .. q(LrPathUtils.child(dir, 'cull.log')) .. ' 2>&1')
+    end
     if not LrFileUtils.exists(out) then error('选片分析没有完成。', 0) end
     return LrFileUtils.readFile(out)
 end

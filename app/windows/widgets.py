@@ -1,10 +1,11 @@
 """Painted controls that copy the SwiftUI views in Views.swift: sizes, radii, opacities and timings are taken
 from there. Qt's own widgets are only used for text entry and scrolling."""
 import math
+import re
 
 from PySide6.QtCore import QEasingCurve, QEvent, QPoint, QPointF, QRectF, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFontMetricsF, QImage, QPainter, QPainterPath, QPen
-from PySide6.QtWidgets import QGraphicsOpacityEffect, QHBoxLayout, QLabel, QLineEdit, QSizePolicy, QWidget
+from PySide6.QtWidgets import QGraphicsOpacityEffect, QHBoxLayout, QLabel, QLineEdit, QMenu, QSizePolicy, QWidget
 
 from . import icons
 from .theme import CJK
@@ -458,6 +459,19 @@ class Surface(QWidget):
             p.drawRect(QRectF(0, 0, self.width(), 1))
 
 
+GLASS = QColor(20, 20, 20, 140)          # rgba(20, 20, 20, 0.55)
+GLASS_LINE = QColor(255, 255, 255, 26)   # 1 px white 0.10
+
+
+def paint_glass(p, rect, radius):
+    """Smoked glass (FOR_WINDOWS.md, "what to do about the glass", option 1): the room behind is already blurred, so a translucent fill and a
+    hairline are enough."""
+    r = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5)
+    p.setPen(QPen(GLASS_LINE, 1))
+    p.setBrush(GLASS)
+    p.drawRoundedRect(r, radius, radius)
+
+
 def host_update(widget):
     w = widget.parentWidget()
     while w is not None and not isinstance(w, Surface):
@@ -672,9 +686,11 @@ class IconButton(Control):
 class Pill(Control):
     """LevelPill (13, 32 high, corner 9) and the shaping chips (12, 28 high, corner 8)."""
 
-    def __init__(self, text, action, *, size=13, height=32, corner=9, off_color=white(0.8), animated=True):
+    def __init__(self, text, action, *, size=13, height=32, corner=9, off_color=white(0.8), animated=True,
+                 fill=white(0.06), wrap=False, bounce=False):
         super().__init__()
         self.text, self.size_, self.corner, self.off_color = text, size, corner, off_color
+        self.fill, self.wrap, self.bounce = fill, wrap, bounce
         self.animated = animated
         self.selected = False
         self.t = Tween(0, self.update, self, 250)
@@ -686,7 +702,9 @@ class Pill(Control):
     def set_selected(self, on, animate=True):
         if on != self.selected or self.t.target != (1 if on else 0):
             self.selected = on
-            self.t.to(1 if on else 0, animate=animate and self.animated)
+            if self.bounce:               # the shape chips: .bouncy(0.3) from 0.97 to 1
+                self.t._anim.setEasingCurve(QEasingCurve.Type.OutBack if on else QEasingCurve.Type.OutCubic)
+            self.t.to(1 if on else 0, animate=animate and (self.animated or self.bounce))
 
     @property
     def mark(self):
@@ -704,11 +722,16 @@ class Pill(Control):
         p = painter(self)
         r = QRectF(self.rect())
         t = self.t.value
+        if self.bounce:
+            g = 0.97 + 0.03 * t
+            p.translate(r.center())
+            p.scale(g, g)
+            p.translate(-r.center())
         p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(white(0.06))
+        p.setBrush(self.fill)
         p.drawRoundedRect(r, self.corner, self.corner)
         if t > 0:
-            op(p, t)
+            op(p, min(1, t))
             p.setBrush(QBrush(FOCUS))
             p.drawRoundedRect(r, self.corner, self.corner)
             op(p, 1)
@@ -716,19 +739,350 @@ class Pill(Control):
         f = font(self.size_, SEMIBOLD if self.selected else REGULAR)
         fit = r.width() - 4 - (12 if mark else 0)      # room for the dot when there is one
         w = text_width(f, self.text)
-        if w > fit:               # .minimumScaleFactor(0.8); pixel sizes round, so round down to really fit
+        if self.wrap and w > fit:     # .lineLimit(2): two words may take two lines, then shrink to 0.7
+            size = self.size_
+            while size > math.floor(self.size_ * 0.7) and not self._two_lines(font(size, SEMIBOLD if self.selected else REGULAR), fit - 8):
+                size -= 1
+            f = font(size, SEMIBOLD if self.selected else REGULAR)
+            longest = max(text_width(f, word) for word in self.text.split())
+            if longest > fit - 8:                    # one word wider than the chip: squeezed, never broken or cut
+                f.setStretch(max(60, int(100 * (fit - 8) / longest)))
+        elif w > fit:               # .minimumScaleFactor(0.8); pixel sizes round, so round down to really fit
             size = max(math.floor(self.size_ * 0.75), math.floor(self.size_ * fit / w))
             f = font(size, SEMIBOLD if self.selected else REGULAR)
         p.setFont(f)
-        p.setPen(mix(self.off_color, black(0.85), t))
+        p.setPen(mix(self.off_color, black(0.85), min(1, t)))
         text_r =r.adjusted(0, 0, -12, 0) if mark else r
-        p.drawText(text_r, CENTER, self.text)
+        flags = CENTER | (Qt.TextFlag.TextWordWrap if self.wrap else 0)
+        p.drawText(text_r.adjusted(4, 0, -4, 0) if self.wrap else text_r, flags, self.text)
         if mark:
             # the wheel picker: a 5 pt dot after the word when that wheel has been moved
             x = min(text_r.center().x() + text_width(f, self.text) / 2 + 6, r.right() - 6)
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(black(0.85) if t > 0.5 else QBrush(FOCUS))
             p.drawEllipse(QPointF(x, r.center().y()), 2.5, 2.5)
+
+
+    def _two_lines(self, f, width):
+        lines = Para(self.text, f.pixelSize())._lines(width)
+        return len(lines) <= 2 and all(text_width(f, t.rstrip()) <= width for t, _ in lines)
+
+
+class ChipGrid(QWidget):
+    """ShapeChips: a fixed number of columns (3), 8 apart both ways."""
+
+    def __init__(self, chips, columns=3, spacing=8):
+        super().__init__()
+        self.chips, self.columns, self.spacing = chips, columns, spacing
+        for c in chips:
+            c.setParent(self)
+        rows = -(-len(chips) // columns)
+        self.h = chips[0].height()
+        self.setFixedHeight(rows * self.h + (rows - 1) * spacing)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+    def resizeEvent(self, _e):
+        cell = (self.width() - (self.columns - 1) * self.spacing) / self.columns
+        for i, c in enumerate(self.chips):
+            r, k = divmod(i, self.columns)
+            x = round(k * (cell + self.spacing))
+            c.setGeometry(x, r * (self.h + self.spacing), round((k + 1) * cell + k * self.spacing) - x, self.h)
+
+
+class Roll:
+    """.contentTransition(.numericText()): when a text changes, the characters that changed roll - the new ones in from
+    below (from above when the number went down), the old ones out the other way, fading, 0.3 s; the rest stays.
+    Texts of different lengths roll as a whole. `draw` paints it into a rect with an alignment, like drawText."""
+
+    def __init__(self, owner, text=""):
+        self.owner = owner
+        self.old = self.new = text
+        self.down = False
+        self.t = Tween(1, owner.update, owner, 300, QEasingCurve.Type.OutCubic)
+
+    @staticmethod
+    def _number(text):
+        digits = re.findall(r"\d+", text)
+        return int(digits[0]) if digits else None
+
+    def set(self, text, animate=True):
+        if text == self.new:
+            return
+        a, b = self._number(self.new), self._number(text)
+        self.down = a is not None and b is not None and b < a
+        self.old, self.new = self.new, text
+        self.t.to(0, animate=False)
+        self.t.to(1, animate=animate and bool(self.old))
+
+    def draw(self, p, rect, align):
+        t = self.t.value
+        fm = QFontMetricsF(p.font())
+        if t >= 1 or self.old == self.new:
+            p.drawText(rect, align, self.new)
+            return
+        h = fm.height() * 0.7
+        sign = -1 if self.down else 1
+        width = fm.horizontalAdvance(self.new)
+        if align & Qt.AlignmentFlag.AlignRight:
+            x0 = rect.right() - width
+        elif align & Qt.AlignmentFlag.AlignHCenter:
+            x0 = rect.center().x() - width / 2
+        else:
+            x0 = rect.left()
+        base = rect.center().y() + (fm.ascent() - fm.descent()) / 2
+        pen = p.pen()
+        colour = pen.color()
+        opacity = p.opacity()
+
+        def put(text, x, dy, alpha):
+            p.setOpacity(opacity * alpha)
+            p.drawText(QPointF(x, base + dy), text)
+
+        if len(self.old) != len(self.new):                     # a different number of characters: the whole text rolls
+            ow = fm.horizontalAdvance(self.old)
+            ox = x0 if not (align & (Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignHCenter)) else \
+                (rect.right() - ow if align & Qt.AlignmentFlag.AlignRight else rect.center().x() - ow / 2)
+            put(self.old, ox, -sign * h * t, 1 - t)
+            put(self.new, x0, sign * h * (1 - t), t)
+        else:
+            x = x0
+            for i, ch in enumerate(self.new):
+                if ch == self.old[i]:
+                    put(ch, x, 0, 1)
+                else:
+                    put(self.old[i], x, -sign * h * t, 1 - t)
+                    put(ch, x, sign * h * (1 - t), t)
+                x = x0 + fm.horizontalAdvance(self.new[:i + 1])
+        p.setOpacity(opacity)
+        p.setPen(QPen(colour))
+
+
+class RollLabel(QLabel):
+    """A one-line label whose digits roll when the text changes (the working card's per cent)."""
+
+    def __init__(self, text="", size=24, weight=SEMIBOLD):
+        super().__init__(text)
+        self.setFont(font(size, weight, digits=True))
+        self.setStyleSheet("background:transparent;")
+        self.roll = Roll(self, text)
+
+    def setText(self, text):
+        super().setText(text)
+        self.roll.set(text, animate=self.isVisible())
+
+    def paintEvent(self, _e):
+        p = painter(self)
+        p.setFont(self.font())
+        p.setPen(TEXT)
+        self.roll.draw(p, QRectF(self.rect()), self.alignment())
+
+
+class Segmented(QWidget):
+    """LevelBar and the wheel picker: a faint track (3 inside), one segment per choice, the chosen one a focus-yellow
+    capsule that slides to it (snappy 0.32). Text 13 (semibold, black on the capsule); when a language's words do not
+    fit, 11.5, then squeezed. `marks`: a 5 pt focus dot after the words of choices that have been set (wheel picker)."""
+    chosen = Signal(int)
+
+    def __init__(self, titles, *, height=38, corner=None):
+        super().__init__()
+        self.titles = list(titles)
+        self.index = 0
+        self.marks = set()
+        self.corner = corner                     # None: a capsule
+        self.at = Tween(0, self.update, self, 320, QEasingCurve.Type.OutCubic)
+        self.pressed = None
+        self.vertical = False            # picker(vertical: true): the choices one under the other, 32 high each
+        self._height = height
+        self.setFixedHeight(height + 6)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setMinimumWidth(10)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def set_index(self, index, animate=True):
+        if index != self.index or self.at.target != index:
+            self.index = index
+            self.at.to(index, animate=animate)
+
+    def set_marks(self, marks):
+        if set(marks) != self.marks:
+            self.marks = set(marks)
+            self.update()
+
+    def _layout(self):
+        """ViewThatFits as LevelBar: each segment takes what its word needs (9 a side) and the rest is shared out,
+        at 13, then at 11.5; only when that does not fit either do the segments share the width equally and a word
+        is squeezed. Returns (size, [(x, width)], squeeze)."""
+        room = self.width() - 6
+        n = max(1, len(self.titles))
+        for size in (13, 11.5):
+            need = [text_width(font(size, SEMIBOLD), t) + 18 + (11 if i in self.marks else 0)
+                    for i, t in enumerate(self.titles)]
+            if sum(need) <= room:
+                extra = (room - sum(need)) / n
+                xs, x = [], 3.0
+                for w in need:
+                    xs.append((x, w + extra))
+                    x += w + extra
+                return size, xs, False
+        cell = room / n
+        return 11.5, [(3 + i * cell, cell) for i in range(n)], True
+
+    def set_vertical(self, on):
+        """The wheel picker in the narrow bar stacks (Mac WheelGroup compact): 32 a choice, the track corner 19."""
+        if on == self.vertical:
+            return
+        self.vertical = on
+        self.setFixedHeight(len(self.titles) * 32 + 6 if on else self._height + 6)
+        self.update()
+
+    def _hit(self, x, y=None):
+        if self.vertical and y is not None:
+            return int(max(0, min(len(self.titles) - 1, (y - 3) // 32)))
+        for i, (left, w) in enumerate(self._layout()[1]):
+            if x < left + w:
+                return i
+        return len(self.titles) - 1
+
+    def mousePressEvent(self, e):
+        if e.button() == Qt.MouseButton.LeftButton and self.isEnabled():
+            self.pressed = self._hit(e.position().x(), e.position().y())
+
+    def mouseReleaseEvent(self, e):
+        which, self.pressed = self.pressed, None
+        if which is not None and self.rect().contains(e.position().toPoint()):
+            if which == self._hit(e.position().x(), e.position().y()):
+                self.set_index(which)
+                self.chosen.emit(which)
+
+    def _paint_vertical(self, p):
+        r = QRectF(self.rect())
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(white(0.12))
+        p.drawRoundedRect(r, 19, 19)
+        y = 3 + self.at.value * 32
+        p.setBrush(QBrush(FOCUS))
+        p.drawRoundedRect(QRectF(3, y, r.width() - 6, 32), 16, 16)
+        for i, title in enumerate(self.titles):
+            on = i == self.index
+            box = QRectF(3, 3 + i * 32, r.width() - 6, 32)
+            f = font(13, SEMIBOLD if on else REGULAR)
+            mark = i in self.marks and not on
+            w = min(text_width(f, title), box.width() - 12 - (11 if mark else 0))
+            p.setFont(f)
+            p.setPen(mix(TEXT, black(0.85), max(0.0, 1 - abs(self.at.value - i))))
+            tb = QRectF(box.center().x() - w / 2 - (5.5 if mark else 0), box.top(), w + 1, box.height())
+            p.drawText(tb, CENTER, title)
+            if mark:
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QBrush(FOCUS))
+                p.drawEllipse(QPointF(tb.right() + 6.5, box.center().y()), 2.5, 2.5)
+
+    def paintEvent(self, _e):
+        p = painter(self)
+        if self.vertical:
+            self._paint_vertical(p)
+            return
+        r = QRectF(self.rect())
+        h = r.height() - 6
+        outer = self.corner + 3 if self.corner is not None else r.height() / 2
+        inner = self.corner if self.corner is not None else h / 2
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(white(0.12))
+        p.drawRoundedRect(r, outer, outer)
+        size, cells, squeeze = self._layout()
+        at = max(0.0, min(len(cells) - 1.0, self.at.value))
+        i0 = int(at)
+        i1 = min(i0 + 1, len(cells) - 1)
+        t = at - i0
+        kx = cells[i0][0] + (cells[i1][0] - cells[i0][0]) * t
+        kw = cells[i0][1] + (cells[i1][1] - cells[i0][1]) * t
+        p.setBrush(QBrush(FOCUS))
+        p.drawRoundedRect(QRectF(kx, 3, kw, h), inner, inner)
+        for i, title in enumerate(self.titles):
+            on = i == self.index
+            box = QRectF(cells[i][0], 3, cells[i][1], h)
+            f = font(size, SEMIBOLD if on else REGULAR)        # 11.5 rounds to 12 px
+            mark = i in self.marks and not on
+            room = box.width() - (8 if squeeze else 18) - (11 if mark else 0)
+            w = text_width(f, title)
+            if w > room:                                       # only then is a word squeezed (minimumScaleFactor 0.7)
+                f.setStretch(max(70, int(100 * room / w)))
+                w = room
+            p.setFont(f)
+            near = max(0.0, 1 - abs(self.at.value - i))       # the capsule passing under the word turns it black
+            p.setPen(mix(TEXT, black(0.85), near))
+            tb = QRectF(box.center().x() - w / 2 - (5.5 if mark else 0), box.top(), w + 1, box.height())
+            p.drawText(tb, CENTER, title)
+            if mark:
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QBrush(FOCUS))
+                p.drawEllipse(QPointF(tb.right() + 6.5, box.center().y()), 2.5, 2.5)
+
+
+class InfoButton(Control):
+    """What a control does, for those who want to know: pressed, not hovered. A 14 pt question-mark circle (soft) in a
+    44 touch square; a press opens a bubble (13, 300 wide, 16 inside) beside it."""
+
+    def __init__(self, text):
+        super().__init__()
+        self.text = text
+        self.setFixedSize(44, 44)
+        self.setAccessibleName(tr("app.help"))
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.bubble = None
+        self.clicked.connect(self._toggle)
+
+    def _toggle(self):
+        if self.bubble is not None and self.bubble.isVisible():
+            self.bubble.close()
+            return
+        self.bubble = Bubble(self.text, self)
+        self.bubble.show_beside(self)
+
+    def paintEvent(self, _e):
+        p = painter(self)
+        c = QPointF(self.width() / 2, self.height() / 2)
+        p.setPen(QPen(SOFT if not self.pressed else TEXT, 1.3))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.drawEllipse(c, 7, 7)
+        f = font(10, SEMIBOLD)
+        p.setFont(f)
+        p.drawText(QRectF(c.x() - 7, c.y() - 7.5, 14, 14), CENTER, "?")
+
+
+class Bubble(QWidget):
+    """The popover of InfoButton: a dark rounded panel, text 13, 300 wide with 16 inside; closes on any click outside."""
+
+    def __init__(self, text, owner):
+        super().__init__(owner.window(), Qt.WindowType.Popup | Qt.WindowType.FramelessWindowHint
+                         | Qt.WindowType.NoDropShadowWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        self.f = font(13)
+        blocks = []
+        for part in text.split("\n"):
+            blocks += [t.rstrip() for t, _ in Para(part, 13)._lines(268)] if part.strip() else [""]
+        self.lines = blocks
+        self.setFixedSize(300, 32 + len(blocks) * 19)
+
+    def show_beside(self, owner):
+        g = owner.mapToGlobal(QPoint(0, owner.height() // 2))
+        screen = owner.screen().availableGeometry()
+        x = g.x() - self.width() - 4                      # arrowEdge .leading: the bubble opens towards the photo
+        y = max(screen.top() + 8, min(g.y() - 24, screen.bottom() - self.height() - 8))
+        self.move(max(screen.left() + 8, x), y)
+        self.show()
+
+    def paintEvent(self, _e):
+        p = painter(self)
+        r = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        p.setPen(QPen(white(0.12), 1))
+        p.setBrush(QColor(38, 38, 42, 250))
+        p.drawRoundedRect(r, 12, 12)
+        p.setFont(self.f)
+        p.setPen(TEXT)
+        for i, line in enumerate(self.lines):
+            p.drawText(QRectF(16, 16 + i * 19, 268, 19), LEFT, line)
 
 
 class PillGrid(QWidget):
@@ -838,12 +1192,14 @@ class TweakRow(QWidget):
     catches 0. The words step 5 a click and keep going while held. A double click on the track, or a click on
     the number, goes back to 0. Arrow keys step 5 (the one adjustable element of the row).
     `moving` while dragging (the quick picture follows), `changed` once it settles (the exact picture is asked).
-    Windows keeps its own sizes (ends 30 x 24, 24 high); the colour is the Mac's focus yellow, the Mac spec has 44 pt ends."""
+    Sizes as the Mac ToneRow: 44 high; the words are plain 13 medium in a touch column at least 44 wide; the number
+    column at least 38."""
     changed = Signal(float)
     moving = Signal(float)
-    KNOB, NUMBER, STEP, CATCH = 16, 34, 5, 4
+    KNOB, NUMBER, STEP, CATCH = 16, 38, 5, 4
+    H = 44
 
-    def __init__(self, low, high, end=30):
+    def __init__(self, low, high, end=44):
         super().__init__()
         self.low, self.high = low, high
         self.end = end
@@ -854,14 +1210,14 @@ class TweakRow(QWidget):
         self.number_f = font(12, MEDIUM, digits=True)
         self.repeat = QTimer(self, interval=80)
         self.repeat.timeout.connect(self._repeat)
-        self.setFixedHeight(24)
+        self.setFixedHeight(self.H)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAccessibleName(f"{low} {high}")
 
     @staticmethod
     def end_width(words):
-        """30 fits two Chinese characters (the earlier Windows size); longer words get 6 a side."""
-        return max(30, max(round(text_width(font(12, MEDIUM), w)) + 12 for w in words))
+        """A touch column (44) unless a word needs more: then the word and 6 a side (Mac: .padding(6), minWidth 44)."""
+        return max(44, max(round(text_width(font(13, MEDIUM), w)) + 12 for w in words))
 
     @staticmethod
     def shown(units):
@@ -878,11 +1234,11 @@ class TweakRow(QWidget):
             self.update()
 
     def _zones(self):
-        e, w = self.end, self.width()
-        left = QRectF(0, 0, e, 24)
-        number = QRectF(w - self.NUMBER, 0, self.NUMBER, 24)
-        right = QRectF(number.left() - 6 - e, 0, e, 24)
-        track = QRectF(left.right() + 8, 0, right.left() - 8 - left.right() - 8, 24)
+        e, w, h = self.end, self.width(), self.H
+        left = QRectF(0, 0, e, h)
+        number = QRectF(w - self.NUMBER, 0, self.NUMBER, h)
+        right = QRectF(number.left() - e, 0, e, h)
+        track = QRectF(left.right(), 0, right.left() - left.right(), h)
         return left, right, track, number
 
     def _set(self, units, final):
@@ -966,12 +1322,9 @@ class TweakRow(QWidget):
     def paintEvent(self, _e):
         p = painter(self)
         left, right, track, number = self._zones()
-        p.setFont(font(12, MEDIUM))
+        p.setFont(font(13, MEDIUM))
         for r, text, key in ((left, self.low, "low"), (right, self.high, "high")):
             op(p, 0.55 if self.pressed == key else 1)
-            p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(white(0.07))
-            p.drawRoundedRect(r, 7, 7)
             p.setPen(TEXT)
             p.drawText(r, CENTER, text)
         op(p, 1)
@@ -1015,7 +1368,7 @@ class ColorWheel(QWidget):
     moving = Signal(object)
     changed = Signal(object)
     reset = Signal()
-    D, DOT, LABEL, NUMBERS, GAP = 150, 18, 16, 18, 6
+    D, DOT, LABEL, NUMBERS, GAP = 150, 18, 18, 18, 6
 
     def __init__(self, words=("", "", "", "")):
         super().__init__()
@@ -1025,7 +1378,7 @@ class ColorWheel(QWidget):
         self.labels = ("", "")
         self.drag = None
         self.dragging = False
-        self.f = font(11, MEDIUM)
+        self.f = font(13, MEDIUM)
         self.num_f = font(12, MEDIUM, digits=True)
         self._faces = {}
         self.setFixedHeight(self.LABEL + self.D + self.LABEL + self.GAP + self.NUMBERS)
@@ -1187,14 +1540,14 @@ class ColorWheel(QWidget):
         p.drawEllipse(c, 2.5, 2.5)
         if self.mode == "wb":
             p.setFont(self.f)
-            p.setPen(SOFT)
+            p.setPen(TEXT)
             right, left, up, down = self.words
             # the side words get what is left beside the disc; a long translation (Polish "Chłodniej") shrinks to 9
             # and only then ends in "…"
             room = max(20.0, (self.width() - self.D) / 2 - 4)
             for word, r_, align in ((right, QRectF(disc.right() + 4, c.y() - 9, room, 18), LEFT),
                                     (left, QRectF(disc.left() - 4 - room, c.y() - 9, room, 18), Qt.AlignmentFlag.AlignRight)):
-                size = 11
+                size = 13
                 while size > 9 and text_width(font(size, MEDIUM), word) > room:
                     size -= 1
                 f = font(size, MEDIUM)
@@ -1235,18 +1588,33 @@ class ColorWheel(QWidget):
 
 
 class Switch(Control):
-    """Toggle(.switch, .small) tinted focus yellow: label 13, 8 apart, then the switch. Measured on the Mac shot: a 30 x 17
-    track of white 0.10 with a faint lighter rim, a 15 pt light-grey knob (white when on)."""
+    """SwitchRow: the title (13) on the left, the switch tinted focus yellow on the right, the row at least 44 high;
+    a long title wraps (.fixedSize(vertical: true)). The switch as measured on the Mac shot: a 30 x 17 track of
+    white 0.10 with a faint lighter rim, a 15 pt light-grey knob (white when on). `fit(width)` sets the row's width."""
     toggled = Signal(bool)
+    TRACK = 30
 
-    def __init__(self, text, checked=False):
+    def __init__(self, text, checked=False, width=None):
         super().__init__()
         self.text = text
         self.f = font(13)
         self.checked = checked
+        self.lines = [text]
         self.t = Tween(1 if checked else 0, self.update, self, 200)
-        self.setFixedSize(round(text_width(self.f, text)) + 8 + 30, 18)
         self.clicked.connect(self._flip)
+        self.fit(width or round(text_width(self.f, text)) + 12 + self.TRACK)
+
+    def fit(self, width):
+        room = width - 12 - self.TRACK
+        self.lines = [self.text] if text_width(self.f, self.text) <= room else \
+            [t.rstrip() for t, _ in Para(self.text, 13)._lines(room)]
+        self.setFixedSize(width, max(44, len(self.lines) * 18 + 16))
+        self.update()
+
+    def set_text(self, text, width=None):
+        if text != self.text:
+            self.text = text
+            self.fit(width or self.width())
 
     def _flip(self):
         self.set_checked(not self.checked)
@@ -1261,9 +1629,11 @@ class Switch(Control):
         p = painter(self)
         p.setFont(self.f)
         p.setPen(TEXT)
-        p.drawText(QRectF(0, 0, self.width() - 38, self.height()), LEFT, self.text)
+        top = (self.height() - len(self.lines) * 18) / 2
+        for i, line in enumerate(self.lines):
+            p.drawText(QRectF(0, top + i * 18, self.width() - 12 - self.TRACK, 18), LEFT, line)
         t = self.t.value
-        track = QRectF(self.width() - 30, 0.5, 30, 17)
+        track = QRectF(self.width() - self.TRACK, (self.height() - 17) / 2, self.TRACK, 17)
         p.setPen(QPen(mix(white(0.16), FOCUS, t), 1))
         p.setBrush(mix(white(0.10), FOCUS, t))
         p.drawRoundedRect(track.adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
@@ -1457,6 +1827,11 @@ class FocusMark(QWidget):
             brackets(painter(self), self.at.adjusted(1, 1, -1, -1), self.arm)
 
 
+MENU_SHEET = ("QMenu{background:rgb(38,38,42);color:white;border:1px solid rgba(255,255,255,30);border-radius:8px;"
+              "padding:4px;font-size:13px}QMenu::item{padding:6px 16px;border-radius:5px}"
+              "QMenu::item:selected{background:rgba(255,255,255,30)}")
+
+
 class LookCard(Control):
     """LookCard: picture width x min(104, width*0.66), corner 9; title 13 (semibold and focus yellow when chosen),
     note 11; 7 apart; 78 % opacity unless chosen. The chosen one sits in the row's FocusMark. Hover grows an
@@ -1477,8 +1852,7 @@ class LookCard(Control):
         self.mine = look["id"].startswith("u") if look else False
         if width != self.card_w:
             self.card_w = width
-        pic_h = min(104, round(width * 0.66))
-        self.setFixedSize(width, pic_h + 7 + 16 + 7 + 13)
+        self.setFixedSize(width, 72 + 9 + 16 + 5 + 13)
         if selected != self.selected or self.sel.target != (1 if selected else 0):
             self.selected = selected
             self.sel.to(1 if selected else 0, animate=animate)
@@ -1486,21 +1860,19 @@ class LookCard(Control):
         self.update()
 
     def pic_rect(self):
-        return QRectF(0, 0, self.card_w, min(104, round(self.card_w * 0.66)))
-
-    def _x_rect(self):
-        r = self.pic_rect()
-        return QRectF(r.right() - 25, r.top() + 5, 20, 20)
+        return QRectF(0, 0, self.card_w, 72)
 
     def on_hover(self, inside):
         self.grow.to(1 if inside and not self.selected else 0)
 
-    def mouseReleaseEvent(self, e):
-        if e.button() == Qt.MouseButton.LeftButton and self.mine and self._x_rect().contains(e.position()):
-            self.pressed = False
-            self.delete.emit()
+    def contextMenuEvent(self, e):
+        """One of the user's own looks: "Delete this style" in its context menu, as on the Mac (no hover-only x)."""
+        if not self.mine:
             return
-        super().mouseReleaseEvent(e)
+        menu = QMenu(self)
+        menu.setStyleSheet(MENU_SHEET)
+        menu.addAction(tr("look.delete"), self.delete.emit)
+        menu.exec(e.globalPos())
 
     def paintEvent(self, _e):
         if not self.look:
@@ -1514,31 +1886,24 @@ class LookCard(Control):
         p.scale(g, g)
         p.translate(-r.center())
         p.save()
-        p.setClipPath(rounded(r, 9))
+        p.setClipPath(rounded(r, 5))
         if not draw_cover(p, self.look.get("image"), r):
             p.fillRect(r, white(0.06))
         p.restore()
-        if self.mine and self.hovering:
-            x = self._x_rect()
-            p.setPen(Qt.PenStyle.NoPen)
-            p.setBrush(black(0.65))
-            p.drawEllipse(x)
-            icons.xmark(p, QRectF(x.center().x() - 4.5, x.center().y() - 4.5, 9, 9), TEXT, 0.2)
         p.restore()
         t = self.sel.value
-        y = r.bottom() + 7
-        p.setFont(font(13, SEMIBOLD if self.selected else REGULAR))
+        y = r.bottom() + 9
+        p.setFont(font(12, SEMIBOLD if self.selected else REGULAR))
         p.setPen(mix(TEXT, FOCUS, t))
         p.drawText(QRectF(0, y, self.card_w, 16), LEFT, p.fontMetrics().elidedText(self.look["title"], Qt.TextElideMode.ElideRight, self.card_w))
         p.setFont(font(11))
-        note = QColor(FOCUS)
-        note.setAlphaF(0.8)
-        p.setPen(note if self.mine else white(0.35))
-        p.drawText(QRectF(0, y + 16 + 7, self.card_w, 13), LEFT, p.fontMetrics().elidedText(self.look["note"], Qt.TextElideMode.ElideRight, self.card_w))
+        p.setPen(SOFT)
+        p.drawText(QRectF(0, y + 16 + 5, self.card_w, 13), LEFT, p.fontMetrics().elidedText(self.look["note"], Qt.TextElideMode.ElideRight, self.card_w))
 
 
 class AddLookCard(Control):
-    """AddLookCard: dashed 1.2 [5, 4] frame, white 0.22 (0.5 on hover), plus 20 light, soft labels."""
+    """AddLookCard: a faint 72-high card (corner 5) with a plus (18, soft); "Save as my style" (12) and its note (11, soft);
+    0.78 opacity like an unchosen look."""
 
     def __init__(self):
         super().__init__()
@@ -1546,30 +1911,31 @@ class AddLookCard(Control):
 
     def set_width(self, width):
         self.card_w = width
-        self.setFixedSize(width, min(104, round(width * 0.66)) + 7 + 16 + 7 + 13)
+        self.setFixedSize(width, 72 + 9 + 16 + 5 + 13)
 
     def paintEvent(self, _e):
         p = painter(self)
-        r = QRectF(0, 0, self.card_w, min(104, round(self.card_w * 0.66))).adjusted(0.6, 0.6, -0.6, -0.6)
-        pen = QPen(white(0.5 if self.hovering else 0.22), 1.2)
-        pen.setDashPattern([5 / 1.2, 4 / 1.2])
-        p.setPen(pen)
-        p.setBrush(Qt.BrushStyle.NoBrush)
-        p.drawRoundedRect(r, 9, 9)
+        op(p, 0.78 * (0.6 if self.pressed else 1) if self.isEnabled() else 0.3)
+        r = QRectF(0, 0, self.card_w, 72)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(white(0.18 if self.hovering else 0.12))
+        p.drawRoundedRect(r, 5, 5)
         c = r.center()
-        icons.plus(p, QRectF(c.x() - 10, c.y() - 10, 20, 20), SOFT, 0.045)
-        y = r.bottom() + 7
-        p.setFont(font(13))
-        p.setPen(SOFT)
-        p.drawText(QRectF(0, y, self.card_w, 16), LEFT, p.fontMetrics().elidedText(tr("look.save"), Qt.TextElideMode.ElideRight, self.card_w))
-        p.setFont(font(11))
-        p.setPen(white(0.35))
-        p.drawText(QRectF(0, y + 23, self.card_w, 13), LEFT, tr("look.save_note"))
+        icons.plus(p, QRectF(c.x() - 9, c.y() - 9, 18, 18), SOFT, 0.06)
+        y = r.bottom() + 9
+        for size, color, text, top in ((12, TEXT, tr("look.save"), y), (11, SOFT, tr("look.save_note"), y + 21)):
+            f = font(size)
+            w = text_width(f, text)
+            if w > self.card_w:                     # .minimumScaleFactor(0.7)
+                f.setStretch(max(70, int(100 * self.card_w / w)))
+            p.setFont(f)
+            p.setPen(color)
+            p.drawText(QRectF(0, top, self.card_w, 16 if size == 12 else 13), LEFT, text)
 
 
 class PhotoThumb(Control):
-    """PhotoThumb: 76 x 76, corner 9, the chosen one in the strip's FocusMark; 0.7 opacity unless chosen or loading; flags on a
-    focus-yellow capsule (9 bold, black 0.85) 4 above the bottom."""
+    """PhotoThumb: 60 x 60 in 5 all round, corner 9, the chosen one in the rail's FocusMark; 0.66 opacity unless chosen or
+    loading; flags on a focus-yellow capsule (10 bold, black, 5 x 2 inside) 3 above the bottom."""
     FLAGS = {key: tr(f"flag.{key}") for key in ("eyes", "blur", "over", "dup")}
 
     def __init__(self):
@@ -1578,7 +1944,10 @@ class PhotoThumb(Control):
         self.selected = self.loading = False
         self.flags = []
         self.sel = Tween(0, self.update, self, 200)
-        self.setFixedSize(76, 76)
+        self.setFixedSize(70, 70)
+
+    def pic_rect(self):
+        return QRectF(5, 5, 60, 60)
 
     def set_state(self, image, selected, loading, flags):
         self.image, self.loading, self.flags = image, loading, list(flags)
@@ -1593,8 +1962,8 @@ class PhotoThumb(Control):
 
     def paintEvent(self, _e):
         p = painter(self)
-        op(p, 1 if self.selected or self.loading else 0.7 + 0.3 * self.sel.value)
-        r = QRectF(self.rect())
+        op(p, 1 if self.selected or self.loading else 0.66 + 0.34 * self.sel.value)
+        r = self.pic_rect()
         p.save()
         p.setClipPath(rounded(r, 9))
         if not draw_cover(p, self.image, r):
@@ -1603,10 +1972,10 @@ class PhotoThumb(Control):
             draw_petals(p, r.center(), 18)
         if self.flags:
             text = " ".join(self.FLAGS.get(f, f) for f in self.flags)
-            f = font(9, BOLD)
+            f = font(10, BOLD)
             p.setFont(f)
             w = min(r.width() - 4, text_width(f, text) + 10)
-            badge = QRectF(r.center().x() - w / 2, r.bottom() - 4 - 15, w, 15)
+            badge = QRectF(r.center().x() - w / 2, r.bottom() - 3 - 17, w, 17)
             p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(FOCUS)
             p.drawRoundedRect(badge, 7.5, 7.5)
@@ -1616,8 +1985,8 @@ class PhotoThumb(Control):
 
 
 class PersonChip(Control):
-    """PersonChip: a 34 pt round face (white 0.15 ring, or focus yellow 2 pt when set; 0.45 opacity for "no retouch") over its
-    choice (10, white 0.35 / focus yellow). 36 wide."""
+    """PersonChip: a 44 pt round face (faint 1 pt ring, or focus yellow 2 pt when set; "no retouch" is grey at 0.5) over its
+    choice (11, soft / focus yellow semibold), 3 apart. 48 wide."""
     NAMES = {"follow": tr("person.follow"), "light": tr("person.light"), "natural": tr("level.natural"),
              "refined": tr("level.refined"), "off": tr("person.off")}
 
@@ -1626,7 +1995,7 @@ class PersonChip(Control):
         self.image = image
         self.choice = "follow"
         self.t = Tween(0, self.update, self, 200)
-        self.setFixedSize(36, 34 + 3 + 14)
+        self.setFixedSize(48, 44 + 3 + 14)
         self.clicked.connect(action)
 
     def set_choice(self, choice):
@@ -1636,63 +2005,78 @@ class PersonChip(Control):
 
     def paintEvent(self, _e):
         p = painter(self)
-        r = QRectF(1, 0, 34, 34)
+        r = QRectF(2, 0, 44, 44)
         p.save()
-        op(p, 0.45 if self.choice == "off" else 1)
+        op(p, 0.5 if self.choice == "off" else 1)
         path = QPainterPath()
         path.addEllipse(r)
         p.setClipPath(path)
-        if not draw_cover(p, self.image, r):
+        image = self.image
+        if self.choice == "off" and image is not None and not image.isNull():
+            image = image.convertToFormat(QImage.Format.Format_Grayscale8)      # .saturation(0)
+        if not draw_cover(p, image, r):
             p.fillRect(r, white(0.06))
         p.restore()
         t = self.t.value
         p.setBrush(Qt.BrushStyle.NoBrush)
-        p.setPen(QPen(mix(white(0.15), FOCUS, t), 1 + t))
+        p.setPen(QPen(mix(white(0.12), FOCUS, t), 1 + t))
         p.drawEllipse(r.adjusted(0.5 + t / 2, 0.5 + t / 2, -0.5 - t / 2, -0.5 - t / 2))
-        p.setFont(font(10))
-        p.setPen(mix(white(0.35), FOCUS, t))
-        p.drawText(QRectF(0, 37, 36, 14), CENTER, self.NAMES.get(self.choice, self.NAMES["follow"]))
+        name = self.NAMES.get(self.choice, self.NAMES["follow"])
+        f = font(11, SEMIBOLD if self.choice != "follow" else REGULAR)
+        w = text_width(f, name)
+        if w > 48:                                          # .minimumScaleFactor(0.6)
+            f.setStretch(max(60, int(100 * 48 / w)))
+        p.setFont(f)
+        p.setPen(mix(SOFT, FOCUS, t))
+        p.drawText(QRectF(0, 47, 48, 14), CENTER, name)
 
 
 # ---------------------------------------------------------------- zoom bar
 class ZoomCapsule(QWidget):
-    """[-] fit to window / 2.0x [+] on a white 0.08 capsule, 30 high."""
+    """− Fit window / 2.0× +: two 44 icon buttons and the words (12 medium, even digits, at least 64 wide, 6 a side) between
+    them; a click on the words fits the picture. Bare: ZoomCluster is the glass."""
     fit = Signal()
 
     def __init__(self, minus, plus):
         super().__init__()
         self.text = tr("zoom.fit")
-        self.minus = IconButton("minus", minus)
-        self.plus = IconButton("plus", plus)
+        self.f = font(12, MEDIUM, digits=True)
+        self.roll = Roll(self, self.text)
+        self.minus = IconButton("minus", minus, box=44, glyph=12)
+        self.plus = IconButton("plus", plus, box=44, glyph=12)
         self.minus.setParent(self)
         self.plus.setParent(self)
-        self.setFixedSize(4 + 26 + 2 + 62 + 2 + 26 + 4, 30)
-        self.minus.move(4, 2)
-        self.plus.move(4 + 26 + 2 + 62 + 2, 2)
+        self._fit()
+
+    def _words(self):
+        return max(64, round(text_width(self.f, tr("zoom.fit"))) + 12)
+
+    def _fit(self):
+        mid = self._words()
+        self.setFixedSize(44 + mid + 44, 44)
+        self.minus.move(0, 0)
+        self.plus.move(44 + mid, 0)
 
     def set_zoom(self, zoom):
         self.text = tr("zoom.fit") if zoom <= 1.01 else f"{zoom:.1f}×"
+        self.roll.set(self.text, animate=self.isVisible())
         self.minus.setEnabled(zoom > 1)
         self.plus.setEnabled(zoom < 8)
         self.update()
 
     def mouseReleaseEvent(self, e):
-        if QRectF(32, 0, 62, 30).contains(e.position()):
+        if QRectF(44, 0, self._words(), 44).contains(e.position()):
             self.fit.emit()
 
     def paintEvent(self, _e):
         p = painter(self)
-        r = QRectF(self.rect())
-        p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(white(0.08))
-        p.drawRoundedRect(r, 15, 15)
-        p.setFont(font(12, MEDIUM, digits=True))
+        p.setFont(self.f)
         p.setPen(TEXT)
-        p.drawText(QRectF(32, 0, 62, 30), CENTER, self.text)
+        self.roll.draw(p, QRectF(44, 0, self._words(), 44), CENTER)
 
 
 class FaceButton(Control):
-    """Label('zoom to faces', systemImage: 'face.smiling') 12 medium, 14 padding, 30 high, white 0.08 capsule."""
+    """Label('Zoom to faces', systemImage: 'face.smiling') 12 medium, 14 a side, 44 high; bare inside ZoomCluster."""
 
     def __init__(self, action):
         super().__init__()
@@ -1702,7 +2086,7 @@ class FaceButton(Control):
         self._fit()
 
     def _fit(self):
-        self.setFixedSize(round(14 + 14 + 6 + text_width(self.f, self.text) + 14), 30)
+        self.setFixedSize(round(14 + 14 + 6 + text_width(self.f, self.text) + 14), 44)
 
     def set_text(self, text):
         if text != self.text:
@@ -1714,22 +2098,27 @@ class FaceButton(Control):
         p = painter(self)
         op(p, 0.6 if self.pressed else 1)
         r = QRectF(self.rect())
-        p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(white(0.08))
-        p.drawRoundedRect(r, 15, 15)
-        icons.face_smiling(p, QRectF(14, 8, 14, 14), TEXT, QColor(44, 44, 48))
+        icons.face_smiling(p, QRectF(14, 15, 14, 14), TEXT, QColor(36, 36, 38))
         p.setFont(self.f)
         p.setPen(TEXT)
-        p.drawText(QRectF(14 + 14 + 6, 0, r.width(), 30), LEFT, self.text)
+        p.drawText(QRectF(14 + 14 + 6, 0, r.width(), 44), LEFT, self.text)
 
 
 # ---------------------------------------------------------------- text entry
 class Field(QLineEdit):
-    """TextField(.roundedBorder) in the dark appearance."""
+    """TextField(.roundedBorder) in the dark appearance; `sheet`: SaveStyleSheet's plain field - 14, 44 high, 14 inside,
+    on the faint fill with corner 12."""
 
-    def __init__(self, placeholder):
+    def __init__(self, placeholder, sheet=False):
         super().__init__()
         self.setPlaceholderText(placeholder)
+        if sheet:
+            self.setFont(font(14))
+            self.setFixedHeight(44)
+            self.setStyleSheet(
+                "QLineEdit{background:rgba(255,255,255,31);color:rgb(255,255,255);border:0;"
+                "border-radius:12px;padding:0 14px;selection-background-color:rgba(10,132,255,150);}")
+            return
         self.setFont(font(13))
         self.setFixedHeight(24)
         self.setStyleSheet(

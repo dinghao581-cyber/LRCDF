@@ -187,6 +187,16 @@ class UpdateClient:
         self.root = Path(root)
 
     @property
+    def channel(self) -> str:
+        """"store" when the package came from the Microsoft Store (its build record says so): then nothing here ever
+        connects - updates come through the Store. Anything else, or no record, is the direct download."""
+        try:
+            value = _read_json(self.root / ".update_build.json").get("channel", "direct")
+        except (OSError, ValueError, AttributeError):
+            return "direct"
+        return "store" if value == "store" else "direct"
+
+    @property
     def installed(self) -> tuple[str, str, dict[str, str]] | None:
         if (self.root / "project" / ".git").exists():
             return None
@@ -203,6 +213,8 @@ class UpdateClient:
 
     @contextmanager
     def _open(self, url: str, header: str, stop: threading.Event, *, offset: int = 0, manifest: bool = False):
+        if self.channel == "store":
+            raise UpdateError("The Store build does not connect")
         for _ in range(6):
             _cancelled(stop)
             parsed = _url(url)
@@ -304,8 +316,10 @@ class UpdateClient:
         return offer
 
     def check(self, stop: threading.Event) -> Offer | None:
-        """Use the first signed, current manifest. No connection from a developer checkout."""
+        """Use the first signed, current manifest. No connection from a developer checkout or the Store build."""
         _cancelled(stop)
+        if self.channel == "store":
+            return None
         state = self.installed
         if state is None:
             return None
@@ -437,6 +451,8 @@ class UpdateClient:
     def stage(self, offer: Offer, stop: threading.Event) -> Path:
         """Verify all requested pieces and archives before marking the stage ready."""
         _cancelled(stop)
+        if self.channel == "store":
+            raise UpdateError("The Store build does not download updates")
         state = self.installed
         newest = self._newest()
         if (state is None or offer.manual or not offer.components or offer.platform != state[0] or

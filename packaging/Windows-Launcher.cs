@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 internal static class Launcher
 {
-    private const string WindowTitle = "LRCDF 一键修图";
+    private const string WindowTitle = "LRCDF";
     private const int Restore = 9;
     private const uint NoMove = 0x0002;
     private const uint NoSize = 0x0001;

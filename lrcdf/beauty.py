@@ -1,4 +1,4 @@
-"""Portrait beautification on pixels by frequency separation (高低频), the way a retoucher works by hand.
+"""Portrait beautification on pixels by frequency separation, the way a retoucher works by hand.
 
 Skin is split into two layers that add up to the photo exactly:
   low  = colour and light (Gaussian blur, radius SPLIT x face width)
@@ -244,7 +244,7 @@ def beautify_face(crop, face, models, opt, debug=None, box=None, mouth=None, eye
     # --- under-eye: pull the low-frequency colour towards the cheek below it (in Lab). Lightness is lifted place by
     # place by as much as it is darker than the cheek (a uniform shift also lifted the bright part of an eye bag and
     # made a flat disc); colour moves by the area's mean. On a made-up face nothing is darkened or made less red or
-    # yellow (blush and 卧蚕 highlight sit there). The oval's edge is soft (0.12 eye widths left it visible).
+    # yellow (blush and the highlight on the lower lid sit there). The oval's edge is soft (0.12 eye widths left it visible).
     mk = float(opt.get("makeup", 0))
     for eye in (EYE_L, EYE_R):
         c = pts[eye].mean(0); ew = float(np.linalg.norm(pts[eye[0]] - pts[eye[8]]))

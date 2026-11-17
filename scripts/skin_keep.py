@@ -14,11 +14,11 @@ from lrcdf import skinkeep
 from lrcdf.image_io import imread
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--skin", required=True); ap.add_argument("--state", required=True)
     ap.add_argument("--job", required=True); ap.add_argument("--out", required=True)
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
     skin = skinkeep.load(a.skin)
     state = json.load(open(a.state, encoding="utf-8")) if os.path.exists(a.state) else {}
     out = {}

@@ -132,6 +132,11 @@ function Beauty.apply(photos, options, progress)
 
     caption(message("$$$/LRCDF/Progress/Beauty=正在美颜…"))
     Beauty.rest()
+    local stopped, stopLog = Tone.stopPredict()
+    if not stopped then
+        for _, item in ipairs(outputs) do LrFileUtils.delete(item.input) end
+        return nil, message("$$$/LRCDF/Errors/BeautyFailed=美颜运行失败。日志：^1", stopLog)
+    end
     local q = Tone.shellQuote
     local log = LrPathUtils.child(session, 'beautify.log')
     local command = Tone.python(config.beautify) .. ' --job ' .. q(job)

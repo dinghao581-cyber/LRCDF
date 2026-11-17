@@ -1,4 +1,4 @@
-"""The Mac's extra looks d (自然清透), e (韩系) and f (港风) for the iPad, as colour cubes.
+"""The Mac's extra looks d (Soft & Fresh), e (Korean Style) and f (Hong Kong Film) for the iPad, as colour cubes.
 
 On the Mac they are look a plus a fixed set of Lightroom slider changes (styles.json), rendered by Lightroom. Those
 changes are global colour operations (temperature, tone, HSL, split toning), so a 3D colour table from a's rendering to

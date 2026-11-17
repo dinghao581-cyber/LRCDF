@@ -14,14 +14,251 @@ The reference itself is not in the result.
 --examples ID,ID,... for more edited photos of the job: the look is their average; --forget KEY deletes one).
 --style all: every style at once; the result is then { style = { id = settings } } (used for the style previews).
 The result is a Lua table: return { ["id"] = { Temperature = 5200, ... }, ... }"""
-import argparse, json, os, sys
+import argparse, glob, json, os, shlex, sys, threading, time
 import math
-import numpy as np
-import torch
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from lrcdf import params as P
-from lrcdf.device import pick
-from lrcdf.model import ToneNet, load_image, wb_feature
+
+
+def load_runtime():
+    # --stop needs only the standard library; a server starts its heartbeat before these imports.
+    global np, torch, P, pick, ToneNet, load_image, wb_feature
+    import numpy as np
+    import torch
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from lrcdf import params as P
+    from lrcdf.device import pick
+    from lrcdf.model import ToneNet, load_image, wb_feature
+
+
+def process_started(pid, handle=None):
+    """The OS start time, so a PID left after an idle exit cannot later name an unrelated process."""
+    if sys.platform == "win32":
+        import ctypes
+        from ctypes import wintypes
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        kernel.GetProcessTimes.argtypes = (wintypes.HANDLE,) + (ctypes.POINTER(wintypes.FILETIME),) * 4
+        kernel.GetProcessTimes.restype = wintypes.BOOL
+        kernel.CloseHandle.argtypes = (wintypes.HANDLE,)
+        own_handle = handle is None
+        if own_handle:
+            handle = kernel.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not handle:
+            if ctypes.get_last_error() == 87:
+                return None
+            raise ctypes.WinError(ctypes.get_last_error())
+        try:
+            times = [wintypes.FILETIME() for _ in range(4)]
+            if not kernel.GetProcessTimes(handle, *(ctypes.byref(t) for t in times)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            return str((times[0].dwHighDateTime << 32) | times[0].dwLowDateTime)
+        finally:
+            if own_handle:
+                kernel.CloseHandle(handle)
+    import subprocess
+    result = subprocess.run(["ps", "-p", str(pid), "-o", "lstart="], capture_output=True, text=True,
+                            env=dict(os.environ, LC_ALL="C"), timeout=5)
+    if result.returncode not in (0, 1):
+        raise RuntimeError("could not read predict process start time: " + result.stderr)
+    return result.stdout.strip() or None
+
+
+def stop_server(folder):
+    """Ask the server to quit, then confirm process exit (also when it is stuck importing or predicting)."""
+    pidfile = os.path.join(folder, "pid")
+    if not os.path.isdir(folder):
+        return
+    with open(os.path.join(folder, "quit"), "w") as f:
+        f.write("quit\n")
+    until = time.monotonic() + 3
+    while not os.path.exists(pidfile) and os.path.exists(os.path.join(folder, "alive")):
+        if time.monotonic() >= until:
+            raise RuntimeError("predict is starting but has not written its PID")
+        time.sleep(0.1)
+    if not os.path.exists(pidfile):
+        return
+    with open(pidfile) as f:
+        pid = int(f.readline().strip())
+        started = f.readline().strip()
+    if sys.platform == "win32":
+        import ctypes
+        from ctypes import wintypes
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        kernel.WaitForSingleObject.argtypes = (wintypes.HANDLE, wintypes.DWORD)
+        kernel.WaitForSingleObject.restype = wintypes.DWORD
+        kernel.TerminateProcess.argtypes = (wintypes.HANDLE, wintypes.UINT)
+        kernel.TerminateProcess.restype = wintypes.BOOL
+        kernel.CloseHandle.argtypes = (wintypes.HANDLE,)
+        handle = kernel.OpenProcess(0x101001, False, pid)  # SYNCHRONIZE | TERMINATE | QUERY_LIMITED_INFORMATION
+        if not handle:
+            if ctypes.get_last_error() == 87:            # no process with that PID
+                return
+            raise ctypes.WinError(ctypes.get_last_error())
+        try:
+            if not started:
+                raise RuntimeError("predict PID has no process start time; cannot confirm its identity")
+            if process_started(pid, handle) != started:
+                return                                # the old process exited; this PID has been reused
+            state = kernel.WaitForSingleObject(handle, 3000)
+            if state == 0:
+                return
+            if state != 258:
+                raise ctypes.WinError(ctypes.get_last_error())
+            if not kernel.TerminateProcess(handle, 1):
+                raise ctypes.WinError(ctypes.get_last_error())
+            if kernel.WaitForSingleObject(handle, 5000) != 0:
+                raise RuntimeError("predict process did not exit")
+        finally:
+            kernel.CloseHandle(handle)
+    else:
+        import signal
+        current = process_started(pid)
+        if current is None or (started and current != started):
+            return
+        if not started:
+            raise RuntimeError("predict PID has no process start time; cannot confirm its identity")
+
+        def exited():
+            try:
+                os.kill(pid, 0)
+                return False
+            except ProcessLookupError:
+                return True
+
+        def wait(seconds):
+            until = time.monotonic() + seconds
+            while not exited():
+                if time.monotonic() >= until:
+                    return False
+                time.sleep(0.1)
+            return True
+
+        if wait(3):
+            return
+        os.kill(pid, signal.SIGTERM)
+        if wait(2):
+            return
+        os.kill(pid, signal.SIGKILL)
+        if not wait(3):
+            raise RuntimeError("predict process did not exit")
+
+
+def heartbeat(folder, stopped):
+    while not stopped.wait(1):
+        try:
+            with open(os.path.join(folder, "alive"), "w") as f:
+                f.write(str(os.getpid()))
+        except OSError as ex:
+            print("predict heartbeat:", ex, flush=True)
+            return
+
+
+def residency():
+    # Called AFTER the first picture: plan() may adjust CPU threads on tier 8, which exits here.
+    from lrcdf.device import plan
+    p = plan()
+    low = p.tier == 8
+    if pick() == "cuda":
+        vram = float(os.environ.get("LRCDF_VRAM") or torch.cuda.get_device_properties(0).total_memory / 2 ** 30)
+        low = low or vram < 10
+    return ("oneshot" if low else "resident"), p.preview_idle
+
+
+_tasks = {}
+
+
+def task(argv):
+    """--task <cull|skin_keep> --log FILE --append 0|1 <the script's own arguments>: run that script's main() here,
+    its output into FILE as the plug-in's shell redirection would have put it. The script module (and the models
+    cull.py keeps) stay loaded for the next request."""
+    import contextlib, importlib.util
+    name, log, append, rest = argv[1], argv[3], argv[5] == "1", argv[6:]
+    if name not in ("cull", "skin_keep"):
+        raise ValueError("unknown task " + name)
+    if name not in _tasks:
+        spec = importlib.util.spec_from_file_location("lrcdf_task_" + name, os.path.join(os.path.dirname(os.path.abspath(__file__)), name + ".py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _tasks[name] = module
+    with open(log, "a" if append else "w", encoding="utf-8") as out, contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+        _tasks[name].main(rest)
+
+
+def serve(folder):
+    """One request at a time; each --out is private until the plug-in accepts its successful .done."""
+    os.makedirs(folder, exist_ok=True)
+    with open(os.path.join(folder, "pid"), "w") as f:
+        f.write(str(os.getpid()) + "\n" + process_started(os.getpid()) + "\n")
+    with open(os.path.join(folder, "alive"), "w") as f:
+        f.write(str(os.getpid()))
+    stopped = threading.Event()
+    beating = threading.Thread(target=heartbeat, args=(folder, stopped), daemon=True)
+    beating.start()
+    try:
+        if os.path.exists(os.path.join(folder, "quit")):
+            return
+        load_runtime()
+        loaded, checkpoint = None, None
+        mode, idle, last = None, 600, time.monotonic()
+        while time.monotonic() - last < idle and not os.path.exists(os.path.join(folder, "quit")):
+            waiting = sorted(glob.glob(os.path.join(folder, "*.req")))
+            if not waiting:
+                stopped.wait(0.05)
+                continue
+            req = waiting[0]
+            failed = False
+            try:
+                with open(req, encoding="utf-8") as f:
+                    argv = shlex.split(f.read())
+                if argv[:1] == ["--task"]:
+                    # other scripts' short jobs (Tone.serviceTask): answered, never ending the service on failure
+                    try:
+                        task(argv)
+                        reply = "ok\n" + (mode or "resident") + "\n"
+                    except (Exception, SystemExit) as ex:
+                        import traceback
+                        traceback.print_exc()
+                        reply = "error\n" + str(ex).replace("\n", " ") + "\n"
+                    os.remove(req)
+                    with open(req[:-4] + ".done.tmp", "w", encoding="utf-8") as f:
+                        f.write(reply)
+                    os.replace(req[:-4] + ".done.tmp", req[:-4] + ".done")
+                    last = time.monotonic()
+                    continue
+                a = arguments(argv)
+                if not a.forget:
+                    path = os.path.abspath(a.ckpt)
+                    stat = os.stat(path)
+                    key = (path, stat.st_mtime_ns, stat.st_size)
+                    if key != checkpoint:
+                        loaded = None   # release the previous model before loading a changed checkpoint
+                        loaded = load_model(a.ckpt)
+                        checkpoint = key
+                run(a, loaded)
+                if mode is None:
+                    mode, idle = residency()
+                    with open(os.path.join(folder, "mode"), "w") as f:
+                        f.write(mode + "\n")
+                reply = "ok\n" + mode + "\n"
+            except (Exception, SystemExit) as ex:
+                import traceback
+                traceback.print_exc()
+                reply, failed = "error\n" + str(ex) + "\n", True
+            os.remove(req)
+            with open(req[:-4] + ".done.tmp", "w", encoding="utf-8") as f:
+                f.write(reply)
+            os.replace(req[:-4] + ".done.tmp", req[:-4] + ".done")
+            if failed or mode == "oneshot":
+                break
+            last = time.monotonic()
+    finally:
+        stopped.set()
+        beating.join()
+        alive = os.path.join(folder, "alive")
+        if os.path.exists(alive):
+            os.remove(alive)
 
 
 def lua(v):
@@ -217,7 +454,7 @@ def skin_strokes(job, dev):
     return found
 
 
-def main():
+def arguments(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", required=True); ap.add_argument("--job", required=True)
     ap.add_argument("--out", required=True); ap.add_argument("--style", default="a")
@@ -229,15 +466,23 @@ def main():
     ap.add_argument("--learn", help="store the edit of --reference (settings in --refsettings) as the style with this key")
     ap.add_argument("--examples", help="with --learn: ids of more edited photos (settings in reference_<id>.tsv next to --refsettings)")
     ap.add_argument("--name", default="我的风格"); ap.add_argument("--forget", help="delete the user's style with this key")
-    a = ap.parse_args()
+    return ap.parse_args(argv)
+
+
+def load_model(path):
+    ck = torch.load(path, map_location="cpu", weights_only=False)
+    dev = pick()
+    model = ToneNet(len(ck["styles"]), pretrained=False)
+    model.load_state_dict(ck["model"]); model.to(dev).eval()
+    return {"styles": ck["styles"]}, dev, model  # the CPU checkpoint tensors need not stay beside the model
+
+
+def run(a, loaded=None):
     if a.forget:
         styles = my_styles(a.mystyles); styles.pop(a.forget, None); save_my_styles(a.mystyles, styles)
         open(a.out, "w").write("return {}\n")
         return
-    ck = torch.load(a.ckpt, map_location="cpu", weights_only=False)
-    dev = pick()
-    model = ToneNet(len(ck["styles"]), pretrained=False)
-    model.load_state_dict(ck["model"]); model.to(dev).eval()
+    ck, dev, model = loaded if loaded is not None else load_model(a.ckpt)
     recipes = json.load(open(os.path.join(os.path.dirname(__file__), "..", "styles.json"), encoding="utf-8"))
     builtin = set(ck["styles"]) | set(recipes)      # not the user's own looks (learnt against the model as it is)
     recipes.update(my_styles(a.mystyles))
@@ -309,4 +554,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 3 and sys.argv[1] == "--stop":
+        stop_server(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "--serve":
+        serve(sys.argv[2])
+    else:
+        load_runtime()
+        run(arguments())

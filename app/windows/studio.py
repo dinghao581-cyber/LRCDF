@@ -141,6 +141,7 @@ class Studio(QObject):
         self.opening = None            # the loading behind the main screen after a hand-over; None once all is done
         self._busy = False             # one of its requests is on its way (never more than one)
         self._viewed = []              # the photos looked at, most recent first
+        self._user_at = 0.0            # the user's last wish (monotonic): background work keeps out of its way 1.2 s
         self._pictures = {}
         self._making = set()
         self._seen = 0.0
@@ -430,8 +431,9 @@ class Studio(QObject):
                 self.stage = "failed"
             else:
                 self.opening["first"] = True
+                self._ask_rest(self.photo)
                 self._want_pictures()
-                QTimer.singleShot(300, self._pump)
+                QTimer.singleShot(0, self._pump)
             self.changed.emit()
 
         def thumb(lines, error):
@@ -488,31 +490,94 @@ class Studio(QObject):
             if error:
                 callback([], None, [], error)
                 return
-            cards, missing = [], []
-            folder = None
-            for line in lines or []:
-                parts = line.split("\t")
-                if len(parts) < 4:
-                    continue
-                id_, path, title, note = parts[:4]
-                wheels = None
-                if len(parts) >= 5 and parts[4].startswith("wheels="):
-                    try:
-                        wheels = tuple(int(float(n)) for n in parts[4][7:].split(","))[:4]
-                    except ValueError:
-                        wheels = None
-                image = _image(path) if path else None
-                if image is None:
-                    missing.append(id_)
-                else:
-                    folder = Path(path).parent
-                    title, note = look_text(id_, title, note)
-                    cards.append({"id": id_, "title": title, "note": note, "image": image,
-                                  "wheels": wheels if wheels and len(wheels) == 4 else None})
-            callback(cards, folder, missing, None)
+            self._read_cards(lines, callback)
 
         self.bridge.send({"action": "previews", "size": "2600", "only": only,
                           "dir": self.bridge.previews, "ids": photo}, received, 300)
+
+    def _read_cards(self, lines, callback):
+        cards, missing = [], []
+        folder = None
+        for line in lines or []:
+            parts = line.split("\t")
+            if len(parts) < 4:
+                continue
+            id_, path, title, note = parts[:4]
+            wheels = None
+            if len(parts) >= 5 and parts[4].startswith("wheels="):
+                try:
+                    wheels = tuple(int(float(n)) for n in parts[4][7:].split(","))[:4]
+                except ValueError:
+                    wheels = None
+            image = _image(path) if path else None
+            if image is None:
+                missing.append(id_)
+            else:
+                folder = Path(path).parent
+                title, note = look_text(id_, title, note)
+                cards.append({"id": id_, "title": title, "note": note, "image": image,
+                              "wheels": wheels if wheels and len(wheels) == 4 else None})
+        callback(cards, folder, missing, None)
+
+    def _ask_many(self, photos, only, callback):
+        """previewsmany: the same answer as _ask_looks for each photo, in one request. callback(answers, error) with
+        answers = {photo: (cards, folder, missing, error)}; error is set when the whole request failed."""
+        def received(lines, error):
+            if error:
+                callback({}, error)
+                return
+            answers, block = {}, None
+            for line in (lines or []) + ["photo=end"]:
+                if line.startswith("photo="):
+                    if block is not None:
+                        photo, rows, failure = block
+                        if failure:
+                            answers[photo] = ([], None, [], failure)
+                        else:
+                            got = []
+                            self._read_cards(rows, lambda *a: got.append(a))
+                            answers[photo] = got[0]
+                    block = None
+                    if line[6:].isdigit():
+                        block = (int(line[6:]), [], None)
+                elif block is not None:
+                    if line.startswith("error="):
+                        block = (block[0], block[1], line[6:] or tr("preview.unavailable"))
+                    else:
+                        block[1].append(line)
+            callback(answers, None)
+
+        self.bridge.send({"action": "previewsmany", "size": "2600", "only": only,
+                          "dir": self.bridge.previews, "ids": _ids(photos)}, received, 300)
+
+    def _ask_rest(self, photo):
+        """All the looks of `photo` still to come, in one request, straight after its first two: the style cards
+        come together instead of one by one behind the beauty pictures and the photo strip (2026-11-18). On an
+        error they go back to the queue in the background, which asks for them one at a time as before."""
+        entry, o, incoming = self.previews.get(photo), self.opening, self.session
+        names = list((entry or {}).get("missing") or [])
+        if not names:
+            return
+        entry["missing"] = []
+        counted = o is not None and photo == incoming["active"]
+
+        def received(cards, folder, missing, error):
+            if self.session is not incoming or photo not in self.previews:
+                return
+            here = self.previews[photo]
+            if error or not cards:
+                here["missing"] = names + [m for m in here.get("missing", []) if m not in names]
+            else:
+                here["looks"] = cards
+                for name in names:
+                    if not any(c["id"] == name for c in cards):
+                        here["given_up"] = here.get("given_up", 0) + 1      # will not come; the count moves on
+                if counted and self.opening is o:
+                    o["made"] = min(o["to_make"], o["made"] + len(names))
+            self.changed.emit()
+            QTimer.singleShot(0, self._pump)
+
+        self._ask_looks(photo, ",".join(names), received)
 
     def _store_looks(self, photo, cards, folder, missing, error):
         """Keep what came back for a photo; False when it is not a usable answer."""
@@ -550,7 +615,7 @@ class Studio(QObject):
                 if len(box) == 4 for x0, y0, x1, y1 in [box]]
 
     # ------------------------------------------------------------------ loading behind the main screen
-    # DESIGN.md 7 "screen first, preparation behind it" and the request of 2026-11-16 (all photos load once they are handed over):
+    # DESIGN.md 7 "into the main screen first, prepare in the background" and the request of 2026-11-16 (all photos load once they are handed over):
     # the photo on show first, then, one request at a time and only while nothing else is asked for, the small
     # pictures, the rest of its looks, the closed-eyes check, then every other photo (analysis + original + the look
     # chosen: round one), then their other looks (round two). Every number on the progress line is a count of answers
@@ -581,10 +646,10 @@ class Studio(QObject):
             text = tr("progress.reading", done=o["read"], total=o["to_read"])
         elif o["made"] < o["to_make"]:
             text = tr("progress.looks", done=o["made"], total=o["to_make"])
-        elif o["checked"] < o["to_check"]:
-            text = tr("progress.checking", done=o["checked"], total=o["to_check"])
         elif have < len(ids):
             text = tr("progress.loading", done=have, total=len(ids))
+        elif o["checked"] < o["to_check"]:
+            text = tr("progress.checking", done=o["checked"], total=o["to_check"])
         else:
             text = tr("progress.looks", done=o["more"], total=o["to_more"] or 0)
         # the line: what is done of everything; the looks still to come are counted from what is known
@@ -599,10 +664,19 @@ class Studio(QObject):
         return text, done / max(total, 1)
 
     def _quiet(self):
-        """Nothing the user asked for is on its way or about to be: only then does a background request go."""
+        """Nothing the user asked for is on its way or about to be, nothing is being dragged or saved, and nothing
+        was asked for in the last 1.2 s (Model.swift preload): only then does a background request go."""
         return (self.stage == "choosing" and self.loading is None and not self._making and not self.tweaking
+                and not self.saving_style and time.monotonic() - self._user_at >= 1.2
                 and not self.bridge.in_flight and not self._preview_timer.isActive()
                 and not self._idle_preview_timer.isActive())
+
+    def _missing(self, photo):
+        """The look of a photo to make next: the one chosen, if it is still to come (what a click shows first)."""
+        rest = (self.previews.get(photo) or {}).get("missing") or []
+        if not rest:
+            return None
+        return self.look if self.look in rest else rest[0]
 
     def _pump(self):
         o, incoming = self.opening, self.session
@@ -620,7 +694,7 @@ class Studio(QObject):
             self._busy = False
             if self.session is incoming and self.opening is o:
                 self.changed.emit()
-                QTimer.singleShot(300, self._pump)
+                QTimer.singleShot(0, self._pump)
 
         if kind == "thumbs":
             o["strip"] = o["strip"][len(what):]
@@ -658,60 +732,125 @@ class Studio(QObject):
             self.bridge.send({"action": "cull", "size": "1400", "dir": self.bridge.before,
                               "fresh": "1" if o["fresh"] else "0", "ids": _ids(what)}, judged, 240)
         elif kind == "first":
-            def loaded(cards, folder, missing, error):
+            def loaded_one(photo, cards, folder, missing, error):
                 if self.session is incoming:
-                    if not self._store_looks(what, cards, folder, missing, error):
-                        o["failed"].add(what)             # not waited for again; the count still moves on
-                finished()
+                    if not self._store_looks(photo, cards, folder, missing, error):
+                        o["failed"].add(photo)            # not waited for again; the count still moves on
 
             wanted = "d" if self.look == "none" else self.look
-            self._ask_looks(what, f"none,{wanted}", loaded)
-        else:                                             # "look": one more look of one photo
-            photo, name = what
-            entry = self.previews[photo]
-            entry["missing"] = [m for m in entry.get("missing", ()) if m != name]
-            counted_now = photo == incoming["active"] and o["made"] < o["to_make"]
-            counted_later = o["to_more"] is not None and photo in o["round2"]
+            group = self._widen(kind, what)
+            if len(group) > 1:
+                def loaded_many(answers, error):
+                    if error and "previewsmany" in error:  # an older plug-in: one by one from now on, nothing lost
+                        self._one_by_one = True
+                    else:                                   # any other failure counts for each photo as a single one would
+                        for photo in group:
+                            loaded_one(photo, *answers.get(photo, ([], None, [], error or tr("preview.unavailable"))))
+                    finished()
 
-            def more(cards, folder, missing, error):
+                self._ask_many(group, f"none,{wanted}", loaded_many)
+            else:
+                self._ask_looks(what, f"none,{wanted}", lambda *a: (loaded_one(what, *a), finished()))
+        else:                                             # "look": one more look of one photo (or of several)
+            photo, name = what
+            group = self._widen(kind, what)
+            plan = {}
+            for p in group:
+                entry = self.previews[p]
+                entry["missing"] = [m for m in entry.get("missing", ()) if m != name]
+                plan[p] = (p == incoming["active"] and o["made"] < o["to_make"],
+                           o["to_more"] is not None and p in o["round2"])
+
+            def more_one(photo, cards, folder, missing, error):
                 if self.session is incoming and photo in self.previews:
                     if not error and cards:
                         self.previews[photo]["looks"] = cards
                     if not any(c["id"] == name for c in self.previews[photo]["looks"]):
                         self.previews[photo]["given_up"] = self.previews[photo].get("given_up", 0) + 1   # this look will not come; the count still moves on
+                    counted_now, counted_later = plan[photo]
                     if counted_now:
                         o["made"] += 1
                     elif counted_later:
                         o["more"] += 1
-                finished()
 
-            self._ask_looks(photo, name, more)
+            if len(group) > 1:
+                def more_many(answers, error):
+                    if error and "previewsmany" in error:  # an older plug-in: one by one from now on; these looks are asked for again
+                        self._one_by_one = True
+                        for photo in group:
+                            if photo in self.previews and name not in self.previews[photo].get("missing", []):
+                                self.previews[photo]["missing"].insert(0, name)
+                    else:
+                        for photo in group:
+                            more_one(photo, *answers.get(photo, ([], None, [], error or tr("preview.unavailable"))))
+                    finished()
+
+                self._ask_many(group, name, more_many)
+            else:
+                self._ask_looks(photo, name, lambda *a: (more_one(photo, *a), finished()))
+
+    BATCH = 8           # photos per background request: Lightroom renders them side by side (5-7x faster than one by one)
+
+    def _widen(self, kind, what):
+        """The photos one background request covers: the job's own, then more of the same kind, up to BATCH. The
+        photo on show and the one first handed over stay single - a click on them must not wait for a batch."""
+        o = self.opening
+        if getattr(self, "_one_by_one", False):
+            return [what if kind == "first" else what[0]]
+        ids = self.session["ids"]
+        here = ids.index(self.photo) if self.photo in ids else 0
+        around = ids[here:] + ids[:here]
+        if kind == "first":
+            group = [what]
+            for id_ in around:
+                if len(group) >= self.BATCH:
+                    break
+                if id_ != what and id_ not in self.previews and id_ not in o["failed"]:
+                    group.append(id_)
+            return group
+        photo, name = what
+        if photo in (self.photo, self.session["active"]) or o["to_more"] is None:
+            return [photo]
+        group = [photo]
+        for id_ in around:
+            if len(group) >= self.BATCH:
+                break
+            if (id_ != photo and id_ in o["round2"] and id_ not in (self.photo, self.session["active"])
+                    and name in (self.previews.get(id_) or {}).get("missing", ())):
+                group.append(id_)
+        return group
 
     def _next_job(self):
         o = self.opening
         if o["strip"]:
             return "thumbs", o["strip"][:12]
-        for photo in (self.photo, self.session["active"]):  # the photo on show, then the one first handed over
-            entry = self.previews.get(photo)
-            if entry and entry.get("missing"):
-                return "look", (photo, entry["missing"][0])
-        if o["cull"]:
-            return "cull", o["cull"][:6]
+        # the photo on show (and the one first handed over, whose looks the progress line counts)
+        for photo in (self.photo, self.session["active"]):
+            name = self._missing(photo)
+            if name:
+                return "look", (photo, name)
         ids = self.session["ids"]
-        for id_ in ids:                                     # round one
+        here = ids.index(self.photo) if self.photo in ids else 0
+        around = ids[here:] + ids[:here]                   # from the photo on show onwards, round the batch
+        for id_ in around:                                  # round one
             if id_ not in self.previews and id_ not in o["failed"]:
                 return "first", id_
-        if o["to_more"] is None:                            # round two: decide once which photos it covers
+        if not o.get("trimmed"):
+            o["trimmed"] = True
             self._trim_cache()                              # every photo of this batch has its folder by now
-            order = [i for i in self._viewed if i in self.previews] + [i for i in ids if i not in self._viewed]
+        if o["cull"]:
+            return "cull", o["cull"][:6]
+        if o["to_more"] is None:                            # round two: decide once which photos it covers
+            order = around
             if self._cache_size() > CACHE_LIMIT:
-                order = [i for i in self._viewed if i in self.previews]     # a big cache: only the photos looked at
+                order = [i for i in around if i in self._viewed]     # a big cache: only the photos looked at
             o["round2"] = [i for i in order if i in self.previews]
             o["to_more"] = sum(len(self.previews[i].get("missing", ())) for i in o["round2"])
-        for id_ in o["round2"]:
-            entry = self.previews.get(id_)
-            if entry and entry.get("missing"):
-                return "look", (id_, entry["missing"][0])
+        for id_ in around:
+            if id_ in o["round2"]:
+                name = self._missing(id_)
+                if name:
+                    return "look", (id_, name)
         return None
 
     def _cache_size(self):
@@ -737,6 +876,7 @@ class Studio(QObject):
     def show(self, id_):
         if self.stage != "choosing" or self.loading is not None or id_ == self.photo:
             return
+        self._user_at = time.monotonic()
         self.zoom, self.centre, self.face = 1.0, (0.5, 0.5), None
         self._viewed = [id_] + [i for i in self._viewed if i != id_]
         if id_ in self.previews:
@@ -752,6 +892,7 @@ class Studio(QObject):
             self.loading = None
             if not error:
                 self.photo = id_
+                self._ask_rest(id_)
             self._controls_changed()
 
         self._load_looks(id_, loaded)
@@ -797,6 +938,7 @@ class Studio(QObject):
         self.changed.emit()
 
     def _want_pictures(self):
+        self._user_at = time.monotonic()
         self._idle_preview_timer.stop()
         if self.stage == "choosing" and self.chosen is not None:
             self._preview_timer.start()

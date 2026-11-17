@@ -4,6 +4,7 @@ local LrExportSession = import 'LrExportSession'
 local LrFileUtils = import 'LrFileUtils'
 local LrPathUtils = import 'LrPathUtils'
 local LrTasks = import 'LrTasks'
+local LrDate = import 'LrDate'
 
 -- Read a plug-in file from disk every time, so edits take effect without reloading the plug-in.
 local function fresh(name)
@@ -38,6 +39,174 @@ function Tone.execute(command)
         command = '"' .. command .. '"'
     end
     return LrTasks.execute(command)
+end
+
+-- Preview analysis keeps its models between photos. The private result directory means a late request can
+-- never overwrite the one-shot CLI's result when the service failed and the plug-in has fallen back.
+local predictServer = LrPathUtils.child(config.appData, 'predict_server')
+local function predictAlive()
+    local attributes = LrFileUtils.fileAttributes(LrPathUtils.child(predictServer, 'alive'))
+    return attributes and attributes.fileModificationDate and LrDate.currentTime() - attributes.fileModificationDate < 15
+end
+
+-- The controller uses only the standard library and confirms that the original OS process has exited.
+-- In particular, the absence of an alive file alone is not proof that its GPU memory has been released.
+function Tone.stopPredict()
+    local log = LrPathUtils.child(predictServer, 'control.log')
+    if not LrFileUtils.exists(predictServer) then return true, log end
+    local q = Tone.shellQuote
+    local status = Tone.execute(Tone.python(config.predict) .. ' --stop ' .. q(predictServer) ..
+        ' >> ' .. q(log) .. ' 2>&1')
+    return status == 0, log
+end
+
+-- Start the service unless this Lightroom session already has a live one. A new Lightroom session takes over even a
+-- live service: its Python files/models may have been updated. Returns true when one is (being) started or running.
+local function startPredict()
+    LrFileUtils.createAllDirectories(predictServer)
+    if _G.LRCDF_PREDICT_ONESHOT[predictServer] == nil or not predictAlive() then
+        if not Tone.stopPredict() then return false end
+        for _, name in ipairs { 'quit', 'alive', 'mode' } do
+            local path = LrPathUtils.child(predictServer, name)
+            if LrFileUtils.exists(path) then LrFileUtils.delete(path) end
+        end
+        _G.LRCDF_PREDICT_ONESHOT[predictServer] = false
+        local mark = io.open(LrPathUtils.child(predictServer, 'alive'), 'w')
+        if not mark then return false end
+        mark:close()               -- covers the short interval before Python writes its first heartbeat
+        local q = Tone.shellQuote
+        local command = Tone.python(config.predict) .. ' --serve ' .. q(predictServer) ..
+            ' > ' .. q(LrPathUtils.child(predictServer, 'server.log')) .. ' 2>&1'
+        local status
+        if WIN_ENV then status = Tone.execute('start "" /b ' .. command)
+        else status = LrTasks.execute('nohup ' .. command .. ' &') end
+        if status ~= 0 then return nil end      -- could not start: the caller cleans up (or nothing, when warming)
+    end
+    return true
+end
+
+-- Photos were handed over: start the service now, so the first photo's analysis does not wait for Python to start
+-- and import. Not when this Lightroom session already found the machine too small to keep it (oneshot). Whatever
+-- goes wrong here only means the first request starts it, or falls back to the one-shot CLI, as before.
+function Tone.warmPredict()
+    _G.LRCDF_PREDICT_ONESHOT = _G.LRCDF_PREDICT_ONESHOT or {}
+    if _G.LRCDF_PREDICT_ONESHOT[predictServer] then return false end
+    local ok, started = LrTasks.pcall(startPredict)
+    if not ok or started == nil then
+        _G.LRCDF_PREDICT_ONESHOT[predictServer] = nil       -- the first request starts afresh
+        return false
+    end
+    return started
+end
+
+local function previewPredict(job, out, log, style, strength, group)
+    -- Tone is loaded afresh for each command; this decision lasts only for this Lightroom session.
+    _G.LRCDF_PREDICT_ONESHOT = _G.LRCDF_PREDICT_ONESHOT or {}
+    if _G.LRCDF_PREDICT_ONESHOT[predictServer] then return false end
+    local request, private
+    local function clean()
+        if request then
+            for _, ending in ipairs { '.tmp', '.req', '.done' } do
+                if LrFileUtils.exists(request .. ending) then LrFileUtils.delete(request .. ending) end
+            end
+        end
+        if private and LrFileUtils.exists(private) then LrFileUtils.delete(private) end
+    end
+    local function failed()
+        local stopped = Tone.stopPredict()
+        if stopped then
+            clean()
+        elseif request and LrFileUtils.exists(request .. '.req') then
+            LrFileUtils.delete(request .. '.req')       -- do not leave an unstarted request for the next service
+        end
+        return false
+    end
+    local ok, made = LrTasks.pcall(function()
+        local started = startPredict()
+        if started == nil then return failed() end
+        if not started then return false end
+
+        request = LrPathUtils.child(predictServer, 'r' .. os.time() .. math.random(100000, 999999))
+        private = request
+        LrFileUtils.createAllDirectories(private)
+        local result = LrPathUtils.child(private, 'result.lua')
+        local q = Tone.posixQuote       -- the request is parsed by shlex, not by the Windows shell
+        local file = io.open(request .. '.tmp', 'w')
+        if not file then return failed() end
+        file:write('--ckpt ' .. q(config.checkpoint) .. ' --job ' .. q(job) .. ' --out ' .. q(result) ..
+            ' --style ' .. q(style) .. ' --strength ' .. tostring(strength) .. ' --group ' .. q(group) ..
+            ' --gap ' .. tostring(config.gapMinutes) .. ' --mystyles ' .. q(config.myStyles))
+        file:close()
+        if not LrFileUtils.move(request .. '.tmp', request .. '.req') then return failed() end
+        for step = 1, 1200 do
+            if LrFileUtils.exists(request .. '.done') then
+                local reply = LrFileUtils.readFile(request .. '.done')
+                local answer, mode = reply:match('^([^\r\n]+)[\r\n]+([^\r\n]+)')
+                if answer ~= 'ok' or not LrFileUtils.exists(result) then return failed() end
+                if mode == 'oneshot' then
+                    _G.LRCDF_PREDICT_ONESHOT[predictServer] = true
+                    if not Tone.stopPredict() then return false end
+                elseif mode ~= 'resident' then
+                    return failed()
+                end
+                for _, ending in ipairs { '.lua', '.skin.lua', '.skin.npz' } do
+                    local from = LrPathUtils.removeExtension(result) .. ending
+                    local to = LrPathUtils.removeExtension(out) .. ending
+                    if LrFileUtils.exists(to) then LrFileUtils.delete(to) end
+                    if LrFileUtils.exists(from) then
+                        if not LrFileUtils.copy(from, to) then return failed() end
+                    end
+                end
+                local note = io.open(log, 'w')
+                if note then
+                    note:write('predict service: ', LrPathUtils.child(predictServer, 'server.log'), '\nrequest: ', request, '\nmode: ', mode, '\n')
+                    note:close()
+                end
+                clean()
+                return true
+            end
+            if step % 10 == 0 and not predictAlive() then return failed() end
+            LrTasks.sleep(0.1)
+        end
+        return failed()
+    end)
+    if not ok then return failed() end
+    return made == true
+end
+
+-- Short jobs of other scripts (skin_keep.py, cull.py) go to the preview service when it already runs resident in this
+-- Lightroom session: no Python start and no model loading for each of them (cull: about 8 s of 11 for six photos).
+-- args: the script's own arguments (POSIX-quoted, the service parses them with shlex); log: where its output goes,
+-- appended or not, as the shell redirection did. Returns true when the service did the job; false: the caller runs the
+-- script itself as before (also after the service failed it: a failed job is never taken for done).
+function Tone.serviceTask(task, args, log, append)
+    _G.LRCDF_PREDICT_ONESHOT = _G.LRCDF_PREDICT_ONESHOT or {}
+    if _G.LRCDF_PREDICT_ONESHOT[predictServer] ~= false or _G.LRCDF_SERVICE_TASKS_OFF or not predictAlive() then return false end
+    local modeFile = LrPathUtils.child(predictServer, 'mode')
+    if not LrFileUtils.exists(modeFile) or not LrFileUtils.readFile(modeFile):match('^resident') then return false end
+    local request = LrPathUtils.child(predictServer, 't' .. os.time() .. math.random(100000, 999999))
+    local q = Tone.posixQuote
+    local file = io.open(request .. '.tmp', 'w')
+    if not file then return false end
+    file:write('--task ', task, ' --log ', q(log), ' --append ', append and '1' or '0', ' ', args)
+    file:close()
+    if not LrFileUtils.move(request .. '.tmp', request .. '.req') then
+        LrFileUtils.delete(request .. '.tmp')
+        return false
+    end
+    for step = 1, 6000 do
+        if LrFileUtils.exists(request .. '.done') then
+            local reply = LrFileUtils.readFile(request .. '.done') or ''
+            LrFileUtils.delete(request .. '.done')
+            return reply:match('^ok') ~= nil
+        end
+        if step % 10 == 0 and not predictAlive() then break end
+        LrTasks.sleep(0.1)
+    end
+    -- gone or too slow: take the job back and do not hand the service more of them in this session
+    if LrFileUtils.exists(request .. '.req') then LrFileUtils.delete(request .. '.req') end
+    _G.LRCDF_SERVICE_TASKS_OFF = true
+    return false
 end
 
 -- Export JPEGs of the photos as they currently look. Returns { [localIdentifier] = path }.
@@ -277,8 +446,13 @@ function Tone.skinChanges(items, base, state)
     file:close()
     if LrFileUtils.exists(out) then LrFileUtils.delete(out) end
     local script = LrPathUtils.child(LrPathUtils.parent(config.predict), 'skin_keep.py')
-    local status = Tone.execute(Tone.python(script) .. ' --skin ' .. q(base) .. ' --state ' .. q(state) ..
-        ' --job ' .. q(job) .. ' --out ' .. q(out) .. ' >> ' .. q(state .. '.log') .. ' 2>&1')
+    local p = Tone.posixQuote
+    local status = 0
+    if not Tone.serviceTask('skin_keep', '--skin ' .. p(base) .. ' --state ' .. p(state) .. ' --job ' .. p(job) ..
+            ' --out ' .. p(out), state .. '.log', true) then
+        status = Tone.execute(Tone.python(script) .. ' --skin ' .. q(base) .. ' --state ' .. q(state) ..
+            ' --job ' .. q(job) .. ' --out ' .. q(out) .. ' >> ' .. q(state .. '.log') .. ' 2>&1')
+    end
     if status ~= 0 or not LrFileUtils.exists(out) then return {} end
     local ok, changes = pcall(function() return assert(loadstring(LrFileUtils.readFile(out)))() end)
     return ok and type(changes) == 'table' and changes or {}
@@ -423,10 +597,14 @@ function Tone.apply(photos, style, strength, group, progress, reference, options
     local q = Tone.shellQuote
     local out = LrPathUtils.child(session, 'result.lua')
     local log = LrPathUtils.child(session, 'predict.log')
-    local status = Tone.execute(Tone.python(config.predict) ..
-        ' --ckpt ' .. q(config.checkpoint) .. ' --job ' .. q(job) .. ' --out ' .. q(out) ..
-        ' --style ' .. q(style) .. ' --strength ' .. tostring(strength) .. ' --group ' .. q(group) ..
-        ' --gap ' .. tostring(config.gapMinutes) .. extra .. ' > ' .. q(log) .. ' 2>&1')
+    local status
+    if style == 'all' and not reference and not options.learn and previewPredict(job, out, log, style, strength, group) then status = 0 end
+    if status == nil then
+        status = Tone.execute(Tone.python(config.predict) ..
+            ' --ckpt ' .. q(config.checkpoint) .. ' --job ' .. q(job) .. ' --out ' .. q(out) ..
+            ' --style ' .. q(style) .. ' --strength ' .. tostring(strength) .. ' --group ' .. q(group) ..
+            ' --gap ' .. tostring(config.gapMinutes) .. extra .. ' > ' .. q(log) .. ' 2>&1')
+    end
     if status ~= 0 or not LrFileUtils.exists(out) then
         restore()
         return nil, message("$$$/LRCDF/Errors/ModelFailed=模型运行失败。日志：^1", log)

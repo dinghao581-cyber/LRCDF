@@ -56,7 +56,8 @@ class Bridge(QObject):
         self.undo = self.root / "undo"
         self.run = self.root / "run.json"
         self._pending: dict[str, Pending] = {}
-        self._poller = QTimer(self, interval=150)
+        self._answered = 0.0                       # when Lightroom last answered (time.time())
+        self._poller = QTimer(self, interval=40)
         self._poller.timeout.connect(self._poll)
 
     @property
@@ -64,6 +65,8 @@ class Bridge(QObject):
         return bool(self._pending)
 
     def lightroom_is_open(self) -> bool:
+        if time.time() - self._answered < 8:      # it has just answered: it is there, even if busy past its heartbeat
+            return True
         try:
             stamp = float((self.commands / "alive").read_text(encoding="utf-8").strip())
         except (OSError, ValueError):
@@ -107,6 +110,7 @@ class Bridge(QObject):
                     continue
                 lines = [line for line in text.split("\n") if line]
                 self._pending.pop(name)
+                self._answered = time.time()
                 if lines[0] == "ok":
                     pending.callback(lines[1:], None)
                 else:

@@ -69,6 +69,10 @@ Copy-Tree "$root\models" "$payload\models"
 Copy-Tree "$root\legacy\mac_project" "$payload\legacy\mac_project"
 Copy-Tree "$project\legal" "$projectPayload\legal"
 Copy-Item -LiteralPath "$project\styles.json","$project\LICENSE","$project\NOTICE" -Destination $projectPayload
+Remove-Item Env:PYTHONDONTWRITEBYTECODE -ErrorAction SilentlyContinue
+& $python -s (Join-Path $PSScriptRoot 'precompile_windows.py') $payload
+if ($LASTEXITCODE -ne 0) { throw 'Bytecode precompilation failed.' }
+$env:PYTHONDONTWRITEBYTECODE = '1'      # nothing after this point writes bytecode of another kind into the bundle
 $updatePack = Join-Path $PSScriptRoot 'pack_update_windows.py'
 & $python -s $updatePack ids $payload --variant $Variant --version $ReleaseVersion
 if ($LASTEXITCODE -ne 0) { throw 'Update component identity generation failed.' }

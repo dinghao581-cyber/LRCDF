@@ -25,6 +25,16 @@ SAME = 0.965   # correlation of two small grey copies from here: the same pictur
 BLINK = 0.68    # both eyes above this: closed. On 1600 PPR10K photos scores from 0.67 up were closed eyes; 0.55-0.66 mixed with looking down
 
 
+_models = {}
+
+
+def _cached(name, make):
+    """The models are made once per process: the preview service runs main() for many requests."""
+    if name not in _models:
+        _models[name] = make()
+    return _models[name]
+
+
 def detector():
     if sys.platform == "win32":
         os.environ["NO_ALBUMENTATIONS_UPDATE"] = "1"
@@ -133,7 +143,7 @@ class Album:
     mean of the person's faces; thumb is their largest face so far (person_<id>.jpg next to the file); age and female
     are averages of the guesses; auto is "light" for men and children when the guesses are clear, else ""."""
     def __init__(self, path, fresh):
-        self.path, self.reader = path, people.Reader()
+        self.path, self.reader = path, _cached("reader", people.Reader)
         self.list = [] if fresh or not os.path.exists(path) else json.load(open(path))["people"]
 
     def add(self, pid, bgr, seen):
@@ -173,11 +183,11 @@ class Album:
         os.replace(self.path + ".tmp", self.path)
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser(); ap.add_argument("--job", required=True); ap.add_argument("--out", required=True)
     ap.add_argument("--people", help="people.json: the people of the shoot are added to it"); ap.add_argument("--fresh", type=int, default=0)
-    a = ap.parse_args()
-    det, read = detector(), blink_reader()
+    a = ap.parse_args(argv)
+    det, read = _cached("detector", detector), _cached("blink", blink_reader)
     album = Album(a.people, a.fresh) if a.people else None
     rows = []
     for line in open(a.job, encoding="utf-8"):

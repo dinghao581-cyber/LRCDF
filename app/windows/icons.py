@@ -167,6 +167,28 @@ def chevrons(p, rect, brush, weight=BOLD):
         p.drawPath(path)
 
 
+def chevron_left(p, rect, brush, weight=BOLD):
+    s = rect.width()
+    c = rect.center()
+    p.setPen(_pen(brush, s * weight))
+    p.setBrush(Qt.BrushStyle.NoBrush)
+    path = QPainterPath(QPointF(c.x() + s * 0.14, c.y() - s * 0.32))
+    path.lineTo(c.x() - s * 0.16, c.y())
+    path.lineTo(c.x() + s * 0.14, c.y() + s * 0.32)
+    p.drawPath(path)
+
+
+def chevron_right(p, rect, brush, weight=BOLD):
+    s = rect.width()
+    c = rect.center()
+    p.setPen(_pen(brush, s * weight))
+    p.setBrush(Qt.BrushStyle.NoBrush)
+    path = QPainterPath(QPointF(c.x() - s * 0.14, c.y() - s * 0.32))
+    path.lineTo(c.x() + s * 0.16, c.y())
+    path.lineTo(c.x() - s * 0.14, c.y() + s * 0.32)
+    p.drawPath(path)
+
+
 def cup(p, rect, brush, weight=REGULAR):
     s = rect.width()
     x, y = rect.left(), rect.top()

@@ -142,6 +142,8 @@ local function run()
         else
             LrTasks.execute('open -a "' .. config.app .. '"')
         end
+        -- the app is opening and will ask for the first photo's looks: have the analysis service start meanwhile
+        fresh('Tone').warmPredict()
         return
     end
 

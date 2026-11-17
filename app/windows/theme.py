@@ -66,6 +66,34 @@ def family():
 CJK = LANGUAGE in ("zh-CN", "zh-TW", "ja", "ko")
 
 
+_SERIF = None
+
+
+def serif_family():
+    """The face of the few words that name things (DS.display: Songti SC bold on the Mac): Noto Serif SC, which
+    Windows 11 ships (Noto Serif KR for Korean when it is there). "" when the system has neither (Windows 10)."""
+    global _SERIF
+    if _SERIF is None:
+        families = set(QFontDatabase.families())
+        wanted = ["Noto Serif KR", "Noto Serif SC"] if LANGUAGE == "ko" else ["Noto Serif SC"]
+        _SERIF = next((name for name in wanted if name in families), "")
+    return _SERIF
+
+
+def display(size):
+    """DS.display(size): the serif at 600 (Songti SC's bold looks this weight); the UI face in bold without it."""
+    family_name = serif_family()
+    if not family_name:
+        return font(size, BOLD)
+    f = QFont(family_name)
+    f.setPixelSize(round(size))
+    f.setHintingPreference(QFont.HintingPreference.PreferNoHinting)
+    f.setStyleStrategy(QFont.StyleStrategy(QFont.StyleStrategy.PreferAntialias | QFont.StyleStrategy.NoSubpixelAntialias))
+    f.setVariableAxis(QFont.Tag("wght"), 600)
+    f.setWeight(QFont.Weight.DemiBold)
+    return f
+
+
 def font(size, weight=REGULAR, *, digits=False):
     f = QFont(family())
     f.setPixelSize(round(size))

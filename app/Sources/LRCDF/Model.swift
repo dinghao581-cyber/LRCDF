@@ -264,6 +264,7 @@ final class Studio: ObservableObject {
     private var preloading = false
     private var userAt = Date.distantPast           // the user's last wish: background work keeps out of its way a moment
     private var unloadable: Set<Int> = []           // photos whose pictures could not be made: not asked again
+    private var manyWorks = true                    // action=previewsmany answered (an older plug-in has no such action)
     private var chunkBase = 0.0, chunkSpan = 0.0
 
     var looks: [Look] { previews[photo]?.looks ?? [] }
@@ -424,8 +425,11 @@ final class Studio: ObservableObject {
             let around = Array(ids[here...] + ids[..<here])
             if let name = nextLook(of: photo) {
                 await makeLook(name, of: photo, incoming)
-            } else if let id = around.first(where: { previews[$0] == nil && !unloadable.contains($0) }) {
-                await firstRound(id, incoming)
+            } else if case let todo = around.filter({ previews[$0] == nil && !unloadable.contains($0) }), !todo.isEmpty {
+                // several photos in one Lightroom export (action=previewsmany): about 1.6 times as fast as one by one;
+                // four at a time, so that what the user asks for meanwhile waits for one such batch at most
+                if todo.count == 1 || !manyWorks { await firstRound(todo[0], incoming) }
+                else { await firstRound(Array(todo.prefix(4)), incoming) }
             } else if !trimmed {
                 // every photo of this batch has its folder by now: older batches' folders can go if there are too many
                 trimmed = true
@@ -466,6 +470,24 @@ final class Studio: ObservableObject {
         guard let folder, found.contains(where: { $0.id == "none" }), found.count > 1 else { unloadable.insert(id); return }
         if previews[id] == nil { previews[id] = PhotoPreview(looks: found, folder: folder, faces: readFaces(folder)) }
         toCome[id] = missing
+    }
+
+    /// The first round for several photos at once. If the plug-in does not know the action, the photos are asked for
+    /// one by one from then on.
+    private func firstRound(_ ids: [Int], _ incoming: Session) async {
+        let wanted = look == "none" ? "d" : look
+        guard let answers = try? await askLooks(of: ids, only: "none,\(wanted)") else {
+            if session == incoming { manyWorks = false }
+            return
+        }
+        guard session == incoming else { return }
+        for id in ids {
+            guard let (found, folder, missing) = answers[id], let folder, found.contains(where: { $0.id == "none" }), found.count > 1 else {
+                unloadable.insert(id); continue
+            }
+            if previews[id] == nil { previews[id] = PhotoPreview(looks: found, folder: folder, faces: readFaces(folder)) }
+            toCome[id] = missing
+        }
     }
 
     private func makeLook(_ name: String, of id: Int, _ incoming: Session) async {
@@ -545,6 +567,28 @@ final class Studio: ObservableObject {
     private func askLooks(of id: Int, only: String) async throws -> ([Look], URL?, [String]) {
         let lines = try await Bridge.send([("action", "previews"), ("size", "2600"), ("only", only),
                                            ("dir", Bridge.previews.path), ("ids", String(id))], timeout: 300)
+        return Self.cards(lines)
+    }
+
+    /// Several photos in one export: per photo a line "photo=<id>", then its card lines as previews gives them, or
+    /// "error=…" when that photo could not be made.
+    private func askLooks(of ids: [Int], only: String) async throws -> [Int: ([Look], URL?, [String])] {
+        let lines = try await Bridge.send([("action", "previewsmany"), ("size", "2600"), ("only", only),
+                                           ("dir", Bridge.previews.path), ("ids", ids.map(String.init).joined(separator: ","))],
+                                          timeout: 300 + 120 * Double(ids.count))
+        var groups: [Int: [String]] = [:]
+        var current: Int?
+        for line in lines {
+            if line.hasPrefix("photo=") { current = Int(line.dropFirst(6)); if let current { groups[current] = [] }; continue }
+            guard let current else { continue }
+            if line.hasPrefix("error=") { groups[current] = nil; continue }
+            groups[current]?.append(line)
+        }
+        return groups.mapValues { Self.cards($0) }
+    }
+
+    /// (the looks that exist, their folder, the ones still to be made) from card lines.
+    private static func cards(_ lines: [String]) -> ([Look], URL?, [String]) {
         var found: [Look] = []
         var missing: [String] = []
         var folder: URL?
@@ -966,7 +1010,7 @@ extension Studio {
         let folders = ["8839BFAD-7B09-458D-8BE3-02B928B9B0D8", "539992F2-1592-4B8F-8774-3C1AC50E69AB", "BF3DBA21-1FC3-4761-998A-085B1C78DC77",
                        "9CC8483D-0816-4E15-97E8-84F711EDD161", "B3D7C13B-B31B-47AA-AD13-95C851D143A0", "D8164A30-6714-45A4-B249-267A5483448F",
                        "0B0E5A9D-9ADD-488A-97AC-3BB4045F5B27", "E2E61521-92A2-4A02-8F89-588BC122103A"]
-        let cards = [("none", "原片", "不调色"), ("d", "自然清透", "白里透粉，明亮柔和"), ("a", "明亮通透", "干净偏冷，肤色白皙"),
+        let cards = [("none", "原片", "不调色"), ("d", "自然清透", "明亮柔和，略带粉调"), ("a", "明亮通透", "干净偏冷，通透明亮"),
                      ("e", "韩系", "奶白低饱和，柔和"), ("b", "柔和暖调", "温暖，低对比"), ("c", "鲜艳浓郁", "色彩饱满"), ("f", "港风", "浓郁暖调，胶片颗粒")]
         session = Session(time: 0, active: 50727, ids: ids, name: "1557_0.CR2", iso: screen == "noisy" ? 3200 : 400)
         photo = 50727

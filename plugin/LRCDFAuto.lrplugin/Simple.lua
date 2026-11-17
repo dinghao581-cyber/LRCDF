@@ -189,6 +189,196 @@ function Simple.previews(photo, progress, size, base, only)
     return paths, dir
 end
 
+-- Several photos at once, for the desktop app's loading in the background. Lightroom renders the photos of one
+-- export session side by side: 8 photos in about 1 s instead of 5 s one by one (16: 1.4 s instead of 9.7 s, measured
+-- 2026-11-17 on the 3090 PC). Same pictures, same folders and same files as Simple.previews makes for each photo;
+-- only the order differs: the analysis of all of them in one go, then each look on all of them together.
+-- jobs: { { photo = photo, only = { [card value] = true } or nil } }. Returns { [photo] = { paths, dir } or { nil, message } }.
+function Simple.previewsMany(jobs, size, base)
+    size = size or config.previewSize
+    local message = messages.source
+    local cards = Simple.cards()
+    local out, work = {}, {}
+    for _, job in ipairs(jobs) do
+        local photo = job.photo
+        local dir = base and LrPathUtils.child(base, previewName(photo) .. '_' .. size) or previewDir(photo)
+        local paths, missing, any = {}, {}, false
+        for _, card in ipairs(cards) do
+            paths[card.value] = LrPathUtils.child(dir, card.value .. '.jpg')
+            if not LrFileUtils.exists(paths[card.value]) and (not job.only or job.only[card.value]) then
+                missing[card.value], any = true, true
+            end
+        end
+        out[photo] = { paths, dir }
+        if any then
+            LrFileUtils.createAllDirectories(dir)
+            work[#work + 1] = { photo = photo, id = tostring(photo.localIdentifier), dir = dir, paths = paths,
+                                missing = missing, analysis = LrPathUtils.child(dir, 'analysis.lua'), ok = true }
+        end
+    end
+    if #work == 0 then return out end
+
+    -- the model's settings: kept from an earlier call where they are complete (as in Simple.previews)
+    local ask, before = {}, {}
+    for _, w in ipairs(work) do
+        local results
+        if LrFileUtils.exists(w.analysis) and not w.missing.none then
+            results = assert(loadstring(LrFileUtils.readFile(w.analysis)))()
+            for value in pairs(w.missing) do
+                if not (results[value] and results[value][w.id]) then results = nil; break end
+            end
+        end
+        if results then
+            w.results, w.skinBase = results, LrPathUtils.removeExtension(w.analysis)
+            before[w.photo] = w.photo:getDevelopSettings()
+        else
+            ask[#ask + 1] = w
+        end
+    end
+    if #ask > 0 then
+        local photos = {}
+        for i, w in ipairs(ask) do photos[i] = w.photo end
+        local results, prior, file = Tone.apply(photos, 'all', 1.0, 'none', {})
+        if not results then
+            for _, w in ipairs(ask) do w.ok, w.failure = false, prior end
+        else
+            for photo, saved in pairs(prior) do before[photo] = saved end
+            for _, w in ipairs(ask) do
+                if LrFileUtils.exists(w.analysis) then LrFileUtils.delete(w.analysis) end
+                LrFileUtils.copy(file, w.analysis)
+                for _, ending in ipairs { '.skin.lua', '.skin.npz' } do
+                    local from, to = LrPathUtils.removeExtension(file) .. ending, LrPathUtils.removeExtension(w.analysis) .. ending
+                    if LrFileUtils.exists(to) then LrFileUtils.delete(to) end
+                    if LrFileUtils.exists(from) then LrFileUtils.copy(from, to) end
+                end
+                w.results, w.skinBase = results, LrPathUtils.removeExtension(file)   -- one skin file for the whole group
+            end
+        end
+    end
+
+    -- show settings on several photos, wait for all of them once, render them together
+    local function shootMany(list, look)
+        local written = {}
+        LrApplication.activeCatalog():withWriteAccessDo(LOC("$$$/LRCDF/History/Preview=LRCDF 预览"), function()
+            for _, w in ipairs(list) do
+                if w.settings then written[w] = Tone.write(w.photo, w.settings, LOC("$$$/LRCDF/History/Preview=LRCDF 预览")) end
+            end
+        end, { timeout = 30 })
+        local names = { 'Temperature', 'Contrast2012', 'Exposure2012', 'LuminanceAdjustmentOrange', 'SaturationAdjustmentOrange' }
+        for _ = 1, 20 do                                 -- Tone.arrived for all of them, the pause once
+            local there = true
+            for _, w in ipairs(list) do
+                local want = written[w] or w.settings
+                if want then
+                    local now = w.photo:getDevelopSettings()
+                    for _, name in ipairs(names) do
+                        local v, have = want[name], now[name]
+                        if type(v) == 'number' and not (type(have) == 'number' and math.abs(have - v) < 0.006) then there = false end
+                    end
+                end
+            end
+            if there then break end
+            LrTasks.sleep(0.2)
+        end
+        if next(written) then LrTasks.sleep(config.previewSettle) end
+        local photos = {}
+        for i, w in ipairs(list) do photos[i] = w.photo end
+        local staging = LrPathUtils.child(list[1].dir, look .. '.staging')
+        local rendered = Tone.render(photos, staging, size) or {}
+        for _, w in ipairs(list) do
+            local path = rendered[w.photo.localIdentifier]
+            if path then
+                local target = w.paths[look]
+                if LrFileUtils.exists(target) then LrFileUtils.delete(target) end
+                LrFileUtils.move(path, target)
+            else
+                w.ok = false
+            end
+        end
+        LrFileUtils.delete(staging)
+    end
+
+    local live = {}
+    for _, w in ipairs(work) do if w.ok then live[#live + 1] = w end end
+    local list = {}
+    for _, w in ipairs(live) do
+        if w.missing.none then w.settings = nil; list[#list + 1] = w end   -- Tone.apply left these in their neutral state
+    end
+    if #list > 0 then shootMany(list, 'none') end
+    for _, card in ipairs(cards) do
+        local look = card.value
+        if look ~= 'none' then
+            list = {}
+            for _, w in ipairs(live) do
+                if w.ok and w.missing[look] then
+                    local settings = w.results[look] and w.results[look][w.id]
+                    if settings and not settings.error then
+                        w.settings = settings
+                        list[#list + 1] = w
+                    else
+                        w.ok = false
+                    end
+                end
+            end
+            if #list > 0 then
+                shootMany(list, look)
+                -- dark skin, as keepSkin: measured and corrected twice at most, the corrected ones rendered together
+                local groups = {}
+                for _, w in ipairs(list) do
+                    if w.ok then
+                        for _, path in ipairs { LrPathUtils.child(w.dir, 'skin_' .. look .. '.json'), LrPathUtils.child(w.dir, 'skin_' .. look .. '.lua') } do
+                            if LrFileUtils.exists(path) then LrFileUtils.delete(path) end
+                        end
+                        if Tone.skinNotes(LrPathUtils.removeExtension(w.analysis))[w.id] then
+                            w.kept = {}
+                            groups[w.skinBase] = groups[w.skinBase] or {}
+                            table.insert(groups[w.skinBase], w)
+                        end
+                    end
+                end
+                for skinBase, pending in pairs(groups) do
+                    local state = LrPathUtils.child(pending[1].dir, 'skin_' .. look .. '.json')
+                    for _ = 1, 2 do
+                        local items = {}
+                        for _, w in ipairs(pending) do items[#items + 1] = { id = w.id, path = w.paths[look], settings = w.settings } end
+                        local changes = Tone.skinChanges(items, skinBase, state)
+                        local redo = {}
+                        for _, w in ipairs(pending) do
+                            local change = changes[w.id]
+                            if change then
+                                for name, value in pairs(change) do w.settings[name], w.kept[name] = value, value end
+                                redo[#redo + 1] = w
+                            end
+                        end
+                        if #redo == 0 then break end
+                        shootMany(redo, look)
+                        pending = {}
+                        for _, w in ipairs(redo) do if w.ok then pending[#pending + 1] = w end end
+                        if #pending == 0 then break end
+                    end
+                end
+                for _, w in ipairs(list) do
+                    if w.kept then
+                        local file = io.open(LrPathUtils.child(w.dir, 'skin_' .. look .. '.lua'), 'w')
+                        if file then
+                            file:write('return {')
+                            for name, value in pairs(w.kept) do file:write(name, '=', tostring(value), ',') end
+                            file:write('}\n')
+                            file:close()
+                        end
+                        w.kept = nil
+                    end
+                end
+            end
+        end
+    end
+    if next(before) then Tone.restore(before) end
+    for _, w in ipairs(work) do
+        if not w.ok then out[w.photo] = { nil, w.failure or message("$$$/LRCDF/Errors/PreviewFailed=预览生成失败。") } end
+    end
+    return out
+end
+
 -- One look with a tweak ({ bright, warm, rich }), rendered next to the other previews. Returns the picture's path.
 -- The file name of a tweaked look: the three values in hundredths of a step, "d_t35_-120_0" (a whole step is 100),
 -- then what the colour wheels ask for, in this order and only when there: _n<tint x 100>, _s<hue>-<amount> (shadows),

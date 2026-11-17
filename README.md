@@ -22,7 +22,7 @@ computer; nothing is uploaded.
 | **LRCDF for Mac** (Lightroom plug-in) | [Latest release](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer | Yes |
 | **Tonewell for Mac** (standalone app from the LRCDF project) | [Tonewell for Mac 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) | macOS 14 or newer, Apple silicon or Intel | No |
 | **Tonewell for iPad** (standalone app from the LRCDF project) | [Tonewell for iPad 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
-| **Windows** | Coming soon | Windows 10 or 11, 64-bit | Yes |
+| **LRCDF for Windows** (Lightroom plug-in) | [LRCDF for Windows 0.1.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.3) | Windows 10 or 11, 64-bit; CPU package, or CUDA package for NVIDIA graphics cards | Yes |
 
 Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 

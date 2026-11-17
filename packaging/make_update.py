@@ -256,12 +256,12 @@ def ipad(a):
     finish(manifest, a.out, a.key)
     privacy = {k: v for k, v in info.items() if re.fullmatch(r"NS\w+UsageDescription", k)}
     icon = "https://raw.githubusercontent.com/dinghao581-cyber/LRCDF/main/ipad/app/LRCDF/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
-    note = notes.get("zh") or notes.get("en") or ""
+    note = notes.get("en") or notes.get("zh") or ""
     altstore = dict(
-        name="LRCDF", identifier="io.github.dinghao581-cyber.lrcdf", subtitle="一键修图 for iPad",
-        description="LRCDF: one-click portrait retouch, all on the device.", iconURL=icon, website=REPO, tintColor="#F5C400",
+        name="Tonewell", identifier="io.github.dinghao581-cyber.lrcdf", subtitle="Tonewell for iPad",
+        description="Tonewell, from the LRCDF project: one-click portrait retouch, all on the device.", iconURL=icon, website=REPO, tintColor="#F5C400",
         apps=[dict(
-            name=info.get("CFBundleDisplayName", "一键修图"), bundleIdentifier=info["CFBundleIdentifier"],
+            name=info.get("CFBundleDisplayName", "Tonewell"), bundleIdentifier=info["CFBundleIdentifier"],
             developerName="LRCDF contributors", subtitle="One-click portrait retouch",
             localizedDescription="Tone looks and skin retouch (frequency separation) on the iPad, offline.",
             iconURL=icon, tintColor="#F5C400", category="photo-video",

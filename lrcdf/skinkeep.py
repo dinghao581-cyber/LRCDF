@@ -11,7 +11,7 @@ out 7-10 L lighter than it is (docs/skin_mac/REPORT.md, measured on Lightroom re
               level for that depth (goal_L). First the look's own orange luminance (it lifts skin and nothing else),
               then Exposure2012 for what is left; and the skin chroma the look took is given back (goal_C) with the
               look's own orange saturation, never beyond 0.
-              Since 2026-11-16 (the user: "也收一些") a face that is not dark but sits below the look's level in
+              Since 2026-11-16 (the user asked for some of it back too) a face that is not dark but sits below the look's level in
               ordinary light - medium-brown skin, light skin away from the light - is held back too, mildly: of the
               lift beyond EASE_ALLOW L, EASE of it is taken back (`ease`). The depth score cannot tell such skin from
               a dim photo of a light face, so the weight comes from the face's own lightness: none for a face in the

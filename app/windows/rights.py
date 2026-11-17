@@ -24,54 +24,66 @@ class Rights:
             self.open_prompt()
 
     def open_prompt(self):
-        """RightsPrompt: 460 wide, 32 padding, corner 18; question 24 semibold, invite 16 soft, two capsules,
-        the 'don't ask' checkbox (12, soft); 18 apart."""
-        from .theme import SEMIBOLD, SOFT
-        from .widgets import CapsuleButton, CheckBox
+        """RightsPrompt in a DialogPanel: 460 wide, 30 inside, corner 26, 18 apart: the question (display 26, centred),
+        the invitation (16, soft), (4 more above) the main button and a quiet one side by side - stacked, 10 apart,
+        when they do not fit - and the 'don't ask' checkbox (12 medium, soft) in a 44 row."""
+        from .theme import BOLD, SOFT
+        from .widgets import CheckBox, GhostButton, GlowButton
         from .window import C, HC, Panel, col, hrow, line, para
 
-        panel = Panel(18, 460)
-        v = col(18, (32, 32, 32, 32))
-        q = para(QUESTION, 24, SEMIBOLD)
-        q.setFixedWidth(396)
+        panel = Panel(26, 460)
+        v = col(18, (30, 30, 30, 30))
+        q = para(QUESTION, 26, BOLD)
+        from .theme import display
+        q.f = display(26)                         # DS.display(26)
+        q.setFixedWidth(400)
         v.addWidget(q, 0, HC)
         v.addWidget(line(INVITE, 16, color=SOFT, align=C))
         hide = CheckBox(tr("rights.hide"), size=12, color=SOFT)
+        hide.setFixedHeight(44)
+        hide.line_h = 44
 
         def dismiss():
             if hide.checked:
                 self.settings.setValue("rights.hidePrompt", True)
             self.window.close_modal()
 
-        v.addSpacing(4 - 18 + 18)
-        v.addLayout(hrow(CapsuleButton(tr("rights.learn"), self.open_card, filled=True),
-                         CapsuleButton(tr("rights.continue"), dismiss, filled=False), spacing=12))
+        v.addSpacing(4)
+        first, second = GlowButton(tr("rights.learn"), self.open_card), GhostButton(tr("rights.continue"), dismiss)
+        if first.width() + 12 + second.width() <= 400:          # ViewThatFits: side by side, else stacked
+            v.addLayout(hrow(first, second, spacing=12))
+        else:
+            stack = col(10)
+            stack.addWidget(first, 0, HC)
+            stack.addWidget(second, 0, HC)
+            v.addLayout(stack)
         v.addWidget(hide, 0, HC)
         panel.setLayout(v)
         self.window.show_modal(panel, 0.62)
 
     def open_card(self):
-        """RightsCard: 560 x 600, 26 padding, corner 18; title 20 semibold with a close cross; then a scrolling
-        list 14 apart."""
-        from .theme import LINE, LINK, MEDIUM, SEMIBOLD, SOFT, TEXT, css
+        """RightsCard in a DialogPanel: 560 wide, 30 inside, corner 26: the title (display 24) with the close cross
+        (44 square, ink), 8 below it a 500 high scrolling list 14 apart (8 kept clear on the right)."""
+        from .theme import BOLD, LINE, MEDIUM, SEMIBOLD, SOFT, TEXT, css
         from .widgets import CheckBox, IconButton, ScrollStyle
         from .window import Panel, box, col, line, para, row
 
-        panel = Panel(18, 560, 600)
-        v = col(0, (26, 26, 26, 26))
+        panel = Panel(26, 560)
+        v = col(0, (30, 30, 30, 30))
         head = row()
-        head.addWidget(line(tr("rights.title"), 20, SEMIBOLD), 1)
-        head.addWidget(IconButton("xmark", self.window.close_modal, box=30, glyph=12, weight=0.11))
+        from .window import display_line
+        head.addWidget(display_line(tr("rights.title"), 24), 1)
+        head.addWidget(IconButton("xmark", self.window.close_modal, box=44, glyph=12, weight=0.11))
         v.addLayout(head)
-        v.addSpacing(10)
+        v.addSpacing(8)
         content = col(14, (0, 0, 8, 0))
 
         def text(t, size, weight=400, color=TEXT):
             w = para(t, size, weight, color, center=False)
-            w.setFixedWidth(490)
+            w.setFixedWidth(492)
             return w
 
-        content.addWidget(text(DISCLAIMER, 12, color=SOFT))
+        content.addWidget(text(DISCLAIMER, 12, MEDIUM, color=SOFT))
         for title, body in POINTS:
             c = col(3)
             c.addWidget(text(title, 14, SEMIBOLD))
@@ -82,14 +94,14 @@ class Rights:
         for name, how, url in LINKS:
             c = col(2)
             from .widgets import label
-            link = label(name, 13, MEDIUM, LINK)
+            link = label(name, 13, MEDIUM, TEXT)
             link.setFixedHeight(18)
             link.setTextFormat(Qt.TextFormat.RichText)
-            link.setText(f'<a style="color:{css(LINK)};text-decoration:none" href="{url}">{name}</a>')
+            link.setText(f'<a style="color:{css(TEXT)};text-decoration:underline" href="{url}">{name}</a>')
             link.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
             link.linkActivated.connect(lambda address: QDesktopServices.openUrl(QUrl(address)))
             c.addWidget(link)
-            c.addWidget(text(how, 12, color=SOFT))
+            c.addWidget(text(how, 12, MEDIUM, color=SOFT))
             content.addWidget(box(c))
         content.addWidget(_Rule())
         prompt = CheckBox(tr("rights.remind"), not self.settings.value("rights.hidePrompt", False, type=bool))
@@ -104,7 +116,8 @@ class Rights:
         scroll.setStyleSheet(ScrollStyle.SHEET)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setWidget(box(content))
-        v.addWidget(scroll, 1)
+        scroll.setFixedHeight(500)
+        v.addWidget(scroll)
         panel.setLayout(v)
         self.window.show_modal(panel, 0.62)
 
@@ -120,26 +133,29 @@ class Rights:
             self.show_banner()
 
     def show_banner(self):
-        """BreakBanner: a capsule on the panel colour, 18 x 12 padding, at most 680 wide, 24 from the bottom;
-        moves up and fades in."""
+        """BreakBanner: glass with corner 28, 22 x 6 inside, at most 760 wide, 24 from the bottom: the cup, the text
+        (14), then "Take a break" (focus yellow) and "Later" (soft) as plain words in 44 rows; moves up and fades in."""
         from .theme import FOCUS, SOFT, TEXT
         from .widgets import PlainButton, fade, text_width
         from .window import line, row
 
         banner = _Banner()
-        r = row(14, (18, 12, 18, 12))
+        r = row(14, (22, 6, 22, 6))
         r.addWidget(_Cup())
         t = line(tr("rights.rest_message"), 14)
         r.addWidget(t, 1)
         r.addSpacing(12 - 14 + 14)
-        r.addWidget(PlainButton(tr("rights.rest"), lambda: self.acknowledge(True), color=FOCUS))
-        r.addWidget(PlainButton(tr("rights.rest_later"), lambda: self.acknowledge(False), color=SOFT))
+        rest = PlainButton(tr("rights.rest"), lambda: self.acknowledge(True), color=FOCUS)
+        later = PlainButton(tr("rights.rest_later"), lambda: self.acknowledge(False), color=SOFT)
+        for b in (rest, later):
+            b.setFixedHeight(44)
+            r.addWidget(b)
         banner.setLayout(r)
         banner.setParent(self.window)
-        w = min(680, self.window.width() - 48)
-        banner.resize(w, 46)
+        w = min(760, self.window.width() - 48)
+        banner.resize(w, 56)
         r.activate()
-        h = 46
+        h = 56
         if text_width(t.font(), t.text()) > t.width():
             # a longer translation wraps instead of being cut; the capsule grows to fit
             from .widgets import Para
@@ -148,7 +164,7 @@ class Rights:
             t.deleteLater()
             width = t.width()
             wrapped.setFixedWidth(width)
-            h = max(46, len(wrapped._lines(width)) * wrapped.step + 24)
+            h = max(56, len(wrapped._lines(width)) * wrapped.step + 12)
             banner.resize(w, h)
         x = (self.window.width() - w) // 2
         y = self.window.height() - h - 24
@@ -187,13 +203,13 @@ class _Rule(QWidget):
 
 class _Banner(QWidget):
     def paintEvent(self, _e):
-        from .theme import LINE, PANEL, black, paint_shadow
+        from .theme import PANEL, white
         from .widgets import painter
         p = painter(self)
         r = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
-        p.setPen(LINE)
+        p.setPen(white(0.10))
         p.setBrush(PANEL)
-        p.drawRoundedRect(r, r.height() / 2, r.height() / 2)
+        p.drawRoundedRect(r, 28, 28)
 
 
 class _Cup(QWidget):

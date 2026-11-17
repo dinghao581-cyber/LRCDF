@@ -43,14 +43,16 @@ prefs.serverGeneration = generation
 
 LrTasks.startAsyncTask(function()
     for _, directory in ipairs(directories) do LrFileUtils.createAllDirectories(directory) end
+    local quiet = 0      -- polls since the last request: look often while the app is sending one after another
     while prefs.serverGeneration == generation do
+        quiet = quiet + 1
         for _, directory in ipairs(directories) do
             for path in LrFileUtils.files(directory) do
-                if LrPathUtils.extension(path) == 'cmd' then handle(path) end
+                if LrPathUtils.extension(path) == 'cmd' then handle(path) quiet = 0 end
             end
             local file = io.open(LrPathUtils.child(directory, 'alive'), 'w')
             if file then file:write(os.time(), '\n') file:close() end
         end
-        LrTasks.sleep(0.3)
+        LrTasks.sleep(quiet < 60 and 0.05 or 0.3)
     end
 end)

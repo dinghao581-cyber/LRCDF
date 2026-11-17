@@ -90,7 +90,7 @@ def main():
     models = beautify.load_models(device)
     if a.serve:
         with torch.inference_mode():        # the first pass through a network on the GPU is slow: get it over with
-            if models[1] is not None:
+            if models[1] is not None and str(device) != "cpu":    # on the CPU it only costs time (10 s on Windows)
                 models[1](torch.zeros(1, 3, 512, 512, device=device))
         return serve(a.serve, models, device)
     run(a, models, device, lambda text: print(text, flush=True), reuse=False)
