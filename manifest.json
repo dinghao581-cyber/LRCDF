@@ -6,11 +6,11 @@
  },
  "releases": {
   "mac-arm64": {
-   "version": "0.1.4",
+   "version": "0.1.5",
    "min_os": "14.0",
    "notes": {
-    "zh": "现在从 macOS 14 Sonoma 起就能运行（macOS 26 上仍是 Liquid Glass 外观，14、15 上是深色面板）。",
-    "en": "Now runs from macOS 14 Sonoma (Liquid Glass on macOS 26, plain dark panels on 14 and 15)."
+    "zh": "风格名和说明现在跟随 Lightroom 的语言显示（之前总是中文）；风格说明文字调整，不再描述肤色深浅。",
+    "en": "Look names and notes now follow Lightroom's language (they were always in Chinese); look descriptions no longer mention skin tone."
    },
    "components": [
     "app-mac",
@@ -19,11 +19,34 @@
     "models-third",
     "python-mac"
    ]
+  },
+  "ipad": {
+   "version": "0.1",
+   "min_os": "27.0",
+   "notes": {
+    "zh": "iPad 版改名为 Tonewell。",
+    "en": "The iPad app is now called Tonewell."
+   },
+   "components": [
+    "models-ipad"
+   ],
+   "ipa": "ipa-ipad"
+  },
+  "mac-studio": {
+   "version": "0.1",
+   "min_os": "14.0",
+   "notes": {
+    "zh": "Tonewell for Mac：不需要 Lightroom 的独立版。",
+    "en": "Tonewell for Mac: the standalone app that does not need Lightroom."
+   },
+   "components": [
+    "models-ipad"
+   ]
   }
  },
  "components": {
   "code": {
-   "version": "fa004ff9f9aa01d2",
+   "version": "b212235b76b98207",
    "install": "project",
    "keep": [
     "project/runs"
@@ -31,10 +54,10 @@
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 907816,
-     "sha256": "efc38ce2b422f9bc6b3885a33eacb8c88b026602a449a905af20dc27db68dc95",
+     "size": 888221,
+     "sha256": "8885b49cadd8abbd52a4cc084e0c1df174ef99766714b49506a3385a94c7a86f",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-fa004ff9f9aa01d2.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-b212235b76b98207.zip"
      ]
     }
    ]
@@ -224,20 +247,58 @@
    "sha256_joined": "47604b0438f8ddf2dfeb8e523024cfbc95cccef9f22a2fa128accefe127cf994"
   },
   "app-mac": {
-   "version": "12eb19151ebfd726",
+   "version": "3dea68db286623fd",
    "install": "app",
    "keep": [],
    "restart": "app",
    "files": [
     {
-     "size": 1446961,
-     "sha256": "7de75e8f313ae8ecccb48d39b7a7edbf409f9fbba897900b87fd14c684e07245",
+     "size": 1446973,
+     "sha256": "18fae1115f4ce0c0081a29edf73c40b8dd5a091db9d85ea00b6f5ec61c94459a",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-12eb19151ebfd726.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-3dea68db286623fd.zip"
+     ]
+    }
+   ]
+  },
+  "models-ipad": {
+   "version": "1a7b80b619719eda",
+   "install": "models",
+   "keep": [],
+   "restart": "none",
+   "files": [
+    {
+     "size": 95000000,
+     "sha256": "b6345d58dbc17ae4fa6c474c3bc0fffe363deee7df242f14294622996a5beb76",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/models-ipad-1a7b80b619719eda.zip.001"
+     ]
+    },
+    {
+     "size": 6962321,
+     "sha256": "dc7376bb5326c418a5571e54b4dceffc603e31223788840b106d8065d89ddd30",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/models-ipad-1a7b80b619719eda.zip.002"
+     ]
+    }
+   ],
+   "sha256_joined": "899bd233b4739e204661502d78f9ab43f551097a7528689477261f8cb519b714"
+  },
+  "ipa-ipad": {
+   "version": "0.1-1",
+   "install": "app",
+   "keep": [],
+   "restart": "none",
+   "files": [
+    {
+     "size": 109402829,
+     "sha256": "eac36a417bc3ccf81ad1e0bfdcf917372b68f610f38794faf69648d7d1bbf3b1",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/ipad-models-1a7b80b619719eda/Tonewell-iPad-0.1.ipa"
      ]
     }
    ]
   }
  },
- "published": "2026-11-16T15:57:03Z"
+ "published": "2026-11-17T15:38:30Z"
 }
