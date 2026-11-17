@@ -1,4 +1,4 @@
-# LRCDF for iPad (一键修图): let an AI walk you through the install
+# LRCDF for iPad (Tonewell): let an AI walk you through the install
 
 > How to use: copy this whole document to your AI. That can be a chat AI on the web (DeepSeek, ChatGPT…) or an AI that
 > can run commands on your computer (Codex, Claude Code…). Then say "please walk me through installing this".
@@ -8,7 +8,7 @@
 
 ## For the AI: your task
 
-Guide a **beginner** to install the open-source app 一键修图 (the iPad version of LRCDF) on their own iPad. The app is
+Guide a **beginner** to install the open-source app Tonewell (from the LRCDF project, iPad version) on their own iPad. The app is
 not on the App Store. It is signed with **their own free Apple Account** and then installed. Rules:
 
 1. **One step at a time.**
@@ -62,7 +62,7 @@ when it runs.
 - **XcodeGen 2.46.0** (an open-source tool that generates the Xcode project):
   `https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip`.
   - SHA-256: `4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806`.
-- **Route B package**: `LRCDF-iPad-<version>.ipa` on the same release page (unsigned, about 105 MB).
+- **Route B package**: `Tonewell-iPad-<version>.ipa` on the same release page (unsigned, about 105 MB).
 
 The install script checks every checksum and stops if one does not match.
 
@@ -127,7 +127,7 @@ The install script checks every checksum and stops if one does not match.
   It never asks for your password, never uses sudo, and changes no system settings.
 - **On an error** it prints "✗ 出错了 …" followed by "下一步 …" (what to do next). Do that, then run the same line again:
   finished steps are skipped.
-- **Success**: it ends with "完成。" (done), and the 一键修图 icon is on the iPad.
+- **Success**: it ends with "完成。" (done), and the Tonewell icon is on the iPad.
 - **Common errors**:
 
 | The script says | Do this |
@@ -147,7 +147,7 @@ The install script checks every checksum and stops if one does not match.
 
 ### A6. Trust the developer before the first start (**you**)
 - **Do**: if the script says the iPad will not open the app yet: on the iPad, **Settings → General → VPN & Device
-  Management → your Apple Account under "Developer App" → Trust**. Then tap 一键修图 on the Home Screen.
+  Management → your Apple Account under "Developer App" → Trust**. Then tap Tonewell on the Home Screen.
 - **Success**: the app opens and asks "今天想修哪几张？" (which photos today?).
 
 ### A7. After 7 days
@@ -166,7 +166,7 @@ When the app stops opening, connect the iPad to the same Mac and run the A5 line
 
 ### B1. Download the package
 - **Do**: open `https://github.com/dinghao581-cyber/LRCDF/releases`. Under the latest iPad release, download
-  **LRCDF-iPad-<version>.ipa** (about 105 MB).
+  **Tonewell-iPad-<version>.ipa** (about 105 MB).
 - **Success**: an `.ipa` file is in your Downloads folder.
 
 ### B2. Turn on Developer Mode on the iPad (**you**)
@@ -178,7 +178,7 @@ As in A4. Apps installed by signing tools need it too.
 2. Connect and trust the iPad (as in A3). Open Sideloadly: the iPad should show under "iDevice".
 3. Drag the `.ipa` into Sideloadly, enter your Apple Account under "Apple ID", and click **Start**.
 4. Type the password and code yourself when asked.
-5. **Success**: Sideloadly shows Done, and 一键修图 is on the iPad.
+5. **Success**: Sideloadly shows Done, and Tonewell is on the iPad.
 6. Trust the developer on the iPad (as in A6).
 - **If**:
   - the bundle ID is unavailable: tick the option to change the bundle ID in the advanced options, then try again;
@@ -192,7 +192,7 @@ As in A4. Apps installed by signing tools need it too.
 3. Trust the developer on the iPad (as in A6), then open AltStore.
 4. Put the `.ipa` into the iPad's Files app (AirDrop or iCloud Drive).
 5. In AltStore choose **My Apps → + (top left)**, then pick the `.ipa`.
-6. **Success**: 一键修图 is in My Apps and on the Home Screen.
+6. **Success**: Tonewell is in My Apps and on the Home Screen.
 - **After 7 days**: AltStore renews by itself while AltServer runs on the computer on the same Wi-Fi. "Refresh All" in
   My Apps does it by hand.
 - **Note**: AltStore itself uses one of the 3 self-signed app slots.

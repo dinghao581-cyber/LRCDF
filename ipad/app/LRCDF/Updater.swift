@@ -28,6 +28,12 @@ final class UpdateNotice: ObservableObject {
                           "https://raw.githubusercontent.com/dinghao581-cyber/LRCDF/update/manifest.json"]
     static let quiet: Int64 = 60_000_000
     nonisolated static let component = "models-ipad"
+    /// The manifest's release this build follows: the iPad's, or Tonewell's on the Mac (same models component).
+    #if os(macOS)
+    nonisolated static let platform = "mac-studio"
+    #else
+    nonisolated static let platform = "ipad"
+    #endif
 
     struct Newer: Equatable { let version: String; let note: String?; let unknownFormat: Bool }
     enum Models: Equatable { case none, offer(MB: Int), downloading(Double), staged, installed(String), failed(String) }
@@ -96,7 +102,7 @@ final class UpdateNotice: ObservableObject {
         guard let m else {          // a newer format than this app knows: only say that a new version exists
             newer = Newer(version: "", note: nil, unknownFormat: true); return
         }
-        guard let r = m.releases?["ipad"] else { return }
+        guard let r = m.releases?[Self.platform] else { return }
         newer = Self.isNewer(r.version, than: Self.appVersion) ? Newer(version: r.version, note: r.notes?[zh ? "zh" : "en"] ?? r.notes?["zh"], unknownFormat: false) : nil
         if r.components?.contains(Self.component) ?? false, let c = m.components?[Self.component],
            c.version != ModelStore.installedVersion, !ModelStore.isStaged(c.version) {
@@ -304,7 +310,13 @@ struct UpdateRow: View {
             if let n = notice.newer {
                 Text(n.unknownFormat ? "有新版本" : "有新版本 \(n.version)").font(.system(size: 13, weight: .semibold)).foregroundStyle(Palette.glow)
                 if let note = n.note { Text(note).font(.system(size: 12)).foregroundStyle(Palette.soft) }
+                #if os(macOS)
+                // Tonewell cannot replace itself (a sandboxed, ad-hoc signed app): the release page has the new one
+                Link("新版本在发布页，点这里下载", destination: URL(string: "https://github.com/dinghao581-cyber/LRCDF/releases")!)
+                    .font(.system(size: 12))
+                #else
                 Text("新版本在 AltStore 里，打开 AltStore 点更新就行。").font(.system(size: 12)).foregroundStyle(Palette.soft)
+                #endif
             }
             switch notice.models {
             case .offer(let mb):

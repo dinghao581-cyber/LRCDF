@@ -1,4 +1,4 @@
-# 一键修图 iPad 版：交给 AI 带你安装
+# Tonewell iPad 版：交给 AI 带你安装
 
 > 用法：把这整份文档复制给你的 AI（DeepSeek、ChatGPT 等网页聊天，或 Codex、Claude Code 等能在电脑上执行命令的 AI），
 > 然后说一句“请按这份文档带我安装”。English version: `INSTALL_WITH_AI.en.md`.
@@ -7,7 +7,7 @@
 
 ## 写给 AI：你的任务
 
-你要带一位**电脑新手**，把开源 App“一键修图”（LRCDF 的 iPad 版）装到他自己的 iPad 上。这个 App 不在 App Store，
+你要带一位**电脑新手**，把开源 App“Tonewell”（来自 LRCDF 项目，iPad 版）装到他自己的 iPad 上。这个 App 不在 App Store，
 要用他**自己的免费 Apple 账号**签名后安装。请遵守：
 
 1. **每次只给一步。** 给出这一步要做的事（一条可直接复制的命令，或一个明确的界面操作），说清“成功时会看到什么”，
@@ -43,7 +43,7 @@
   101,833,631 字节，SHA-256 `11965296a01e6bde20365a3316127ccbd55b71e74b75cf51c9a1ec9d4c450c6f`
 - XcodeGen 2.46.0（开源的 Xcode 工程生成工具）：`https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip`，
   SHA-256 `4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806`
-- 路线 B 的安装包：同一仓库发布页里的 `LRCDF-iPad-<版本>.ipa`（未签名，约 105 MB）
+- 路线 B 的安装包：同一仓库发布页里的 `Tonewell-iPad-<版本>.ipa`（未签名，约 105 MB）
 
 安装脚本会自动核对校验值，对不上就停下。
 
@@ -108,7 +108,7 @@
   8. 装到 iPad。
 - 脚本**不会**要你的密码，不用 sudo，不改系统设置。
 - 中途出错会显示“✗ 出错了：… 下一步：…”，照着做完再运行同一行命令，已完成的步骤会跳过。
-- 成功时：最后显示“完成。”，iPad 上出现“一键修图”图标。
+- 成功时：最后显示“完成。”，iPad 上出现“Tonewell”图标。
 - 常见报错：
 
 | 脚本显示 | 处理 |
@@ -128,7 +128,7 @@
 
 ### A6. 第一次打开前信任开发者（**你本人做**）
 - 操作：如果脚本最后说“iPad 还不让打开”，在 iPad 上 **设置 → 通用 → VPN 与设备管理 →“开发者 App”下点你的 Apple 账号 → 信任**，
-  然后回主屏幕点“一键修图”。
+  然后回主屏幕点“Tonewell”。
 - 成功时：App 打开，看到“今天想修哪几张？”。
 
 ### A7. 7 天后
@@ -144,7 +144,7 @@ App 打不开时：把 iPad 接上同一台 Mac，在终端再运行 A5 那一�
 > Apple 账号用来签名。
 
 ### B1. 下载安装包
-- 操作：打开 `https://github.com/dinghao581-cyber/LRCDF/releases`，在最新的 iPad 版本下载 **LRCDF-iPad-<版本>.ipa**（约 105 MB）。
+- 操作：打开 `https://github.com/dinghao581-cyber/LRCDF/releases`，在最新的 iPad 版本下载 **Tonewell-iPad-<版本>.ipa**（约 105 MB）。
 - 成功时：下载文件夹里有一个 `.ipa` 文件。
 
 ### B2. 打开 iPad 的开发者模式（**你本人做**）
@@ -156,7 +156,7 @@ App 打不开时：把 iPad 接上同一台 Mac，在终端再运行 A5 那一�
 2. 用线连接 iPad 并信任（同 A3）。打开 Sideloadly，它应当在“iDevice”一栏认出你的 iPad。
 3. 把 B1 下载的 `.ipa` 拖进 Sideloadly 窗口，在“Apple ID”一栏填你的 Apple 账号，点 **Start**。
 4. 弹出密码和验证码窗口时**你本人输入**。
-5. 成功时：Sideloadly 显示 Done，iPad 上出现“一键修图”。
+5. 成功时：Sideloadly 显示 Done，iPad 上出现“Tonewell”。
 6. 然后在 iPad 上信任开发者（同 A6）。
 - 常见问题：
   - 提示 App 标识（bundle ID）不可用 → 在 Sideloadly 的高级选项里勾选自动修改 bundle ID 后重试。
@@ -170,7 +170,7 @@ App 打不开时：把 iPad 接上同一台 Mac，在终端再运行 A5 那一�
 3. iPad 上信任开发者（同 A6），打开 AltStore。
 4. 把 `.ipa` 存进 iPad 的“文件”App（例如用隔空投送或 iCloud 云盘）。
 5. 在 AltStore 的 **My Apps → 左上角 +**，选这个 `.ipa`。
-6. 成功时：My Apps 里出现“一键修图”，主屏幕有图标。
+6. 成功时：My Apps 里出现“Tonewell”，主屏幕有图标。
 - 7 天后：电脑上 AltServer 开着、和 iPad 在同一个 Wi-Fi 时，AltStore 会自动续签；也可以在 My Apps 里点“Refresh All”。
 - 注意：AltStore 本身也占一个自签 App 名额（免费账号共 3 个）。
 

@@ -1,5 +1,5 @@
 #!/bin/zsh
-# 一键修图（LRCDF）iPad 版：从源码编译，用你自己的免费 Apple 账号签名，装到用 USB 线连着这台 Mac 的 iPad。
+# Tonewell（LRCDF）iPad 版：从源码编译，用你自己的免费 Apple 账号签名，装到用 USB 线连着这台 Mac 的 iPad。
 #
 # 用法（在 Mac 的“终端”里）：
 #   curl -fsSL https://raw.githubusercontent.com/dinghao581-cyber/LRCDF/main/ipad/install.sh -o install.sh && zsh install.sh
@@ -39,7 +39,7 @@ fetch() {         # url, destination
   mv "$2.part" "$2"
 }
 
-print -P "%B一键修图 iPad 版：从源码安装%b（工作目录 $WORK）"
+print -P "%BTonewell iPad 版：从源码安装%b（工作目录 $WORK）"
 mkdir -p "$WORK" || fail "无法创建工作目录 $WORK" "换一个目录：LRCDF_WORK=~/某个目录 zsh install.sh"
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ else
   rm -rf "$ROOT.new"; mkdir -p "$ROOT.new"
   fetch "$SOURCE" "$WORK/source.tar.gz"
   tar -xzf "$WORK/source.tar.gz" -C "$ROOT.new" --strip-components 1 || fail "源码压缩包解不开" "删掉 $WORK 后重新运行。"
-  [[ -f "$ROOT.new/ipad/app/project.yml" ]] || fail "下载的源码里没有 iPad 工程" "确认网址是一键修图的仓库；把这一行发给开发者。"
+  [[ -f "$ROOT.new/ipad/app/project.yml" ]] || fail "下载的源码里没有 iPad 工程" "确认网址是 Tonewell 的仓库；把这一行发给开发者。"
   if [[ -d "$ROOT/ipad/app/LRCDF/models" ]]; then mv "$ROOT/ipad/app/LRCDF/models" "$ROOT.new/ipad/app/LRCDF/models"; fi   # keep downloaded models
   rm -rf "$ROOT"; mv "$ROOT.new" "$ROOT"; rm -f "$WORK/source.tar.gz"
   ok "源码在 $ROOT"
@@ -187,6 +187,6 @@ if xcrun devicectl device process launch --device "$DEV" --terminate-existing "$
   ok "已打开 App"
 else
   print "  App 已装好，但 iPad 还不让打开（第一次装时正常）。请在 iPad 上："
-  print "  设置 → 通用 → VPN 与设备管理 → “开发者 App”下点你的 Apple 账号 → 信任。然后在主屏幕点“一键修图”。"
+  print "  设置 → 通用 → VPN 与设备管理 → “开发者 App”下点你的 Apple 账号 → 信任。然后在主屏幕点“Tonewell”。"
 fi
 print -P "\n%B完成。%b免费 Apple 账号签的 App 7 天后会打不开：到时把 iPad 接上这台 Mac，再运行一次本脚本即可（App 里的设置会保留）。"

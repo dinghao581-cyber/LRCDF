@@ -39,10 +39,32 @@ enum DS {
     static let settle = Animation.spring(response: 0.42, dampingFraction: 0.74)
 }
 
+extension DS {
+    /// Tests: LRCDF_OLDLOOK=1 draws the macOS 14/15 look on a newer Mac.
+    #if TESTHOOKS
+    static let forceOldLook = ProcessInfo.processInfo.environment["LRCDF_OLDLOOK"] == "1"
+    #else
+    static let forceOldLook = false
+    #endif
+}
+
 extension View {
     /// Smoked Liquid Glass (the system's glassEffect, never a home-made blur). `clear` for labels on the photo.
+    /// Tonewell on macOS 14 and 15 (no Liquid Glass there): the plain dark panel of the Mac plug-in app (81440c3) -
+    /// the shape filled with the room's shade and the smoke, a hairline edge. The iPad (iPadOS 27+) always has glass.
+    @ViewBuilder
     func glass<S: Shape>(_ shape: S, smoked: Bool = true, interactive: Bool = false, clear: Bool = false) -> some View {
-        glassEffect((clear ? Glass.clear : Glass.regular).tint(smoked && !clear ? DS.smoke : nil).interactive(interactive), in: shape)
+        if #available(macOS 26, iOS 26, *), !DS.forceOldLook {
+            glassEffect((clear ? Glass.clear : Glass.regular).tint(smoked && !clear ? DS.smoke : nil).interactive(interactive), in: shape)
+        } else {
+            background {
+                ZStack {
+                    shape.fill(Color.black.opacity(smoked && !clear ? DS.roomShade : 0))
+                    shape.fill(DS.smoke)
+                    shape.stroke(DS.line, lineWidth: 1)
+                }
+            }
+        }
     }
 }
 

@@ -98,6 +98,29 @@ final class Beauty: @unchecked Sendable {
     private static func load(_ n: String, _ config: MLModelConfiguration) -> MLModel? {
         ModelStore.url(n).flatMap { try? MLModel(contentsOf: $0, configuration: config) }      // an update in the container wins (Updater.swift)
     }
+    /// The face detector, the make-up network and the blemish model, kept loaded between photos while photos load
+    /// (loading them again for every photo was ~1/4 of the face step, speed profile 2026-11-17); let go at every export
+    /// (its memory peak stays as before) and on a memory warning.
+    private var held: [String: MLModel] = [:]
+    private let heldLock = NSLock()
+    private func model(_ n: String) -> MLModel? {
+        heldLock.lock(); defer { heldLock.unlock() }
+        if let m = held[n] { return m }
+        var c = config
+        if n == "RetinaFace" {
+            // stays on .all (GPU): on the Neural Engine it held ~0.3 GB less, same speed, but its boxes differ slightly and
+            // acne0's retouching changed (29 % of pixels, up to 38 levels; 2026-11-17). LRCDF_RETINA_UNITS=ane|cpu: tests only.
+            let u = Beauty.testEnv["LRCDF_RETINA_UNITS"] ?? "all"
+            c = MLModelConfiguration(); c.computeUnits = u == "ane" ? .cpuAndNeuralEngine : u == "cpu" ? .cpuOnly : .all
+        }
+        let m = Self.load(n, c)
+        if Self.holds.contains(n) { held[n] = m }
+        return m
+    }
+    /// Which models stay loaded: the face detector and the make-up network, on every device. iPad mini 7 (8 GB, 29 photos,
+    /// 2026-11-18): peak 2.35 GB with both against 2.18 with the make-up one only (limit about 3.5 GB), not stopped by the system.
+    nonisolated(unsafe) static var holds: Set<String> = Set((testEnv["LRCDF_HOLD"] ?? "RetinaFace,Makeup").split(separator: ",").map(String.init))
+    func releaseHeld() { heldLock.lock(); held = [:]; heldLock.unlock() }
     var ready: Bool { seg != nil && ModelStore.url("RetouchNet") != nil }
     /// Self-test only: intermediate images of each face are written here.
     /// Self-test switches (LRCDF_SKIP, LRCDF_DEBUG, LRCDF_NOBODY, LRCDF_NOGUARD): read only in TESTHOOKS builds; a published
@@ -165,7 +188,7 @@ final class Beauty: @unchecked Sendable {
             out[i].skin = skinMap(srgbImage, area)
         }
         // make-up: one score per face (MobileCLIP2-S2, zero-shot "made-up face" vs "bare face"); loaded only for this
-        if let mm = Self.load("Makeup", config) {
+        if let mm = model("Makeup") {
             for i in out.indices {
                 let (sc, dp) = makeupScore(srgbImage, out[i].box, mm)
                 out[i].makeup = min(max((sc + 0.4) / 0.7, 0), 1)
@@ -199,7 +222,7 @@ final class Beauty: @unchecked Sendable {
 
     /// RetinaFace (ResNet-50, the Mac pipeline's detector) on a 960 px copy: boxes and five points, normalised.
     private func retina(_ srgb: CIImage) -> [(box: CGRect, points: [CGPoint], score: Float)] {
-        guard let detector = Self.load("RetinaFace", config) else { return [] }
+        guard let detector = model("RetinaFace") else { return [] }
         let S = 960, e = srgb.extent
         let s = CGFloat(S) / max(e.width, e.height)
         let h = e.height * s
@@ -281,7 +304,7 @@ final class Beauty: @unchecked Sendable {
     /// photos and shrunken acne close-ups RetouchFormer changed almost nothing while this model evened redness and marks,
     /// texture kept as only its colour layer is used, 2026-11-15); only crops under SMALL_FACE px are left out.
     func edits(_ image: CIImage, faces: [Face], fullWidth: CGFloat) -> [CIImage?] {
-        guard let retouch = Self.load("RetouchNet", config) else { return faces.map { _ in nil } }
+        guard let retouch = model("RetouchNet") else { return faces.map { _ in nil } }
         return faces.map { f in autoreleasepool { edit(image, f, fullWidth: fullWidth, retouch) } }
     }
 

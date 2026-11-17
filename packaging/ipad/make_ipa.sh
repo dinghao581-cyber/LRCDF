@@ -1,6 +1,6 @@
 #!/bin/zsh
 # The iPad app as an unsigned .ipa for AltStore / SideStore (they sign it with the user's own Apple ID).
-# usage: packaging/ipad/make_ipa.sh [output folder, default ~/LRCDF/dist]   -> LRCDF-iPad-<version>.ipa
+# usage: packaging/ipad/make_ipa.sh [output folder, default ~/LRCDF/dist]   -> Tonewell-iPad-<version>.ipa
 set -e
 cd "$(dirname "$0")/../../ipad/app"      # the iPad project (models and build products are not in git: docs/update/IPAD.md)
 OUT="${1:-$HOME/LRCDF/dist}"; mkdir -p "$OUT"
@@ -17,8 +17,8 @@ EXE="$APP/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Info.pl
 xcrun strip -S -x "$EXE"
 if strings -a "$EXE" | grep -qE '/(Users|Volumes)/'; then echo "STOP: local paths in the executable"; exit 1; fi
 VER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist")
-TMP=$(mktemp -d); mkdir "$TMP/Payload"; ditto "$APP" "$TMP/Payload/$(basename "$APP")"
+TMP=$(mktemp -d); mkdir "$TMP/Payload"; ditto --norsrc "$APP" "$TMP/Payload/$(basename "$APP")"
 find "$TMP" -name "._*" -delete
-(cd "$TMP" && zip -qry "$OUT/LRCDF-iPad-$VER.ipa" Payload)
+(cd "$TMP" && zip -qry "$OUT/Tonewell-iPad-$VER.ipa" Payload)
 rm -rf "$TMP"
-ls -la "$OUT/LRCDF-iPad-$VER.ipa"; shasum -a 256 "$OUT/LRCDF-iPad-$VER.ipa"
+ls -la "$OUT/Tonewell-iPad-$VER.ipa"; shasum -a 256 "$OUT/Tonewell-iPad-$VER.ipa"

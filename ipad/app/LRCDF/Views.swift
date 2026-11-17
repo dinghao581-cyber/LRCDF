@@ -141,6 +141,18 @@ struct PictureView: View {
                     }
                     .frame(width: w, height: h).contentShape(Rectangle())
                     .gesture(pinch(w, h).simultaneously(with: pan(w, h)))
+                    #if os(macOS)
+                    // Tonewell: the mouse wheel zooms about the pointer, two fingers on a trackpad move a zoomed picture
+                    // (not in self-test drawings: ImageRenderer cannot draw an AppKit view)
+                    .background(SelfTest.flat ? nil : ScrollCatcher { wheel, scrolled, place in
+                        if wheel != 0 {
+                            zoomTo(zoom * (wheel > 0 ? 1.18 : 1 / 1.18), at: UnitPoint(x: place.x, y: place.y), from: zoom, centre: centre)
+                            if zoom < 1.02 { zoom = 1; centre = CGPoint(x: 0.5, y: 0.5) }
+                        } else if zoom > 1.01 {
+                            centre = clamped(CGPoint(x: centre.x - scrolled.width / (w * zoom), y: centre.y - scrolled.height / (h * zoom)), zoom)
+                        }
+                    })
+                    #endif
                     .simultaneousGesture(SpatialTapGesture(count: 2).onEnded { t in
                         withAnimation(.spring(duration: 0.45, bounce: 0.15)) {
                             if zoom > 1.01 { zoom = 1; centre = CGPoint(x: 0.5, y: 0.5) }
@@ -228,7 +240,7 @@ struct PictureView: View {
     @ViewBuilder private func divider(_ x: CGFloat, _ h: CGFloat, _ w: CGFloat) -> some View {
         ZStack {
             Rectangle().fill(.white).frame(width: grabbed ? 2.5 : 1.5).shadow(color: .black.opacity(0.45), radius: 3)
-            Image(systemName: "chevron.left.chevron.right")
+            HandleArrows()
                 .font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
                 .frame(width: 44, height: 44)
                 .glass(Circle(), smoked: false, interactive: true)
@@ -440,9 +452,18 @@ struct Inspector: View {
         case .working(let s):
             HStack(spacing: 10) { ProgressView(); Text(s).font(DS.body) }.frame(height: 52)
         default:
+            #if os(macOS)
+            // Tonewell: into a folder (the save sheet: format, then where)
+            PrimaryButton(title: studio.photos.count > 1 ? "全部存储（\(studio.photos.count) 张）…" : "存储…", wide: true) { MacRequests.shared.save = true }
+            #else
             PrimaryButton(title: studio.photos.count > 1 ? "全部存进相册（\(studio.photos.count) 张）" : "存进相册", wide: true) { studio.exportAll() }
+            #endif
             if case .done(let n) = studio.stage {
+                #if os(macOS)
+                Text("已存好 \(n) 张，在你选的文件夹里。").font(DS.note).foregroundStyle(DS.focus)
+                #else
                 Text("已存好 \(n) 张，在相册里能看到。").font(DS.note).foregroundStyle(DS.focus)
+                #endif
             } else {
                 Text("原片不会被改动，存进去的是一张新照片。").font(DS.note).foregroundStyle(DS.soft)
             }
@@ -740,7 +761,8 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("一键修图").font(.system(size: 17, weight: .semibold))
+                        Text("Tonewell").font(.system(size: 17, weight: .semibold))
+                        Text("来自 LRCDF 项目").font(.system(size: 12)).foregroundStyle(Palette.soft)
                         Text("版本 \(UpdateNotice.appVersion) · 修图模型 \(String(ModelStore.installedVersion.prefix(8)))")
                             .font(.system(size: 12)).foregroundStyle(Palette.soft)
                     }
@@ -823,5 +845,13 @@ struct TetherBadge: View {
                 .padding(.horizontal, 16).frame(height: DS.touch).glass(Capsule(), interactive: true)
             }.buttonStyle(.plain).foregroundStyle(DS.ink)
         }
+    }
+}
+
+/// The divider handle's arrows: chevron.left.chevron.right is new in macOS 15; two single chevrons before it (Studio on 14).
+struct HandleArrows: View {
+    var body: some View {
+        if #available(macOS 15, iOS 18, *) { Image(systemName: "chevron.left.chevron.right") }
+        else { HStack(spacing: 1) { Image(systemName: "chevron.left"); Image(systemName: "chevron.right") } }
     }
 }

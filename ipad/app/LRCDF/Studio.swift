@@ -32,6 +32,7 @@ final class Photo: Identifiable, @unchecked Sendable {
     var denoised: CIImage?          // 降噪: the preview denoised at full resolution then reduced, as a bitmap (capped)
     /// The 降噪 switch does something to this photo: not RAW, and ISO 1600 or more (or unknown: a mild amount).
     var denoiseApplies: Bool { !isRAW && (iso.map { $0 >= 1600 } ?? true) }
+    var source: URL?                // where the photo came from (Tonewell: saved next to it on request); nil on the iPad
     var loading = false             // decode or analysis under way (main actor): never two at once for one photo
     var looksReady = false          // round 2 of the background loading: every look's skin plan and the look cards
     init(url: URL) { self.url = url }
@@ -96,9 +97,11 @@ final class Studio: ObservableObject {
 
     // MARK: import
 
-    func add(_ urls: [URL], show: Bool = false) {
+    func add(_ urls: [URL], show: Bool = false, sources: [URL]? = nil) {
         guard !urls.isEmpty else { return }
         let fresh = urls.map { Photo(url: $0) }
+        if let sources, sources.count == fresh.count { for (p, s) in zip(fresh, sources) { p.source = s } }
+        if last == nil { last = settingsNow }       // the starting point of undo
         photos.append(contentsOf: fresh)
         if current == nil || show { current = fresh.last?.id }       // show: a photo just taken (联机拍摄) is put on screen
         if currentPhoto?.preview == nil { stage = .working("正在读取照片…") }
@@ -205,7 +208,14 @@ final class Studio: ObservableObject {
         let engine = self.engine, keepCards = !warned && near(p, Self.cardsCap) && (p.cards.isEmpty || p.cardsMask !== p.skinMask)
         let mask = p.skinMask, analysed = p.analysed
         let cards: [String: CGImage]? = await Engine.bigStack {
-            if analysed { for l in Look.all where l.style != nil { _ = Studio.skinPlan(p, l, engine: engine) } }
+            // the looks' skin plans side by side on the cores (each is independent; same numbers as one after another)
+            // (at most 3 at a time on 8 GB iPads: each holds a preview-size render while it works)
+            if analysed {
+                let looks = Look.all.filter { $0.style != nil }, width = Studio.roomy ? looks.count : 3
+                DispatchQueue.concurrentPerform(iterations: width) { w in
+                    for i in stride(from: w, to: looks.count, by: width) { _ = Studio.skinPlan(p, looks[i], engine: engine) }
+                }
+            }
             guard keepCards else { return nil }
             return Studio.lookCards(img, p, mask: mask, engine: engine)
         }
@@ -230,7 +240,7 @@ final class Studio: ObservableObject {
         Studio.planLock.lock()
         for p in photos where p.id != current { p.shown = nil; p.shownKey = nil; p.original = nil; p.cards = [:]; p.cardsMask = nil; p.looksReady = false; p.denoised = nil }
         Studio.planLock.unlock()
-        engine.context.clearCaches(); Beauty.shared.context.clearCaches()
+        engine.context.clearCaches(); Beauty.shared.context.clearCaches(); Beauty.shared.releaseHeld()
     }
 
     private func updateProgress() {
@@ -271,8 +281,33 @@ final class Studio: ObservableObject {
         if key == settingsKey { p.shown = made; p.shownKey = key } else { p.shownKey = nil }
     }
 
+    // MARK: undo (Tonewell's ⌘Z / ⇧⌘Z; the iPad has none)
+    struct Settings: Equatable { var look: String, tweak: Tweak, beauty: BeautyLevel, amount: Double, shapes: ShapeSet, denoise: Bool }
+    private var past: [Settings] = [], future: [Settings] = []
+    private var last: Settings?, lastAt = Date.distantPast, replaying = false
+    private var settingsNow: Settings { Settings(look: look, tweak: tweak, beauty: beauty, amount: beautyAmount, shapes: shapes, denoise: denoise) }
+    var canUndo: Bool { !past.isEmpty }
+    var canRedo: Bool { !future.isEmpty }
+    /// One step per change; a slider dragged without a pause of a second is one step.
+    private func remember() {
+        let now = settingsNow
+        defer { last = now }
+        guard !replaying, let before = last, before != now else { return }
+        if Date().timeIntervalSince(lastAt) > 1 || past.isEmpty { past.append(before); if past.count > 100 { past.removeFirst() } }
+        lastAt = Date(); future = []
+    }
+    private func apply(_ st: Settings) {
+        replaying = true
+        look = st.look; tweak = st.tweak; beauty = st.beauty; beautyAmount = st.amount; shapes = st.shapes; denoise = st.denoise
+        last = st; replaying = false; lastAt = .distantPast
+        settingsChanged()
+    }
+    func undo() { guard let st = past.popLast() else { return }; future.append(settingsNow); apply(st) }
+    func redo() { guard let st = future.popLast() else { return }; past.append(settingsNow); apply(st) }
+
     /// Settings changed: previews made for the old ones are let go at once (memory), the photo on screen is redrawn.
     func settingsChanged() {
+        remember()
         let key = settingsKey
         for p in photos where p.id != current && p.shownKey != key { p.shown = nil; p.shownKey = nil }
         refresh()
@@ -387,11 +422,23 @@ final class Studio: ObservableObject {
         guard let look, look.style != nil, p.analysed, !p.faces.isEmpty, let img = p.preview else { return nil }
         planLock.lock(); let known = p.skinPlans[look.id]; planLock.unlock()      // the loader and the screen both ask
         if let known { return known }
-        let toned = engine.render(img, grade: look.style.flatMap { p.grades[$0] }, tweak: Tweak(extra: look.extra))
-        let (n, t) = SkinKeep.samples(neutral: img, toned: toned, faces: p.faces, context: engine.context)
-        let plan = SkinKeep.plan(neutral: n, toned: t, s: SkinKeep.depth(p.faces, width: img.extent.width))
+        let plan = makeSkinPlan(p, look, img, engine: engine, side: planSide)
         planLock.lock(); p.skinPlans[look.id] = plan; planLock.unlock()
         return plan
+    }
+    /// Long side the look is rendered at for the skin plan; nil = the preview's own size. A 512 px render gave plans
+    /// within 0.015 but saved only 5 % (the time is in the plan's arithmetic, not the render): left at nil, results unchanged.
+    nonisolated(unsafe) static var planSide: CGFloat? = nil
+    nonisolated static func makeSkinPlan(_ p: Photo, _ look: Look, _ img: CIImage, engine: Engine, side: CGFloat?) -> SkinPlan {
+        var src = img
+        if let side, max(img.extent.width, img.extent.height) > side {
+            let k = side / max(img.extent.width, img.extent.height)
+            src = img.applyingFilter("CILanczosScaleTransform", parameters: [kCIInputScaleKey: k, kCIInputAspectRatioKey: 1])
+            src = src.transformed(by: CGAffineTransform(translationX: -src.extent.minX, y: -src.extent.minY))
+        }
+        let toned = engine.render(src, grade: look.style.flatMap { p.grades[$0] }, tweak: Tweak(extra: look.extra))
+        let (n, t) = SkinKeep.samples(neutral: src, toned: toned, faces: p.faces, context: engine.context)
+        return SkinKeep.plan(neutral: n, toned: t, s: SkinKeep.depth(p.faces, width: img.extent.width))
     }
     nonisolated static let planLock = NSLock()
 
@@ -460,16 +507,28 @@ final class Studio: ObservableObject {
 
     // MARK: export
 
-    /// Every imported photo, full size, with the chosen look and tweaks, into the photo library.
-    func exportAll() {
+    /// Tonewell: a free name in `folder` for a photo - "<original>-Tonewell", then "<original>-Tonewell 2", … (never overwrites).
+    nonisolated static func freeName(for p: Photo, in folder: URL, ext: String) -> String {
+        var stem = (p.source ?? p.url).deletingPathExtension().lastPathComponent
+        if p.source == nil, stem.count > 9, stem[stem.index(stem.startIndex, offsetBy: 8)] == "-" { stem = String(stem.dropFirst(9)) }   // the import copy's prefix
+        var name = stem + "-Tonewell", n = 2
+        while FileManager.default.fileExists(atPath: folder.appendingPathComponent(name + "." + ext).path) { name = stem + "-Tonewell \(n)"; n += 1 }
+        return name
+    }
+
+    /// Every imported photo, full size, with the chosen look and tweaks: into the photo library (iPad), or - LRCDF
+    /// Studio - into `folder` as `format`.
+    func exportAll(to folder: URL? = nil, format: Engine.Format = .heic) {
         let list = photos, engine = self.engine, level = beauty, amount = Float(beautyAmount), set = shapes, dn = denoise
         let chosen = Look.all.first { $0.id == look }, style = chosen?.style, lookID = look
         var tweak = self.tweak; tweak.extra = chosen?.extra
         stage = .exporting(0, list.count)
         Task {
-            let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
-            guard status == .authorized || status == .limited else {
-                message = "没有存进相册的权限：请在 设置 → 隐私 → 照片 里允许。"; stage = .ready; return
+            if folder == nil {
+                let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+                guard status == .authorized || status == .limited else {
+                    message = "没有存进相册的权限：请在 设置 → 隐私 → 照片 里允许。"; stage = .ready; return
+                }
             }
             // the background loading waits during the export (memory: the export alone comes near the iPad's limit);
             // the other photos' kept previews go now and are made again afterwards
@@ -485,11 +544,14 @@ final class Studio: ObservableObject {
                 guard photos.contains(where: { $0 === p }) else { continue }
                 let file: URL? = await Engine.bigStack {
                     var tweak = tweak; tweak.skin = Studio.skinPlan(p, chosen, engine: engine); tweak.skinMask = p.skinMask
+                    let ext = format == .jpeg ? "jpg" : format == .tiff ? "tif" : "heic"
                     return try? engine.export(p.url, grade: style.flatMap { p.grades[$0] }, tweak: tweak,
                                       denoise: dn && p.denoiseApplies ? (p.iso, p.isRAW) : nil, faces: p.faces, level: level, amount: amount, memo: p.memos[lookID],
-                                      shape: Studio.shapePlan(p, set, men: level == .men), evenLight: set.light, to: out)
+                                      shape: Studio.shapePlan(p, set, men: level == .men), evenLight: set.light,
+                                      format: format, name: folder.map { Studio.freeName(for: p, in: $0, ext: ext) }, to: folder ?? out)
                 }
-                guard let file else { continue }
+                guard let file else { if folder != nil { message = "有一张照片没能存下：\(p.url.lastPathComponent)" }; continue }
+                if folder != nil { done += 1; continue }        // Tonewell: the file is where the user wanted it
                 do {
                     try await PHPhotoLibrary.shared().performChanges {
                         let req = PHAssetCreationRequest.forAsset()

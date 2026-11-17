@@ -1,3 +1,4 @@
+import CoreML
 import CoreImage
 import Vision
 import ImageIO
@@ -57,6 +58,121 @@ enum SelfTest {
         studio.tweak = Tweak(bright: 1, warm: 0.6, rich: 0.4, tint: 0.3); studio.look = "c"; studio.refresh()
         try? await Task.sleep(nanoseconds: 2_000_000_000)
         shot("landscape_c_tweak", 1210, 834)
+    }
+
+    /// Tonewell's save: the photos loaded as the app does, saved into `out` as JPEG, HEIC and TIFF, and JPEG once more
+    /// (a second file of the same name must not overwrite the first).
+    @MainActor static func studioExport(_ files: [URL], _ out: URL) async {
+        let studio = Studio()
+        try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+        for f in files { print("input", f.path, FileManager.default.fileExists(atPath: f.path), (try? Engine.shared.decode(f, maxSide: 2400)) != nil) }
+        studio.add(files, sources: files)
+        for _ in 0..<1200 { if studio.photos.allSatisfy({ $0.analysed }) { break }; try? await Task.sleep(nanoseconds: 100_000_000) }
+        for f in [Engine.Format.jpeg, .heic, .tiff, .jpeg] {
+            let t = Date()
+            studio.exportAll(to: out, format: f)
+            for _ in 0..<3000 { if case .done = studio.stage { break }; try? await Task.sleep(nanoseconds: 100_000_000) }
+            print(f.rawValue, String(format: "%.1fs", -t.timeIntervalSinceNow), studio.stage, studio.message ?? "", "photos", studio.photos.count); studio.message = nil
+            studio.stage = .ready
+        }
+        for n in ((try? FileManager.default.contentsOfDirectory(atPath: out.path)) ?? []).sorted() {
+            let size = (try? FileManager.default.attributesOfItem(atPath: out.appendingPathComponent(n).path)[.size] as? Int) ?? 0
+            print("  ", n, size / 1000, "kB")
+        }
+    }
+
+    /// Skin plans from the 512 px render against the preview-size render, every look of every photo: largest differences.
+    static func planCheck(_ files: [URL]) {
+        let e = Engine.shared, b = Beauty.shared
+        var dg: Float = 0, dc: Float = 0, dh: Float = 0, n = 0, tFull = 0.0, tSmall = 0.0
+        for url in files {
+            guard let img = try? e.decode(url, maxSide: 2400), let g = try? e.grades(for: img) else { continue }
+            let p = Photo(url: url); p.preview = img; p.grades = g; p.faces = b.faces(in: img); p.analysed = true
+            guard !p.faces.isEmpty else { continue }
+            for l in Look.all where l.style != nil {
+                var t0 = Date(); let a = Studio.makeSkinPlan(p, l, img, engine: e, side: nil); tFull += -t0.timeIntervalSinceNow
+                t0 = Date(); let c = Studio.makeSkinPlan(p, l, img, engine: e, side: 512); tSmall += -t0.timeIntervalSinceNow
+                dg = max(dg, abs(a.gain - c.gain)); dc = max(dc, abs(a.chroma - c.chroma))
+                if a.chroma > 1.001 || c.chroma > 1.001 { dh = max(dh, abs(a.hue - c.hue)) }
+                n += 1
+            }
+        }
+        print(String(format: "plans %d: max |gain| diff %.4f, max |chroma| diff %.4f, max hue diff %.2f deg; time full %.1fs, 512 px %.1fs", n, dg, dc, dh, tFull, tSmall))
+    }
+
+    /// Speed profile: each step of loading a photo, one photo at a time, as the app does them: wall time and the process
+    /// CPU time over it (CPU/wall near 1 = one core busy; well above 1 = several; near 0 = waiting, e.g. on the GPU).
+    /// Totals per step at the end; then one full-size export of the first RAW and the first JPEG (LRCDF_PROFILE_EXPORT=1).
+    static func profile(_ files: [URL]) {
+        let e = Engine.shared, b = Beauty.shared
+        func cpu() -> Double { var r = rusage(); getrusage(RUSAGE_SELF, &r)
+            return Double(r.ru_utime.tv_sec + r.ru_stime.tv_sec) + Double(r.ru_utime.tv_usec + r.ru_stime.tv_usec) / 1e6 }
+        var tot: [String: (Double, Double)] = [:], order: [String] = []
+        func step<T>(_ name: String, _ work: () -> T) -> T {
+            let w0 = Date(), c0 = cpu(); let r = work()
+            let w = -w0.timeIntervalSinceNow, c = cpu() - c0
+            if tot[name] == nil { order.append(name) }
+            tot[name, default: (0, 0)].0 += w; tot[name, default: (0, 0)].1 += c
+            return r
+        }
+        for url in files {
+            guard let img = step("decode preview", { try? e.decode(url, maxSide: 2400) }) else { continue }
+            let g = step("tone model (LUTNet2 x3)", { (try? e.grades(for: img)) ?? [:] })
+            _ = step("thumb + original", { (e.cgImage(img.transformed(by: CGAffineTransform(scaleX: 220 / max(img.extent.width, img.extent.height), y: 220 / max(img.extent.width, img.extent.height)))), e.cgImage(img)) })
+            let faces = step("faces (Vision, RetinaFace, segmenter, make-up)", { b.faces(in: img) })
+            let edits = step("blemish model (RetouchNet)", { b.edits(img, faces: faces, fullWidth: img.extent.width) })
+            let mask = step("skin mask", { SkinOnly.mask(img, context: e.context) })
+            let p = Photo(url: url); p.preview = img; p.grades = g; p.faces = faces; p.edits = edits; p.analysed = true; p.skinMask = mask
+            let look = Look.all.first { $0.id == "a" }
+            _ = step("finished preview (look a + retouching)", { () -> CGImage? in
+                var t = Tweak(); t.skin = Studio.skinPlan(p, look, engine: e); t.skinMask = mask
+                return e.cgImage(e.render(img, grade: g[0], tweak: t, beauty: BeautyJob(faces: faces, edits: edits, level: .auto, memo: BeautyMemo(), fullWidth: img.extent.width)))
+            })
+            _ = step("round 2: skin plans of all looks", { let looks = Look.all.filter { $0.style != nil }; DispatchQueue.concurrentPerform(iterations: looks.count) { _ = Studio.skinPlan(p, looks[$0], engine: e) } })
+            _ = step("round 2: look cards", { Studio.lookCards(img, p, mask: mask, engine: e) })
+            e.context.clearCaches(); b.context.clearCaches()
+        }
+        let allW = tot.values.map(\.0).reduce(0, +)
+        print(String(format: "TOTAL %.1fs for %d photos", allW, files.count))
+        for k in order { let (w, c) = tot[k]!; print(String(format: "  %-48@ %6.1fs %4.0f%%  cpu/wall %.2f", k as NSString, w, w / allW * 100, c / max(w, 1e-6))) }
+        guard Beauty.testEnv["LRCDF_PROFILE_EXPORT"] == "1" else { return }
+        for url in [files.first { Denoise.isRAW($0) }, files.first { !Denoise.isRAW($0) }].compactMap({ $0 }) {
+            guard let img = try? e.decode(url, maxSide: 2400), let g = try? e.grades(for: img) else { continue }
+            let faces = b.faces(in: img)
+            var t = Tweak(); t.skinMask = SkinOnly.mask(img, context: e.context)
+            let out = FileManager.default.temporaryDirectory.appendingPathComponent("profile_export")
+            try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+            let w0 = Date(), c0 = cpu()
+            _ = try? e.export(url, grade: g[0], tweak: t, faces: faces, level: .auto, to: out)
+            let w = -w0.timeIntervalSinceNow
+            print(String(format: "export %@: %.2fs cpu/wall %.2f", url.lastPathComponent, w, (cpu() - c0) / w))
+        }
+    }
+
+    /// Where each Core ML model runs (MLComputePlan): operations per preferred device, and the share of the
+    /// estimated cost on each; then the time of one prediction-sized warm run is left to --loadall's laps.
+    @available(macOS 14.4, iOS 17.4, *)
+    static func computePlan() async {
+        let config = MLModelConfiguration(); config.computeUnits = .all
+        for name in ["LUTNet2", "SelfieSeg", "RetouchNet", "RetinaFace", "Critic", "Makeup"] {
+            guard let url = ModelStore.url(name), let plan = try? await MLComputePlan.load(contentsOf: url, configuration: config) else { print(name, "no plan"); continue }
+            var ops: [String: Int] = [:], cost: [String: Double] = [:]
+            func walk(_ block: MLModelStructure.Program.Block) {
+                for op in block.operations {
+                    let dev: String
+                    switch plan.deviceUsage(for: op)?.preferred {
+                    case .cpu: dev = "CPU"; case .gpu: dev = "GPU"; case .neuralEngine: dev = "ANE"; default: dev = "-"
+                    }
+                    ops[dev, default: 0] += 1
+                    cost[dev, default: 0] += plan.estimatedCost(of: op)?.weight ?? 0
+                    for b in op.blocks { walk(b) }
+                }
+            }
+            if case .program(let prog) = plan.modelStructure, let main = prog.functions["main"] { walk(main.block) }
+            else if case .program(let prog) = plan.modelStructure { for f in prog.functions.values { walk(f.block) } }
+            let total = max(cost.values.reduce(0, +), 1e-9)
+            print(name, ops.sorted { $0.key < $1.key }.map { "\($0.key) \($0.value) ops \(Int((cost[$0.key] ?? 0) / total * 100))%" }.joined(separator: ", "))
+        }
     }
 
     /// 降噪 in the app's own export (look d, as the app exports it): each photo with the switch off and on

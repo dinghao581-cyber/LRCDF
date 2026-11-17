@@ -14,7 +14,7 @@ struct LRCDFPadApp: App {
         // Test hooks (launch arguments): compiled only into test builds (TESTHOOKS: Debug, or install_device.sh --test);
         // the published .ipa and normal installs have none of them (main session, 2026-11-16).
         #if TESTHOOKS
-        // test hook: 一键修图 --selftest <photo> <outdir>  → every look at full size as HEIC, timings on stdout
+        // test hook: <app> --selftest <photo> <outdir>  → every look at full size as HEIC, timings on stdout
         let a = ProcessInfo.processInfo.arguments
         // Offline engine measurements; only present in TESTHOOKS builds.
         if let i = a.firstIndex(of: "--denoise"), a.count > i + 2 {
@@ -82,6 +82,23 @@ struct LRCDFPadApp: App {
             let out = file(a[i + 1]), files = a[(i + 2)...].map(file)
             let t = Thread { SelfTest.denoiseExport(files, out); exit(0) }; t.stackSize = 64 << 20; t.start()
         }
+        // test hook: --profile <photo>…  → time and CPU use of each loading step (SelfTest.profile)
+        if let i = a.firstIndex(of: "--profile"), a.count > i + 1 {
+            let files = a[(i + 1)...].map(file)
+            let t = Thread { SelfTest.profile(files); exit(0) }; t.stackSize = 64 << 20; t.start()
+        }
+        // test hook: --studioexport <outdir> <photo>…  → Tonewell's save into a folder, every format
+        if let i = a.firstIndex(of: "--studioexport"), a.count > i + 2 {
+            let out = file(a[i + 1]), files = a[(i + 2)...].map(file)
+            Task { @MainActor in await SelfTest.studioExport(files, out); exit(0) }
+        }
+        // test hook: --plancheck <photo>…  → skin plans from a 512 px render against the preview-size one
+        if let i = a.firstIndex(of: "--plancheck"), a.count > i + 1 {
+            let files = a[(i + 1)...].map(file)
+            let t = Thread { SelfTest.planCheck(files); exit(0) }; t.stackSize = 64 << 20; t.start()
+        }
+        // test hook: --computeplan  → where each Core ML model runs (CPU / GPU / Neural Engine)
+        if a.contains("--computeplan"), #available(macOS 14.4, iOS 17.4, *) { Task { await SelfTest.computePlan(); exit(0) } }
         // test hook: --loadall <photo>…  → the background loading of a batch timed, with a photo switch and a look change during it
         if let i = a.firstIndex(of: "--loadall"), a.count > i + 1 {
             let files = a[(i + 1)...].map(file)
@@ -124,6 +141,9 @@ struct LRCDFPadApp: App {
                     UpdateNotice.shared.start()
                 }
         }
+        #if os(macOS)
+        .commands { StudioCommands(studio: studio) }
+        #endif
     }
 }
 
@@ -167,8 +187,25 @@ struct RootView: View {
         .onChange(of: phase) { _, p in Tether.shared.phase(active: p == .active) }
         .fileImporter(isPresented: $showFiles, allowedContentTypes: [.rawImage, .image], allowsMultipleSelection: true) { result in
             guard case .success(let urls) = result else { return }
-            studio.add(urls.compactMap(copyIn))
+            addFiles(urls)
         }
+        #if os(macOS)
+        // Tonewell: photos or folders dropped on the window; ⌘O and ⌘S from the menus
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+            var urls: [URL] = []
+            let group = DispatchGroup()
+            for p in providers {
+                group.enter()
+                _ = p.loadObject(ofClass: URL.self) { u, _ in if let u { DispatchQueue.main.async { urls.append(u) } }; group.leave() }
+            }
+            group.notify(queue: .main) { addFiles(MacFiles.photos(in: urls)) }
+            return true
+        }
+        .onReceive(MacRequests.shared.$open) { if $0 { MacRequests.shared.open = false; showFiles = true } }
+        .onReceive(MacRequests.shared.$save) { if $0 { MacRequests.shared.save = false; if !studio.photos.isEmpty { saving = true } } }
+        .sheet(isPresented: $saving) { SaveSheet().environmentObject(studio) }
+        .frame(minWidth: 900, minHeight: 620)
+        #endif
         .alert(studio.message ?? "", isPresented: Binding(get: { studio.message != nil }, set: { if !$0 { studio.message = nil } })) {
             Button("好") { studio.message = nil }
         }
@@ -176,6 +213,14 @@ struct RootView: View {
 
     @AppStorage("onboarded") private var onboarded = false
     @State private var tethering = false
+    @State private var saving = false           // Tonewell's save sheet
+
+    /// Files picked or dropped: copied in (the originals stay as they are); Studio remembers where each came from.
+    private func addFiles(_ urls: [URL]) {
+        var copies: [URL] = [], sources: [URL] = []
+        for u in urls { if let c = copyIn(u) { copies.append(c); sources.append(u) } }
+        studio.add(copies, sources: sources)
+    }
     @Environment(\.scenePhase) private var phase
 
     /// The first page: a greeting for the time of day and the two ways in. The tutorial comes once, on the very first

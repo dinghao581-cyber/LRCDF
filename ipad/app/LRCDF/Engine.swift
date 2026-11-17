@@ -16,8 +16,8 @@ struct Look: Identifiable, Hashable {
     var extra: String? = nil     // the Mac's d/e/f: look a plus a colour table fitted on the Mac app's renders (looks/*.cube.bin)
     static let all: [Look] = [      // the Mac's order and words (plugin Config.lua cards)
         Look(id: "none", title: "原片", note: "不调色", style: nil),
-        Look(id: "d", title: "自然清透", note: "白里透粉，明亮柔和", style: 0, extra: "d"),
-        Look(id: "a", title: "明亮通透", note: "干净偏冷，肤色白皙", style: 0),
+        Look(id: "d", title: "自然清透", note: "明亮柔和，略带粉调", style: 0, extra: "d"),
+        Look(id: "a", title: "明亮通透", note: "干净偏冷，通透明亮", style: 0),
         Look(id: "e", title: "韩系", note: "奶白低饱和，柔和", style: 0, grade: (34, 0.12, 212, 0.18), extra: "e"),   // styles.json e extra: strength = saturation × 2
         Look(id: "b", title: "柔和暖调", note: "温暖，低对比", style: 1),
         Look(id: "c", title: "鲜艳浓郁", note: "色彩饱满", style: 2),
@@ -393,12 +393,17 @@ final class Engine: @unchecked Sendable {
     // MARK: export
 
     /// Full-size render written as 10-bit HEIC (Display P3) next to nothing else; returns the file.
+    /// File types of a saved picture. The iPad saves HEIC into the photo library; Tonewell (the Mac) lets the user choose.
+    enum Format: String, CaseIterable { case heic, jpeg, tiff }
+
+    /// `name`: the file name without extension; nil = the iPad's "<original>-Tonewell", replacing a file of that name in
+    /// `folder` (a temporary one). Studio passes a name already made unique in the user's folder.
     func export(_ url: URL, grade: Grade?, tweak: Tweak, denoise: (iso: Int?, isRAW: Bool)? = nil, faces: [Face] = [], level: BeautyLevel = .off, amount: Float = 1, memo: BeautyMemo? = nil,
-                shape: ShapePlan? = nil, evenLight: Bool = false, to folder: URL) throws -> URL {
+                shape: ShapePlan? = nil, evenLight: Bool = false, format: Format = .heic, name: String? = nil, to folder: URL) throws -> URL {
         // Memory (the iPad allows an app about 4 GB): the RAW is decoded once into a half-float buffer, and the
         // finished picture is rendered into a second one in strips, so Core Image never holds the intermediates of
         // the whole 60 MP graph at once. Strips give the same pixels as one render (each strip reads what it needs).
-        context.clearCaches(); Beauty.shared.context.clearCaches()
+        context.clearCaches(); Beauty.shared.context.clearCaches(); Beauty.shared.releaseHeld()
         // a context of its own: what the GPU kept for this picture goes when the export ends
         let ctx = CIContext(options: [.workingColorSpace: CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!, .cacheIntermediates: false])
         Self.mem("start")
@@ -421,11 +426,15 @@ final class Engine: @unchecked Sendable {
         }
         context.clearCaches(); Beauty.shared.context.clearCaches()
         Self.mem("rendered")
-        let name = url.deletingPathExtension().lastPathComponent + "-一键修图.heic"
-        let dest = folder.appendingPathComponent(name)
-        try? FileManager.default.removeItem(at: dest)
-        try ctx.writeHEIF10Representation(of: out, to: dest, colorSpace: displayP3,
-                                              options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 0.92])
+        let ext = format == .jpeg ? "jpg" : format == .tiff ? "tif" : "heic"
+        let dest = folder.appendingPathComponent((name ?? url.deletingPathExtension().lastPathComponent + "-Tonewell") + "." + ext)
+        if name == nil { try? FileManager.default.removeItem(at: dest) }
+        let quality = [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 0.92]
+        switch format {
+        case .heic: try ctx.writeHEIF10Representation(of: out, to: dest, colorSpace: displayP3, options: quality)
+        case .jpeg: try ctx.writeJPEGRepresentation(of: out, to: dest, colorSpace: srgb, options: quality)       // 8 bit, sRGB: for anywhere
+        case .tiff: try ctx.writeTIFFRepresentation(of: out, to: dest, format: .RGBA16, colorSpace: displayP3)   // 16 bit, for more editing
+        }
         Self.mem("written")
         return dest
     }

@@ -3,7 +3,7 @@ options:
   bundleIdPrefix: com.ding
   deploymentTarget:
     iOS: "27.0"
-    macOS: "27.0"
+    macOS: "14.0"          # Tonewell on the Mac (was "LRCDF Studio"), the app without Lightroom (main session, 2026-11-17): Liquid Glass from 26, plain panels on 14/15
 settings:
   configs:
     Debug:
@@ -23,17 +23,20 @@ targets:
     info:                     # merged with the generated Info.plist: keys the INFOPLIST_KEY_ settings do not cover
       path: Info.plist
       properties:
-        UIFileSharingEnabled: true      # the app's Documents folder shows in Files ("我的 iPad › 一键修图"): photos can be put there
+        UIFileSharingEnabled: true      # the app's Documents folder shows in Files ("我的 iPad › Tonewell"): photos can be put there
         CFBundleShortVersionString: $(MARKETING_VERSION)     # the update notice compares this (xcodegen would write 1.0)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ding.lrcdf.ipad
-        PRODUCT_NAME: 一键修图
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon      # LRCDF/Assets.xcassets: the Mac app's icon, cropped square (iPadOS rounds it)
+        PRODUCT_NAME: Tonewell        # the name on every platform and language (user, 2026-11-18; was 一键修图 / LRCDF Studio)
+        # the same code built for the Mac: its own bundle id and icon, same name
+        "PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]": com.ding.lrcdf.studio
+        "ENABLE_USER_SELECTED_FILES[sdk=macosx*]": readwrite        # Studio saves next to the originals or into a chosen folder
+        ASSETCATALOG_COMPILER_APPICON_NAME: Tonewell     # LRCDF/Tonewell.icon (Icon Composer, layered: dark fill, glass sparkles, yellow corners); Xcode also writes flat icons for older systems
         TARGETED_DEVICE_FAMILY: "2"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: 一键修图
+        INFOPLIST_KEY_CFBundleDisplayName: Tonewell
         INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: 把修好的照片存进你的相册。
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: 从相册里选照片来修。
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
