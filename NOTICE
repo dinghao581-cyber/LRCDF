@@ -4,9 +4,10 @@ Copyright 2026 The LRCDF contributors
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
 This product includes or depends on third-party software and machine-learning
-models that are distributed under their own terms. They are listed, with their
-licences and sources, in legal/THIRD_PARTY_NOTICES.md. Model weights are not part of this
-repository; some are subject to non-commercial terms: see legal/MODEL_LICENSES.md.
+models that may be distributed under their own terms. Third-party software is
+documented in legal/THIRD_PARTY_NOTICES.md. Model weights are not stored in this
+source repository; provenance and applicable terms should be verified for the
+specific release bundle (see legal/MODEL_LICENSES.md).
 
 "Adobe", "Lightroom" and "Lightroom Classic" are trademarks of Adobe Inc.
 LRCDF is an independent project and is not affiliated with, endorsed by, or
