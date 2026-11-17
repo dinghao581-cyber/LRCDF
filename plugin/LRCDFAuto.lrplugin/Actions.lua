@@ -247,7 +247,7 @@ function actions.previews(args, photos)
     local id = tostring(photos[1].localIdentifier)
     local function amount(saturation) return math.min(100, math.floor((tonumber(saturation) or 0) * 2 / 5 + 0.5) * 5) end
     local function hue(value) return (math.floor((tonumber(value) or 0) / 5 + 0.5) * 5) % 360 end
-    for _, card in ipairs(Simple.cards()) do   -- value, picture, title, note, wheels: in the order they are shown
+    for _, card in ipairs(Simple.cards(true)) do   -- value, picture, title, note, wheels: in the order they are shown
         local made = LrFileUtils.exists(paths[card.value])
         local settings = results[card.value] and results[card.value][id]
         local wheels = ''

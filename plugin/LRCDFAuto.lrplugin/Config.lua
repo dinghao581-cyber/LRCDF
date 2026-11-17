@@ -64,8 +64,8 @@ return {
     previewSize = 300,  -- long edge of the style previews in the simple dialog
     cards = {  -- the simple dialog: one picture per look, in this order
         { value = 'none', title = '原片', note = '不调色' },
-        { value = 'd', title = '自然清透', note = '白里透粉，明亮柔和' },
-        { value = 'a', title = '明亮通透', note = '干净偏冷，肤色白皙' },
+        { value = 'd', title = '自然清透', note = '明亮柔和，略带粉调' },
+        { value = 'a', title = '明亮通透', note = '干净偏冷，通透明亮' },
         { value = 'e', title = '韩系', note = '奶白低饱和，柔和' },
         { value = 'b', title = '柔和暖调', note = '温暖，低对比' },
         { value = 'c', title = '鲜艳浓郁', note = '色彩饱满' },
@@ -92,10 +92,10 @@ return {
         { title = LOC("$$$/LRCDF/Groups/None=关闭（每张独立判断）"), value = 'none' },
     },
     styles = {
-        { title = LOC("$$$/LRCDF/AdvancedLook/A=A · 明亮通透（偏冷、肤色白皙、对比较强）"), value = 'a' },
+        { title = LOC("$$$/LRCDF/AdvancedLook/A=A · 明亮通透（偏冷、对比较强）"), value = 'a' },
         { title = LOC("$$$/LRCDF/AdvancedLook/B=B · 柔和暖调（略暖、低对比、肤色提亮）"), value = 'b' },
         { title = LOC("$$$/LRCDF/AdvancedLook/C=C · 鲜艳浓郁（色彩饱满、暗部提亮、冷暖中性）"), value = 'c' },
-        { title = LOC("$$$/LRCDF/AdvancedLook/D=D · 自然清透（白里透粉、明亮柔和、偏东方审美）"), value = 'd' },
+        { title = LOC("$$$/LRCDF/AdvancedLook/D=D · 自然清透（略带粉调、明亮柔和、偏东方审美）"), value = 'd' },
         { title = LOC("$$$/LRCDF/AdvancedLook/E=E · 韩系（明亮低饱和、肤色奶白、柔和对比）"), value = 'e' },
         { title = LOC("$$$/LRCDF/AdvancedLook/F=F · 港风（浓郁暖调、红唇肤色饱满、青色暗部、胶片颗粒）"), value = 'f' },
     },
