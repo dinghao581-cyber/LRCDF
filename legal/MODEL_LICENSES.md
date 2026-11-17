@@ -1,52 +1,34 @@
-# Model weights and training data
+# Model weights and provenance
 
-LRCDF's **source code** is Apache-2.0. The **trained weights** it uses are a
-separate matter: each was trained on, or comes from, material with its own
-terms. **This repository does not contain any model weights.** The project's own
-trained weights (ToneNet, the retouch, critic and shadow models) are not published for now; their
-terms will be announced here if and when they are. Third-party weights (MediaPipe,
-SFace, and so on) are fetched from their original publishers. Read this before
-redistributing any weights or using LRCDF commercially.
+LRCDF's source code is licensed under Apache-2.0 (see `../LICENSE`). Model
+weights and third-party components can have separate licence conditions. The
+weights used in packaged releases are not stored in this source repository.
 
-| Model (file) | What it does | Origin / training data | Terms |
-|---|---|---|---|
-| ToneNet (`runs/tone/tone.pt`) | Predicts Lightroom develop settings | Trained by this project on PPR10K (portrait photos with expert retouching); starts from torchvision ConvNeXt-Tiny ImageNet weights | Derived from PPR10K: research / non-commercial terms of that dataset apply to the weights |
-| Retouch model (`runs/retouch_model.pt`) | Blemish pass on large faces | Trained by this project on FFHQR (retouched FFHQ faces) | FFHQR is CC BY-NC-SA: the weights are non-commercial, share-alike, with attribution |
-| Over-retouching critic (`runs/critic_model.pt`) | Tells when a face was changed more than professionals would; picks the automatic level | Trained by this project on measurements of FFHQ / FFHQR pairs; starts from torchvision ResNet-18 ImageNet weights | Derived from FFHQR (CC BY-NC-SA) and FFHQ: non-commercial, share-alike, with attribution |
-| Cast-shadow model (`runs/shadow_model.pt`) | Removes shadows thrown onto faces (part of "even light") | Trained by this project on FFHQ faces with synthetic shadows | Derived from FFHQ (dataset CC BY-NC-SA 4.0 by NVIDIA; images under their authors' Creative Commons licences): non-commercial |
-| Dodge-and-burn model (`runs/dodge_model.pt`, experimental, not used by default) | Alternative blemish pass | Trained by this project on FFHQR with synthetic blemishes | As the retouch model: non-commercial, share-alike, with attribution |
-| RetouchFormer (`gen_best.pth`) | Blemish pass on small faces | RetouchFormer (AAAI 2024) authors' released weights, trained on FFHQR | Non-commercial (FFHQR); see the RetouchFormer project for its code terms |
-| RetinaFace ResNet50 | Face detector | ModelScope skin-retouching package (RetinaFace implementation under MIT, trained on WIDER FACE) | Code: MIT / Apache-2.0; training data: research terms |
-| MediaPipe face landmarker, pose landmarker, selfie multiclass segmenter | Face mesh, body pose, skin/hair/clothes masks | Google MediaPipe model files | Apache-2.0 |
-| SFace (`face_recognition_sface_2021dec.onnx`) | Face descriptor for per-person settings | OpenCV Zoo | Apache-2.0 |
-| Age/sex estimator (`models/agegender/model.onnx`) | Picks a gentler default level for men and children | Vision Transformer fine-tuned on UTKFace | Weights licensed Apache-2.0 by their publisher; UTKFace itself is for non-commercial research |
+This document does **not** assign a blanket non-commercial restriction to LRCDF
+or assert a training-dataset origin for a release without verifying the actual
+weights in that release. A training or experiment script in the source tree does
+not, by itself, establish the provenance of the model shipped to users.
 
-## What this means for you
+## Models and components referenced by the source
 
-- **Using LRCDF yourself** (personal, study, non-commercial open-source use):
-  fine.
-- **Selling LRCDF, offering it as a paid service, or using it in a commercial
-  workflow** is *not* covered while these weights are included. Either replace
-  them with weights you trained on data you may use commercially, or obtain
-  permission from the data owners.
-- **Redistributing weights**: keep this file with them, keep the attribution
-  below, and share them only under terms no more permissive than the
-  non-commercial terms above (CC BY-NC-SA 4.0 for weights trained on FFHQR).
-  The project's own weights are unpublished for now, so there is nothing to
-  redistribute yet.
-- Photos you retouch belong to you; the licences above do not apply to your
-  output images.
+| Component | Purpose | Notes |
+|---|---|---|
+| ToneNet and its ConvNeXt-Tiny backbone | Predict Lightroom develop settings | Project model and torchvision backbone; verify the released weight file and its provenance |
+| Retouching, over-retouching critic, and shadow models | Optional retouching and lighting passes | Project model paths appear in the source and packaging scripts; verify which weights a particular release includes |
+| MediaPipe models | Face landmarks, pose, and segmentation | Google MediaPipe; check the licence notice accompanying the actual model files |
+| OpenCV Zoo SFace | Face descriptors | OpenCV Zoo; verify the model file distributed in the release |
+| Additional optional or legacy model integrations | Features enabled when their files are installed | The source contains optional and legacy paths; check whether they are included in the build being distributed |
 
-## Attribution
+## Before distributing model weights
 
-- **PPR10K**: Liang et al., "PPR10K: A Large-Scale Portrait Photo Retouching
-  Dataset with Human-Region Mask and Group-Level Consistency", CVPR 2021.
-- **FFHQ**: Karras, Laine, Aila, "A Style-Based Generator Architecture for
-  Generative Adversarial Networks", CVPR 2019 (images from Flickr under Creative
-  Commons licences chosen by their authors).
-- **FFHQR**: Shafaei et al., "AutoRetouch: Automatic Professional Face Retouching",
-  WACV 2021, University of British Columbia (CC BY-NC-SA).
-- **RetouchFormer**: Xie et al., AAAI 2024.
-- **MediaPipe**: Google LLC (Apache-2.0). **OpenCV Zoo SFace**: OpenCV
-  contributors (Apache-2.0).
-- **UTKFace**: Zhang, Song, Qi, CVPR 2017.
+1. Inspect the exact release bundle, including optional and legacy model files.
+2. Record each model file's publisher, source, training-data provenance where
+   applicable, and licence or redistribution permission.
+3. Ship any notices and licence texts required for the files actually included.
+4. Do not assume the Apache-2.0 source-code licence also licenses third-party
+   weights or their training data.
+
+See [third-party software notices](THIRD_PARTY_NOTICES.md) for libraries and
+frameworks used by the project. This file is a release-verification checklist,
+not a claim that every model or training script in the source tree is shipped
+with the app.
