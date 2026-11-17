@@ -1,6 +1,6 @@
 """An immediate, approximate picture of a tweak and the colour wheels, shown until Lightroom's own render arrives
 (that one takes about ten seconds). A line-by-line translation of the Mac app's Quick.swift (second version,
-DESIGN.md 7 "即时近似", the same numbers on all three): gains in linear light, then green-pink as a 3 x 3 table in
+DESIGN.md 7 "instant approximation", the same numbers on all three): gains in linear light, then green-pink as a 3 x 3 table in
 linear light, saturation around the luminance, contrast around mid-grey, then split toning as one curve per channel
 on the encoded value."""
 import colorsys

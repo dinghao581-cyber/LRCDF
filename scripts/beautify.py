@@ -308,11 +308,11 @@ def guard(rgb, out, faces, each, device, note=None):
 
 
 AUTO = ("refined", "natural", "light")      # tried in this order: the strongest level that is not overdone
-AUTO_ROOM = dict(refined=0.7)               # 精致 only with room to spare: it is the level "for close-ups", not the default
+AUTO_ROOM = dict(refined=0.7)               # refined only with room to spare: it is the level "for close-ups", not the default
 
 
 def choose(rgb, models, opt, device):
-    """Automatic level. For every face nobody chose a level for: the strongest of 精致 / 自然 / 轻 that the critic does
+    """Automatic level. For every face nobody chose a level for: the strongest of refined / natural / light that the critic does
     not find overdone on this face (judge). Decided on a copy of at most 2600 px, with the levels' values from
     opt["who"].table. Returns [(x, y, width, level name)], positions as fractions of the picture."""
     table = getattr(opt.get("who"), "table", None) or {}
@@ -370,7 +370,7 @@ def retouch(rgb, models, opt, device):
     memo = opt.get("_memo")
     rgb8 = np.rint(np.clip(rgb, 0, 255)).astype(np.uint8)
     faces = kept(memo, "faces", lambda: [d for d in detector.predict_jsons(rgb8) if d["bbox"] and d["score"] > 0.6])
-    if opt.get("light", 0) > 0:         # 匀光 also takes out shadows cast onto the faces; everything after works on that picture
+    if opt.get("light", 0) > 0:         # even light also takes out shadows cast onto the faces; everything after works on that picture
         if memo is not None:
             memo = memo.setdefault("lit", {"faces": faces})
         opt["_shadow"] = []
@@ -450,7 +450,7 @@ def retouch(rgb, models, opt, device):
                     delta = infer(own, x, PLAN.tiles)[0].permute(1, 2, 0).cpu().numpy() * 255
                     mask = cv2.resize(legacy.feather(), (1024, 1024), interpolation=cv2.INTER_LINEAR)
                     delta -= np.median(delta[mask > 0.5], 0)
-                    # 高低频: only the colour layer of its correction is used (same split as lrcdf.beauty: the face is
+                    # frequency separation: only the colour layer of its correction is used (same split as lrcdf.beauty: the face is
                     # about half the crop wide). What it would take out of the texture layer stays in the photo; the
                     # raised texture of a blemish is toned down later, on the marks only (beauty.HEAL).
                     delta = cv2.GaussianBlur(delta, (0, 0), 512 * beauty.SPLIT * opt.get("split", 1.0))
@@ -631,7 +631,7 @@ def main():
         ap.add_argument("--" + name, type=float, default=0.0, help=text + ", 0..1.5 (skipped where it cannot be done safely)")
     ap.add_argument("--hires", type=int, default=0, help="1: run the blemish model at 1024 px on big faces (tried: no gain, 4x slower)")
     ap.add_argument("--bits", type=int, default=8, choices=(8, 16), help="bit depth of the result (16 only if the input is 16-bit)")
-    ap.add_argument("--auto", type=int, default=0, help="1: every face gets the strongest of the levels 精致/自然/轻 that is not overdone on it (see choose); needs --levels. The strengths given are used where no level could be chosen")
+    ap.add_argument("--auto", type=int, default=0, help="1: every face gets the strongest of the levels refined/natural/light that is not overdone on it (see choose); needs --levels. The strengths given are used where no level could be chosen")
     ap.add_argument("--guard", type=int, default=1, help="1: faces retouched more than professionals would are taken back to the limit (see guard); 0: off")
     ap.add_argument("--model", default="new", choices=("new", "old", "dodge"), help="blemish model: the one trained on FFHQR (if installed), RetouchFormer, or the dodge-and-burn model (experimental)")
     ap.add_argument("--people", help="people.json of the shoot (cull.py)"); ap.add_argument("--choices", help="e.g. 3:off,5:refined")

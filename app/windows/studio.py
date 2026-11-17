@@ -550,7 +550,7 @@ class Studio(QObject):
                 if len(box) == 4 for x0, y0, x1, y1 in [box]]
 
     # ------------------------------------------------------------------ loading behind the main screen
-    # DESIGN.md 7 "先进界面，后台准备" and the request of 2026-11-16 (all photos load once they are handed over):
+    # DESIGN.md 7 "screen first, preparation behind it" and the request of 2026-11-16 (all photos load once they are handed over):
     # the photo on show first, then, one request at a time and only while nothing else is asked for, the small
     # pictures, the rest of its looks, the closed-eyes check, then every other photo (analysis + original + the look
     # chosen: round one), then their other looks (round two). Every number on the progress line is a count of answers

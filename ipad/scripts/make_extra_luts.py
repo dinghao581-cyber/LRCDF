@@ -1,5 +1,5 @@
-"""iPad-only looks, made on top of look a (明亮通透) as 17^3 colour cubes (same format as fit_style_lut.py):
-j 日系清新, v 胶片复古, m 电影感 (user 2026-11-15). Designed by recipe, then judged on the Mac app's renders of look a.
+"""iPad-only looks, made on top of look a (Bright & Airy) as 17^3 colour cubes (same format as fit_style_lut.py):
+j Japanese Fresh, v Film Vintage, m Cinematic (user 2026-11-15). Designed by recipe, then judged on the Mac app's renders of look a.
 
 usage: make_extra_luts.py <out folder> [--sheet <jpg>]
 """
@@ -30,7 +30,7 @@ def smooth(t):
     return t * t * (3 - 2 * t)
 
 
-def japanese(c):        # 日系清新: airy, low contrast, lifted shadows, a cool cyan-green cast, gentle colour, skin kept fair
+def japanese(c):        # Japanese Fresh: airy, low contrast, lifted shadows, a cool cyan-green cast, gentle colour, skin kept fair
     y = lum(c)[..., None]
     c = 0.07 + 0.90 * np.power(np.clip(c, 0, 1), 0.88)                    # lifted blacks, brighter mids, soft top
     c = c + (0.5 - y) * 0.10                                               # less contrast
@@ -40,7 +40,7 @@ def japanese(c):        # 日系清新: airy, low contrast, lifted shadows, a co
     return sat(c, 0.80, keep_skin=0.4)
 
 
-def vintage(c):         # 胶片复古: warm, faded, gently compressed highlights, greenish shadows (grain added in the app)
+def vintage(c):         # Film Vintage: warm, faded, gently compressed highlights, greenish shadows (grain added in the app)
     c = np.clip(c, 0, 1)
     c = 0.075 + 0.86 * (c - 0.5 * c * c * 0.25)                            # faded black, rolled-off white
     y = lum(c)[..., None]
@@ -52,7 +52,7 @@ def vintage(c):         # 胶片复古: warm, faded, gently compressed highlight
     return sat(c, 0.82)
 
 
-def cinema(c):          # 电影感: teal shadows, warm skin and highlights, a firmer S-curve
+def cinema(c):          # Cinematic: teal shadows, warm skin and highlights, a firmer S-curve
     c = np.clip(c, 0, 1)
     c = c + (smooth(c) - c) * 0.35                                         # S-curve
     y = lum(c)[..., None]
@@ -82,6 +82,6 @@ if a.sheet:
         tiles = [x] + [np.clip(fn(x.copy()), 0, 1) for fn in looks.values()]
         rows.append(np.hstack([cv2.resize((t * 255).astype(np.uint8), (T, T), interpolation=cv2.INTER_AREA) for t in tiles]))
     img = Image.new("RGB", (T * 4, len(rows) * T + 50), (24, 24, 24)); dr = ImageDraw.Draw(img)
-    for i, t in enumerate(["明亮通透", "日系清新", "胶片复古", "电影感"]): dr.text((i * T + 10, 10), t, font=F, fill=(255, 214, 0))
+    for i, t in enumerate(["Bright & Airy", "Japanese Fresh", "Film Vintage", "Cinematic"]): dr.text((i * T + 10, 10), t, font=F, fill=(255, 214, 0))
     for k, r in enumerate(rows): img.paste(Image.fromarray(r), (0, 50 + k * T))
     img.save(a.sheet, quality=88); print("sheet", a.sheet)

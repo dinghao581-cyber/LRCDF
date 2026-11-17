@@ -21,7 +21,7 @@ C = Qt.AlignmentFlag.AlignCenter
 HC = Qt.AlignmentFlag.AlignHCenter
 LEFT = Qt.AlignmentFlag.AlignLeft
 TOP = chrome.TOP
-# "（推荐）" is held together with word joiners so it never breaks across lines (the Mac shot keeps it whole)
+# "(recommended)" in Chinese is held together with word joiners so it never breaks across lines (the Mac shot keeps it whole)
 LEVELS = {key: (tr(f"level.{key}"), tr(f"level.{key}.note").replace("（推荐）", "（\u2060推\u2060荐\u2060）"))
           for key in ("off", "auto", "natural", "refined")}
 SHAPES = [(key, tr(f"shape.{key}")) for key in ("slim", "bigeyes", "waist", "chest", "legs", "light")]
@@ -503,7 +503,7 @@ class ZoomBar(QWidget):
 
 
 class PhotoStrip(Surface):
-    """PhotoStrip: 104 wide on the panel colour with a line on its right; 'N 张' (12 semibold, soft) 46 from the
+    """PhotoStrip: 104 wide on the panel colour with a line on its right; 'N photos' (12 semibold, soft) 46 from the
     top; 76 pt thumbnails 10 apart; the hint (10, white 0.35) at the bottom."""
 
     def __init__(self, hint):
@@ -838,7 +838,7 @@ class Sidebar(Surface):
 
 
 class OpeningPill(QWidget):
-    """The small progress of the loading behind the main screen (DESIGN.md 7 先进界面，后台准备): a capsule at the top
+    """The small progress of the loading behind the main screen (DESIGN.md 7 "screen first, preparation behind it"): a capsule at the top
     of the picture area, a 72 x 3 line (faint track, focus-yellow fill with a soft yellow glow) and one 12 pt soft line,
     even digits. Comes and goes softly; not shown once the work has begun."""
 

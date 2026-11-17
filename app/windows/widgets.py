@@ -1616,7 +1616,7 @@ class PhotoThumb(Control):
 
 
 class PersonChip(Control):
-    """PersonChip: a 34 pt round face (white 0.15 ring, or focus yellow 2 pt when set; 0.45 opacity for 不修) over its
+    """PersonChip: a 34 pt round face (white 0.15 ring, or focus yellow 2 pt when set; 0.45 opacity for "no retouch") over its
     choice (10, white 0.35 / focus yellow). 36 wide."""
     NAMES = {"follow": tr("person.follow"), "light": tr("person.light"), "natural": tr("level.natural"),
              "refined": tr("level.refined"), "off": tr("person.off")}
@@ -1656,7 +1656,7 @@ class PersonChip(Control):
 
 # ---------------------------------------------------------------- zoom bar
 class ZoomCapsule(QWidget):
-    """[-] 适合窗口 / 2.0x [+] on a white 0.08 capsule, 30 high."""
+    """[-] fit to window / 2.0x [+] on a white 0.08 capsule, 30 high."""
     fit = Signal()
 
     def __init__(self, minus, plus):
@@ -1692,7 +1692,7 @@ class ZoomCapsule(QWidget):
 
 
 class FaceButton(Control):
-    """Label('放大看脸', systemImage: 'face.smiling') 12 medium, 14 padding, 30 high, white 0.08 capsule."""
+    """Label('zoom to faces', systemImage: 'face.smiling') 12 medium, 14 padding, 30 high, white 0.08 capsule."""
 
     def __init__(self, action):
         super().__init__()

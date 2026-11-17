@@ -1,65 +1,65 @@
-# 安装 LRCDF Windows 版
+# Installing LRCDF for Windows
 
-适用于 Windows x64 和 Lightroom Classic。界面有 20 种语言。程序、任务栏、桌面和开始菜单使用同一个 LRCDF 图标。
+For Windows x64 and Lightroom Classic. The app is available in 20 languages. The program, taskbar, desktop and Start menu all use the same LRCDF icon.
 
-1. 选择 CPU 包，或在 NVIDIA 显卡和驱动支持 CUDA 12.4 时选择 CUDA 包。
-2. CPU 包直接解压。CUDA 分卷先把全部 `.zip.001`、`.zip.002` 等文件与 `Join-Bundle.ps1` 放在同一目录，在该目录运行下面命令。合并得到完整 ZIP 后再解压，不能单独解压某一卷。
+1. Choose the CPU package, or the CUDA package if your NVIDIA graphics card and driver support CUDA 12.4.
+2. Extract the CPU package directly. For the CUDA package, first put all its parts (`.zip.001`, `.zip.002` and so on) and `Join-Bundle.ps1` in one folder and run the command below in that folder. Extract the complete ZIP it makes; a single part cannot be extracted on its own.
 
    ```powershell
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Join-Bundle.ps1
    ```
 
-3. 关闭 Lightroom Classic 和 LRCDF 桌面程序。在解压后的包目录打开 PowerShell，运行
+3. Close Lightroom Classic and the LRCDF desktop app. Open PowerShell in the extracted package folder and run
 
    ```powershell
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Windows.ps1
    ```
 
-   已安装 LRCDF 时，在命令末尾加 `-Replace` 才会更新原安装。安装使用当前 Windows 用户，无需管理员权限，安装过程不联网。
-4. 打开 Lightroom Classic，选中照片，从 **图库 → 增效工具额外信息 → 开始一键修图…** 打开桌面程序。
+   If LRCDF is already installed, add `-Replace` to the end of the command to update it. The installer runs under your Windows account, needs no administrator rights and does not go online.
+4. Open Lightroom Classic, select your photos and choose **Library → Plug-in Extras → Start One-Click Retouch…** to open the desktop app.
 
-安装包没有代码签名，下载后 Windows 可能出现安全提示，选择“仍要运行”或“保留”即可。
+The installer is not code-signed, so Windows may show a security warning after the download. Choose "Run anyway" or "Keep".
 
-桌面程序在 `%USERPROFILE%\LRCDF\project\app\windows\LRCDF.exe`，插件在 `%APPDATA%\Adobe\Lightroom\Modules\LRCDFAuto.lrplugin`。也可以直接运行桌面程序，等待 Lightroom 发送照片。
+The desktop app is at `%USERPROFILE%\LRCDF\project\app\windows\LRCDF.exe` and the plug-in at `%APPDATA%\Adobe\Lightroom\Modules\LRCDFAuto.lrplugin`. You can also start the desktop app directly and wait for Lightroom Classic to send photos.
 
-界面按 Windows 显示语言列表选择语言。列表中有中文就优先使用中文，没有中文才跟随第一个支持的语言。本包自带简体中文、日语和繁体中文的 Noto 字体。
+The app's language follows the Windows display language list: if Chinese is anywhere in the list, the app is in Chinese; otherwise it uses the first supported language. Noto fonts for Simplified Chinese, Japanese and Traditional Chinese come with the package.
 
-自动更新默认开启，在窗口右上角的齿轮里关闭。更新只下载变化的组件，超过 60 MB 时需先确认。更新已下载完后，点击“安装并重启”才会替换程序；替换共用组件前需关闭 Lightroom Classic。
+Automatic updates are on by default; turn them off with the gear at the top right of the window. Only the parts that changed are downloaded, and anything over 60 MB asks first. A downloaded update replaces the program only when you click "Install and restart"; close Lightroom Classic before shared parts are replaced.
 
-## 卸载
+## Uninstalling
 
-在 Windows 设置的“应用和功能”或“已安装的应用”中找到 LRCDF，点击卸载。先关闭 LRCDF 和 Lightroom Classic。卸载会保留修图工作文件和个人设置。
+Close LRCDF and Lightroom Classic, then find LRCDF under "Apps & features" or "Installed apps" in Windows Settings and click Uninstall. Your retouching work files and personal settings are kept.
 
-## 已知限制
+## Known limitations
 
-显存小于 15 GiB 的显卡走分块，预览与大显存相比有肉眼不可见的细微差别（平均 < 0.1 色阶，个别像素最多约 12 色阶），全尺寸最多 1 色阶。
+Graphics cards with less than 15 GiB of memory work in tiles. Previews then differ from those of larger cards by amounts the eye cannot see (on average less than 0.1 levels, single pixels up to about 12 levels); full-size results differ by at most 1 level.
 
-皮肤范围由分割模型估计：阴影里的皮肤可能漏选，颜色接近皮肤的小物件、嘴唇、牙齿和眼白可能被一并轻微调整（饱和度约 −10 %、亮度约 +1/4 档），实际出片上不明显。
+The skin area is estimated by a segmentation model: skin in shadow may be missed, and small skin-coloured objects, lips, teeth and the whites of the eyes may be adjusted slightly along with it (saturation about −10 %, brightness about +1/4 stop). This is not noticeable in the final pictures.
 
-与 Mac 的已知差别：Windows 的风格名和修图卡片标题用界面字体，Mac 用宋体。
+When the same photo is analysed again in a later Lightroom Classic session, the result may differ slightly.
 
-Windows 未测：EXIF 方向 6 / 8 的照片。
+Not tested on Windows: photos with EXIF orientation 6 or 8.
 
-## 从源码构建
+## Building from source
 
-源码目录名用 `project`，与包含模型的 `models`、`legacy` 目录放在一起：
+Name the source folder `project` and put it next to the `models` and `legacy` folders:
 
 ```text
 LRCDF/
   models/makeup/makeup_s2.pt
   legacy/mac_project/
   project/
-    app/windows/fonts/           # SC、JP、TC 三个字体
+    app/windows/fonts/           # the SC, JP and TC fonts
     packaging/Build-Windows.ps1
     runs/retouch_model.pt
 ```
 
-构建需要 uv、Windows .NET Framework 4.x 编译器和网络。依赖版本见 `packaging\requirements-windows.txt`。在 `project` 目录先构建 CPU，再复用 CPU 启动器构建 CUDA，`-ReleaseVersion` 填要发布的版本号：
+Building needs uv, the Windows .NET Framework 4.x compiler and a network connection. Dependency versions are in `packaging\requirements-windows.txt`. In the `project` folder, build the CPU variant first, then the CUDA variant reusing the CPU launcher; give `-ReleaseVersion` the version to be released:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cpu -ReleaseVersion 0.1.2
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cu124 -ReleaseVersion 0.1.2 -ReuseLauncherFrom '..\dist\LRCDF-Windows-x64-cpu\LRCDF\project\app\windows\LRCDF.exe'
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Split-WindowsBundle.ps1 -ArchivePath '..\dist\LRCDF-Windows-x64-cu124.zip' -OutputDirectory '..\dist\CUDA分卷'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cpu -ReleaseVersion 0.1.3
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cu124 -ReleaseVersion 0.1.3 -ReuseLauncherFrom '..\dist\LRCDF-Windows-x64-cpu\LRCDF\project\app\windows\LRCDF.exe'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Split-WindowsBundle.ps1 -ArchivePath '..\dist\LRCDF-Windows-x64-cu124.zip' -OutputDirectory '..\dist\CUDA-parts'
 ```
 
-默认输出到 `LRCDF\dist`，可用 `-OutputDirectory` 指定新的输出目录。每个分卷最多 1,900,000,000 字节，完整 ZIP 和分卷内容相同。合并时需要为完整 ZIP 留出磁盘空间，解压和安装还需要额外空间。
+The output goes to `LRCDF\dist` unless `-OutputDirectory` names another folder. Each part is at most 1,900,000,000 bytes; the complete ZIP and the parts hold the same content. Joining needs disk space for the complete ZIP, and extracting and installing need more.
