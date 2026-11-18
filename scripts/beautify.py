@@ -51,6 +51,10 @@ def released():
 
 
 _CPU_COPY = {}
+# On the CPU (Windows without an NVIDIA card) RetouchFormer costs about 10 s per face. Faces whose crop covers less than
+# this many pixels of the photo were people far in the background (or not faces) and came out the same without it
+# (Windows Claude's comparison, 2026-11-18): they get the classical steps only. GPUs and Macs are unchanged.
+CPU_SMALLEST = 100
 FALLBACKS = [0]     # pieces the GPU had no room for (cut smaller or done on the CPU)
 SKIPPED = [0, 0]    # small faces the small-face model had no room for (classical steps only); no room seen
 
@@ -460,6 +464,8 @@ def retouch(rgb, models, opt, device):
                     continue
                 if net is None:             # no RetouchFormer installed: this face goes without a blemish model
                     continue
+                if str(device) == "cpu" and side < CPU_SMALLEST:
+                    continue                # see CPU_SMALLEST
                 tf = tf * (size / 512)
                 crop = cv2.warpAffine(rgb8, tf, (size, size), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
                 x = torch.from_numpy(crop.copy()).permute(2, 0, 1).float()[None].to(device) / 127.5 - 1

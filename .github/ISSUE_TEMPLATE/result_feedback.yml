@@ -1,0 +1,58 @@
+name: Result feedback
+description: A photo that came out wrong
+title: "[Result] "
+labels: ["result", "feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Only attach photos you may share publicly, with the consent of the people in them.** A description alone also helps.
+  - type: dropdown
+    id: product
+    attributes:
+      label: Which app
+      options:
+        - LRCDF for Mac (Lightroom Classic plug-in)
+        - LRCDF for Windows (Lightroom Classic plug-in)
+        - Tonewell for Mac
+        - Tonewell for iPad
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Problem area
+      multiple: true
+      options:
+        - Tone (colour, brightness)
+        - Skin looks fake or too smooth
+        - Blemishes not removed
+        - Skin tone changed
+        - Background or clothes changed
+        - Wrong person in a group shot
+        - Wrong closed-eye or blur flag
+        - '"Save my look" not accurate'
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: settings
+    attributes:
+      label: Look and retouch level
+      placeholder: "e.g. Soft & Fresh + Auto"
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: images
+    attributes:
+      label: Before & after (optional)
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Photo consent
+      options:
+        - label: I may share any photos I attached, and the people in them agreed (leave unticked if you attached none)
