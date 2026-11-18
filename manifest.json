@@ -6,11 +6,11 @@
  },
  "releases": {
   "mac-arm64": {
-   "version": "0.1.5",
+   "version": "0.1.6",
    "min_os": "14.0",
    "notes": {
-    "zh": "风格名和说明现在跟随 Lightroom 的语言显示（之前总是中文）；风格说明文字调整，不再描述肤色深浅。",
-    "en": "Look names and notes now follow Lightroom's language (they were always in Chinese); look descriptions no longer mention skin tone."
+    "zh": "照片在后台成批加载，选多张时更快；设置里新增“许可与致谢”；目录里找不到的照片不再让整批失败。",
+    "en": "Photos load in the background in batches, so large selections open faster; Settings now has Licences and credits; a photo missing from the catalog no longer stops the whole batch."
    },
    "components": [
     "app-mac",
@@ -44,11 +44,11 @@
    ]
   },
   "win-x64-cpu": {
-   "version": "0.1.3",
+   "version": "0.1.4",
    "min_os": "10.0",
    "notes": {
-    "en": "LRCDF for Windows 0.1.3.",
-    "zh": "LRCDF Windows 0.1.3。"
+    "zh": "安装包更小；没有独立显卡的电脑修图更快；设置里新增“许可与致谢”；应用名统一为 LRCDF。",
+    "en": "Smaller packages; faster retouching on PCs without a dedicated graphics card; Settings now has Licences and credits; the app is called LRCDF in every language."
    },
    "components": [
     "app-win",
@@ -59,11 +59,11 @@
    ]
   },
   "win-x64-cu124": {
-   "version": "0.1.3",
+   "version": "0.1.4",
    "min_os": "10.0",
    "notes": {
-    "en": "LRCDF for Windows 0.1.3.",
-    "zh": "LRCDF Windows 0.1.3。"
+    "zh": "安装包更小；没有独立显卡的电脑修图更快；设置里新增“许可与致谢”；应用名统一为 LRCDF。",
+    "en": "Smaller packages; faster retouching on PCs without a dedicated graphics card; Settings now has Licences and credits; the app is called LRCDF in every language."
    },
    "components": [
     "app-win",
@@ -76,7 +76,7 @@
  },
  "components": {
   "code": {
-   "version": "b212235b76b98207",
+   "version": "643d051b47f3e176",
    "install": "project",
    "keep": [
     "project/runs"
@@ -84,10 +84,10 @@
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 888221,
-     "sha256": "8885b49cadd8abbd52a4cc084e0c1df174ef99766714b49506a3385a94c7a86f",
+     "size": 901161,
+     "sha256": "6cad560566bff2592b4d6f5c4a0d55c6df649e9d2ff584a657c618a5b5272be6",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-b212235b76b98207.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-643d051b47f3e176.zip"
      ]
     }
    ]
@@ -277,16 +277,16 @@
    "sha256_joined": "47604b0438f8ddf2dfeb8e523024cfbc95cccef9f22a2fa128accefe127cf994"
   },
   "app-mac": {
-   "version": "3dea68db286623fd",
+   "version": "09097a3fdf5f8fdc",
    "install": "app",
    "keep": [],
    "restart": "app",
    "files": [
     {
-     "size": 1446973,
-     "sha256": "18fae1115f4ce0c0081a29edf73c40b8dd5a091db9d85ea00b6f5ec61c94459a",
+     "size": 1496235,
+     "sha256": "ca3ba90e1cdcbcbfd5cca6c5a4621395044ff629fd9eceb105ec7f03094c2f1e",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-3dea68db286623fd.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-09097a3fdf5f8fdc.zip"
      ]
     }
    ]
@@ -330,29 +330,29 @@
    ]
   },
   "app-win": {
-   "version": "24da7392953fd051",
+   "version": "c6999d1f766ad948",
    "install": "app",
    "restart": "app",
    "files": [
     {
-     "size": 25084943,
-     "sha256": "f549dcc99863f10356d464d216a3974e0810131c735eecb458c8a47ecc9f7ce7",
+     "size": 25086189,
+     "sha256": "7ec6c92d25bf9be20c8ffd4832cb0238974599eaef56827cb3dc5798bec96d79",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-24da7392953fd051.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-c6999d1f766ad948.zip"
      ]
     }
    ]
   },
   "code-win": {
-   "version": "5a7e32b9addedf33",
+   "version": "9985abbd1b0993b7",
    "install": "project",
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 233006,
-     "sha256": "1e1364fc8140dd17aef2fe2248c7d938b6a1d19ce185a4756a6568c08fc4c0cb",
+     "size": 236156,
+     "sha256": "89398b635155e0ca65ce65d89b9b9fe0d967ea1348e1ad85e862a0afd21bb2da",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-5a7e32b9addedf33.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-9985abbd1b0993b7.zip"
      ]
     }
    ],
@@ -777,5 +777,5 @@
    "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
   }
  },
- "published": "2026-11-17T17:16:34Z"
+ "published": "2026-11-18T15:20:56Z"
 }
