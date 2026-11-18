@@ -51,13 +51,18 @@ def identity():
         QApplication.setWindowIcon(QIcon(str(icon)))
 
 
+def dark_frame(window):
+    """Dark title bar, system menus and borders, also when Windows itself is set to light."""
+    on = ctypes.c_int(1)
+    dwm.DwmSetWindowAttribute(int(window.winId()), 20, ctypes.byref(on), 4)
+
+
 def prepare(window):
     """Call once after the window has a handle (after show)."""
     hwnd = int(window.winId())
     style = user32.GetWindowLongPtrW(hwnd, GWL_STYLE)
     user32.SetWindowLongPtrW(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU)
-    on = ctypes.c_int(1)
-    dwm.DwmSetWindowAttribute(hwnd, 20, ctypes.byref(on), 4)                 # dark mode for system menus/borders
+    dark_frame(window)
     round_ = ctypes.c_int(2)
     dwm.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(round_), 4)             # Windows 11 rounded corners
     border = ctypes.c_uint(0x001C1818)                                        # COLORREF of the panel colour

@@ -312,19 +312,35 @@ struct UpdateHost: View {
     }
 }
 
-/// Settings (⌘,): the switch the privacy policy promises, a manual check, and one step back.
+/// Settings (⌘,): the switch the privacy policy promises, a manual check, one step back, and the licence texts.
 struct UpdateSettings: View {
     @ObservedObject private var updater = Updater.shared
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Form {
-            Toggle(L.updateAuto, isOn: $updater.enabled)
-            Text(L.updateAutoNote).font(.footnote).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            HStack {
-                Button(L.updateCheckNow) { Task { await updater.check(manual: true) } }
-                if updater.canGoBack { Button(L.updateGoBack) { updater.goBack() } }
+        VStack(alignment: .leading, spacing: DS.gap) {
+            HStack(spacing: DS.gap) {
+                Text(L.updateAuto).font(DS.body).foregroundStyle(DS.ink).fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+                Toggle(L.updateAuto, isOn: $updater.enabled).toggleStyle(.switch).tint(DS.focus).labelsHidden()
             }
+            Text(L.updateAutoNote).font(DS.note).foregroundStyle(DS.soft).fixedSize(horizontal: false, vertical: true)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) { updateButtons }
+                VStack(alignment: .leading, spacing: 8) { updateButtons }
+            }
+            Rectangle().fill(DS.line).frame(height: 1).padding(.vertical, 4)
+            Text(verbatim: Licences.notice).font(DS.note).foregroundStyle(DS.soft).fixedSize(horizontal: false, vertical: true)
+            Button(L.licences) { openWindow(id: Licences.windowID) }.buttonStyle(QuietButton())
         }
-        .padding(24).frame(width: 440)
+        .padding(24).frame(width: 460, alignment: .leading)
+        .background(Color.black.ignoresSafeArea())
+        .environment(\.colorScheme, .dark)
+        .preferredColorScheme(.dark)
+    }
+
+    @ViewBuilder private var updateButtons: some View {
+        Button(L.updateCheckNow) { Task { await updater.check(manual: true) } }.buttonStyle(QuietButton())
+        if updater.canGoBack { Button(L.updateGoBack) { updater.goBack() }.buttonStyle(QuietButton()) }
     }
 }

@@ -241,6 +241,8 @@ enum L {
     static var updateCheckNow: String { String(localized: "update.checkNow", defaultValue: "现在检查更新", comment: "Button in Settings and item in the app menu.") }
     static var updateGoBack: String { String(localized: "update.goBack", defaultValue: "退回上一个版本", comment: "Button in Settings: undo the last update.") }
 
+    static var licences: String { String(localized: "licences.title", defaultValue: "许可与致谢", comment: "Button in Settings and title of the window that shows the licence texts.") }
+
     // MARK: Rights: launch prompt, card, break reminder. Wording reviewed elsewhere: translate faithfully, do not adapt the legal content.
     static var rightsMenu: String { String(localized: "rights.menu", defaultValue: "了解您拥有的权利…", comment: "Help menu item that opens the rights card.") }
     static var rightsQuestion: String { String(localized: "rights.question", defaultValue: "您是否正在剥削性工作中？", comment: "Question of the prompt shown at launch.") }

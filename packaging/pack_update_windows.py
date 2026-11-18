@@ -22,6 +22,8 @@ SHARED = (
     ("models-third-win", (("models", "models"), ("legacy", "legacy")), ()),
 )
 SKIP = {"__pycache__", ".DS_Store"}
+SLIM_CONFIG = Path(__file__).with_name("windows_slim.json")
+SLIM_RECORD = ".python_slim.json"
 
 
 def component_files(root, trees, exclude=()):
@@ -51,13 +53,95 @@ def file_digest(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def entry_digest(path):
+    return os.readlink(path) if path.is_symlink() else file_digest(path)
+
+
+def digest_lines(digests):
+    digest = hashlib.sha256()
+    for logical in sorted(digests):
+        digest.update(f"{logical}\0{digests[logical]}\n".encode("utf-8"))
+    return digest.hexdigest()
+
+
 def component_version(entries):
     """Use make_update.py's sorted path NUL sha256 newline identity, with manifest slashes."""
-    digest = hashlib.sha256()
+    return digest_lines({logical: entry_digest(path) for logical, path in entries})[:16]
+
+
+def slim_removes(logical, rules, tested):
+    """True for a python/ file the app never needs at run time. Paths use manifest slashes."""
+    parts = logical.split("/")
+    name = parts[-1]
+    remove = rules["remove"]
+    if name.lower() not in remove["keep_names"] and name.lower().endswith(tuple(remove["suffixes"])):
+        return True
+    if set(parts[1:-1]) & set(remove["folders"]):
+        return True
+    if tested and parts[1:3] == ["Lib", "site-packages"] and len(parts) > 3:
+        top = parts[3]
+        for package in rules["remove_after_testing"]["packages"]:
+            if top in {package, f"{package}.py", f"{package}.libs"}:
+                return True
+            if top.startswith(f"{package}-") and top.endswith(".dist-info"):
+                return True
+    return False
+
+
+def remove_empty_folders(root):
+    for directory, folders, names in os.walk(root, topdown=False):
+        path = Path(directory)
+        left = [name for name in os.listdir(path) if name != "__pycache__"]
+        if path != root and not left:
+            shutil.rmtree(path)
+
+
+def slim_python(root, variant, tested, new_identity):
+    """Delete what the app never loads from python/ and record every deleted file's digest. With a baseline the tree
+    must be exactly that published component first, and the kept files plus the record must rebuild it afterwards."""
+    if (root / SLIM_RECORD).exists():
+        raise ValueError(f"{root} is already slimmed.")
+    rules = json.loads(SLIM_CONFIG.read_text(encoding="utf-8"))
+    entries = component_files(root, (("python", "python"),))
+    digests = {logical: entry_digest(path) for logical, path in entries}
+    baseline = None if new_identity else rules["baseline"][variant]
+    if baseline and digest_lines(digests)[:16] != baseline:
+        raise ValueError(
+            f"python/ is not the published {variant} baseline {baseline}. Reuse that runtime, or build with a new "
+            "identity if the dependencies really changed."
+        )
+    removed = {logical: digests[logical] for logical, _ in entries if slim_removes(logical, rules, tested)}
+    if not removed:
+        raise ValueError("The slimming rules matched no file.")
     for logical, path in entries:
-        contents = os.readlink(path) if path.is_symlink() else file_digest(path)
-        digest.update(f"{logical}\0{contents}\n".encode("utf-8"))
-    return digest.hexdigest()[:16]
+        if logical in removed:
+            path.chmod(0o666)
+            path.unlink()
+    remove_empty_folders(root / "python")
+    write_json(root / SLIM_RECORD, {"variant": variant, "baseline": baseline, "tested": tested, "removed": removed})
+    identity, _ = slim_identity(root, variant)
+    print(f"python-win-{variant}: {len(removed)} files removed, identity {identity}")
+
+
+def slim_identity(root, variant):
+    """(component identity, deleted-list digest) of a slimmed bundle; None when the bundle was not slimmed."""
+    path = root / SLIM_RECORD
+    if not path.exists():
+        return None
+    record = json.loads(path.read_text(encoding="utf-8"))
+    if record["variant"] != variant:
+        raise ValueError(f"{path} belongs to the {record['variant']} variant.")
+    removed = record["removed"]
+    kept = {logical: entry_digest(file) for logical, file in component_files(root, (("python", "python"),))}
+    if kept.keys() & removed.keys():
+        raise ValueError("A file recorded as removed is still in python/.")
+    list_digest = digest_lines(removed)
+    baseline = record["baseline"]
+    if not baseline:
+        return digest_lines(kept)[:16], list_digest
+    if digest_lines({**kept, **removed})[:16] != baseline:
+        raise ValueError(f"The kept files and the removal list do not rebuild baseline {baseline}.")
+    return baseline, list_digest
 
 
 def write_json(path, value):
@@ -76,9 +160,17 @@ def record_bundle(root, variant, version):
         for component, trees, exclude in SHARED
     }
     identities["app-win"] = component_version(component_files(root, (APP_TREE,)))
-    identities[f"python-win-{variant}"] = component_version(
-        component_files(root, (("python", "python"),))
-    )
+    component = f"python-win-{variant}"
+    slim = slim_identity(root, variant)
+    if slim:
+        identities[component] = slim[0]
+        record = json.loads((root / SLIM_RECORD).read_text(encoding="utf-8"))
+        # Plain strings: installed updaters reject a record with any other kind of value.
+        if record["baseline"]:
+            identities[f"{component}:slim_of"] = record["baseline"]
+        identities[f"{component}:slim_removed_sha256"] = slim[1]
+    else:
+        identities[component] = component_version(component_files(root, (("python", "python"),)))
     write_json(root / ".components.json", identities)
     write_json(root / ".update_build.json", {"platform": f"win-x64-{variant}", "version": version})
 
@@ -148,7 +240,7 @@ def pack_component(out, urls, component, target, version, entries):
     return result
 
 
-def pack_windows(out, urls, cpu, cuda, notes):
+def pack_windows(out, urls, cpu, cuda, notes, reuse=None):
     version = build_record(cpu, "cpu")
     if build_record(cuda, "cu124") != version:
         raise ValueError("The CPU and CUDA bundles must have the same release version.")
@@ -167,6 +259,7 @@ def pack_windows(out, urls, cpu, cuda, notes):
     if any(out.iterdir()):
         raise ValueError(f"Choose an empty output directory: {out}")
 
+    published = json.loads(reuse.read_text(encoding="utf-8"))["components"] if reuse else {}
     components = {"app-win": pack_component(out, urls, "app-win", "app", app_version, app)}
     for component, trees, exclude, identity, entries in shared:
         targets = [logical for logical, _ in trees]
@@ -179,10 +272,19 @@ def pack_windows(out, urls, cpu, cuda, notes):
     releases = {}
     for variant, bundle in zip(VARIANTS, (cpu, cuda)):
         component = f"python-win-{variant}"
-        entries = component_files(bundle, (("python", "python"),))
-        components[component] = pack_component(
-            out, urls, component, "python", component_version(entries), entries
-        )
+        slim = slim_identity(bundle, variant)
+        record = json.loads((bundle / SLIM_RECORD).read_text(encoding="utf-8")) if slim else {}
+        if record.get("baseline"):
+            # Same identity as the full component already published: its entry stays, nothing is packed again.
+            entry = published.get(component)
+            if not entry or entry.get("version") != slim[0]:
+                raise ValueError(f"{component} {slim[0]} needs its published entry: pass --reuse-manifest.")
+            components[component] = entry
+        else:
+            entries = component_files(bundle, (("python", "python"),))
+            components[component] = pack_component(
+                out, urls, component, "python", component_version(entries), entries
+            )
         releases[f"win-x64-{variant}"] = {
             "version": version,
             "min_os": "10.0",
@@ -219,18 +321,26 @@ def main():
     ids.add_argument("bundle", type=Path, help="the LRCDF payload directory")
     ids.add_argument("--variant", required=True, choices=VARIANTS)
     ids.add_argument("--version", required=True, type=release_version)
+    slim = commands.add_parser("slim", help="remove files the app never needs from a full bundle's python folder")
+    slim.add_argument("bundle", type=Path, help="the LRCDF payload directory")
+    slim.add_argument("--variant", required=True, choices=VARIANTS)
+    slim.add_argument("--tested", action="store_true", help="also remove the packages proven unnecessary by a full run")
+    slim.add_argument("--new-identity", action="store_true", help="the dependencies changed: no published baseline")
     pack = commands.add_parser("pack", help="make unsigned Windows update archives and entries")
     pack.add_argument("out", type=Path)
     pack.add_argument("--cpu", required=True, type=Path, help="the CPU bundle's LRCDF payload directory")
     pack.add_argument("--cu124", required=True, type=Path, help="the CUDA bundle's LRCDF payload directory")
     pack.add_argument("--url", required=True, action="append", type=asset_folder)
     pack.add_argument("--notes", nargs="*", default=[], type=note, metavar="language=text")
+    pack.add_argument("--reuse-manifest", type=Path, help="published manifest holding the baseline Python components")
     args = parser.parse_args()
     try:
         if args.command == "ids":
             record_bundle(args.bundle, args.variant, args.version)
+        elif args.command == "slim":
+            slim_python(args.bundle, args.variant, args.tested, args.new_identity)
         else:
-            pack_windows(args.out, args.url, args.cpu, args.cu124, dict(args.notes))
+            pack_windows(args.out, args.url, args.cpu, args.cu124, dict(args.notes), args.reuse_manifest)
     except (OSError, ValueError, KeyError, argparse.ArgumentTypeError) as error:
         parser.exit(1, f"{error}\n")
 

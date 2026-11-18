@@ -9,18 +9,34 @@ import time
 
 from PySide6.QtCore import QEvent, QObject, QPointF, QRectF, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QColor, QDesktopServices, QPainterPath, QPalette, QPen
-from PySide6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import QApplication, QBoxLayout, QFrame, QLabel, QPlainTextEdit, QVBoxLayout, QWidget
 
-from .chrome import CaptionButton
+from .chrome import CaptionButton, dark_frame
 from .i18n import LANGUAGE
-from .theme import FOCUS, SOFT, TEXT, Tween, font
-from .widgets import Para, PlainButton, paint_glass, painter, text_width
+from .theme import FOCUS, INK, LINE, SOFT, TEXT, Tween, css, font
+from .widgets import CheckBox, GhostButton, Para, PlainButton, ScrollStyle, paint_glass, painter, text_width
 from .update_core import QUIET_LIMIT, UpdateCancelled, UpdateClient
 
 
 UPDATE_TEXT = json.loads(Path(__file__).with_name("update_strings.json").read_text(encoding="utf-8"))
 AUTO_SETTING = "automaticUpdates"
 DAILY = 24 * 60 * 60 * 1000
+SETTINGS_WIDTH, SETTINGS_MARGIN = 440, 24
+SELECTION = QColor(10, 132, 255, 150)          # the text fields' selection colour
+# Required by the model licence: shown word for word, in every language.
+MODEL_NOTICE = "Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement."
+LICENSE_FILES = ("legal/licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt", "legal/MODEL_LICENSES.md",
+                 "legal/THIRD_PARTY_NOTICES.md", "NOTICE", "LICENSE")
+
+
+def dark_palette():
+    """The main window's colours for the plain Qt widgets, whether Windows is set to light or dark."""
+    palette = QPalette()
+    for role, color in ((QPalette.ColorRole.Window, INK), (QPalette.ColorRole.WindowText, TEXT), (QPalette.ColorRole.Base, INK),
+                        (QPalette.ColorRole.Text, TEXT), (QPalette.ColorRole.PlaceholderText, SOFT),
+                        (QPalette.ColorRole.Highlight, SELECTION), (QPalette.ColorRole.HighlightedText, TEXT)):
+        palette.setColor(role, color)
+    return palette
 
 
 class UpdateBanner(QWidget):
@@ -175,57 +191,124 @@ class WindowsUpdater(QObject):
         self.entry.setAccessibleName(self._text("settings"))
         self.window.caption.add_first(self.entry)
         self.panel = None
+        self.licenses = None
         self.view = {}
         self.manual = False            # a check the user asked for: its "checking" and "no update" are shown
         self.dismissed = None          # the line the user put off with "Later"
         self.banner = UpdateBanner(self.window, self)
 
     def _build_panel(self):
-        """UpdateSettings: its own window, 440 wide, 24 inside, in the system's light or dark (the app's dark palette
-        is not used here, as on the Mac); the switch (a check box), the note, "Check for updates now" and, when there is a
-        previous version, "Go back to the previous version". The Store build shows only that updates come through the Store."""
-        panel = QWidget(None, Qt.WindowType.Window | Qt.WindowType.WindowCloseButtonHint)
+        """UpdateSettings: its own window over the main one, 440 wide, 24 inside, always in the app's dark colours, font
+        and controls; the switch (a check box), the note, "Check for updates now" and, when there is a previous version,
+        "Go back to the previous version". The Store build shows only that updates come through the Store.
+        Both end with the licences."""
+        panel = QWidget(self.window, Qt.WindowType.Window | Qt.WindowType.WindowCloseButtonHint)
         panel.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         panel.setWindowTitle(self._text("settings"))
-        panel.setPalette(QApplication.style().standardPalette() if QApplication.styleHints().colorScheme() != Qt.ColorScheme.Dark
-                         else QApplication.palette())
+        panel.setFont(font(13))
+        panel.setPalette(dark_palette())
+        panel.setAutoFillBackground(True)
+        inner = SETTINGS_WIDTH - 2 * SETTINGS_MARGIN
         v = QVBoxLayout(panel)
-        v.setContentsMargins(24, 24, 24, 24)
+        v.setContentsMargins(SETTINGS_MARGIN, SETTINGS_MARGIN, SETTINGS_MARGIN, SETTINGS_MARGIN)
         v.setSpacing(8)
         self.toggle = self.check_button = self.back = None
         if self.client.channel == "store":
             note = QLabel(self._text("store_note"))
             note.setWordWrap(True)
+            note.setStyleSheet(f"color:{css(TEXT)};")
             v.addWidget(note)
         else:
-            self.toggle = QCheckBox(self._text("auto"))
-            self.toggle.setChecked(self.enabled)
+            self.toggle = CheckBox(self._text("auto"), self.enabled)
+            self.toggle.fit(inner)
             self.toggle.toggled.connect(self.set_enabled)
             v.addWidget(self.toggle)
-            note = QLabel(self._text("auto_note"))
-            note.setWordWrap(True)
-            small = note.font()
-            small.setPointSizeF(max(8.0, small.pointSizeF() - 1))
-            note.setFont(small)
-            note.setForegroundRole(QPalette.ColorRole.PlaceholderText)
-            v.addWidget(note)
-            row = QHBoxLayout()
-            row.setSpacing(8)
-            self.check_button = QPushButton(self._text("check_now"))
-            self.check_button.clicked.connect(self.check_now)
-            row.addWidget(self.check_button)
-            self.back = QPushButton(self._text("back"))
-            self.back.clicked.connect(lambda: self._start_helper("Rollback"))
-            row.addWidget(self.back)
-            row.addStretch(1)
+            v.addWidget(self._small_note(self._text("auto_note")))
+            self.check_button = self._button(self._text("check_now"), self.check_now)
+            self.back = self._button(self._text("back"), lambda: self._start_helper("Rollback"))
             v.addSpacing(4)
-            v.addLayout(row)
-        panel.setFixedWidth(440)
+            v.addLayout(self._button_row(inner, self.check_button, self.back))
+        rule = QFrame()
+        rule.setFixedHeight(1)
+        rule.setStyleSheet(f"background:{css(LINE)};border:0;")
+        v.addSpacing(12)
+        v.addWidget(rule)
+        v.addSpacing(4)
+        notice = self._small_note(MODEL_NOTICE)
+        notice.setTextFormat(Qt.TextFormat.PlainText)
+        notice.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        v.addWidget(notice)
+        v.addSpacing(4)
+        v.addLayout(self._button_row(inner, self._button(self._text("licenses"), self.show_licenses)))
+        panel.setFixedWidth(SETTINGS_WIDTH)
         panel.destroyed.connect(self._panel_gone)
+        dark_frame(panel)
         return panel
+
+    @staticmethod
+    def _button(text, action):
+        return GhostButton(text, action, size=13, height=34, pad=14)
+
+    @staticmethod
+    def _button_row(width, *buttons):
+        """Side by side, or one under the other when the words are too long for that."""
+        side_by_side = sum(b.width() for b in buttons) + 8 * (len(buttons) - 1) <= width
+        row = QBoxLayout(QBoxLayout.Direction.LeftToRight if side_by_side else QBoxLayout.Direction.TopToBottom)
+        row.setSpacing(8)
+        for b in buttons:
+            row.addWidget(b, 0, Qt.AlignmentFlag.AlignLeft)
+        if side_by_side:
+            row.addStretch(1)
+        return row
+
+    @staticmethod
+    def _small_note(text):
+        note = QLabel(text)
+        note.setWordWrap(True)
+        note.setFont(font(12))
+        note.setStyleSheet(f"color:{css(SOFT)};selection-background-color:{css(SELECTION)};selection-color:{css(TEXT)};")
+        return note
+
+    def _fit_panel(self):
+        """As tall as its wrapped words need at the fixed width."""
+        layout = self.panel.layout()
+        layout.activate()
+        self.panel.setFixedHeight(layout.totalHeightForWidth(SETTINGS_WIDTH))
 
     def _panel_gone(self):
         self.panel = None
+
+    def show_licenses(self):
+        """The licence files as they are written (in English), in a window that goes with the settings."""
+        if self.licenses is not None:
+            self.licenses.raise_()
+            self.licenses.activateWindow()
+            return
+        project = Path(__file__).resolve().parents[2]
+        parts = []
+        for name in LICENSE_FILES:
+            path = project / name
+            if path.is_file():
+                title = path.name
+                parts.append(f"{title}\n{'=' * len(title)}\n\n{path.read_text(encoding='utf-8').strip()}")
+        view = QPlainTextEdit(self.panel)
+        view.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.WindowCloseButtonHint)
+        view.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        view.setWindowTitle(self._text("licenses"))
+        view.setFont(font(12))
+        view.setStyleSheet(f"QPlainTextEdit{{background:{css(INK)};color:{css(TEXT)};border:0;"
+                           f"selection-background-color:{css(SELECTION)};selection-color:{css(TEXT)};}}" + ScrollStyle.SHEET)
+        view.setReadOnly(True)
+        view.setPlainText("\n\n\n".join(parts))
+        view.document().setDocumentMargin(20)
+        view.resize(640, 640)
+        view.destroyed.connect(self._licenses_gone)
+        dark_frame(view)
+        self.licenses = view
+        view.show()
+
+    def _licenses_gone(self):
+        self.licenses = None
 
     def open_settings(self):
         self.show_settings(force=True)
@@ -300,7 +383,6 @@ class WindowsUpdater(QObject):
             return
         self.panel = self._build_panel()
         self.render()
-        self.panel.adjustSize()
         g = self.window.frameGeometry()
         self.panel.move(g.center().x() - self.panel.width() // 2, g.top() + 80)
         self.panel.show()
@@ -444,16 +526,16 @@ class WindowsUpdater(QObject):
     def _apply(self):
         v = self.view
         if self.toggle is not None:
-            self.toggle.blockSignals(True)
-            self.toggle.setChecked(self.enabled)
-            self.toggle.blockSignals(False)
+            self.toggle.checked = self.enabled
+            self.toggle.color = TEXT if v["toggle_enabled"] else SOFT
             self.toggle.setEnabled(v["toggle_enabled"])
+            self.toggle.update()
         if self.check_button is not None:
             self.check_button.setEnabled(self.enabled and self.worker_stop is None and self.helper is None)
         if self.back is not None:
             self.back.setVisible(v["back"])
             self.back.setEnabled(v["back_enabled"])
-        self.panel.adjustSize()
+        self._fit_panel()
 
     def _act(self):
         if self.offer is None or not self.enabled:

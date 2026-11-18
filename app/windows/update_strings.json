@@ -30,7 +30,8 @@
     "offer": "更新 {version} · {size} MB",
     "future": "新版本 {version} 请从下载页安装。",
     "runtime_busy": "请等 Lightroom 的 LRCDF 预览进程退出后再试。",
-    "stale_plan": "更新信息已变化。请打开更新设置，查看最新版本。"
+    "stale_plan": "更新信息已变化。请打开更新设置，查看最新版本。",
+    "licenses": "许可与致谢"
   },
   "zh-TW": {
     "settings": "更新設定",
@@ -63,7 +64,8 @@
     "offer": "更新 {version} · {size} MB",
     "future": "請從下載頁安裝新版 {version}。",
     "runtime_busy": "請等 Lightroom 的 LRCDF 預覽程序結束後再試。",
-    "stale_plan": "更新資訊已變更。請開啟更新設定以查看最新版本。"
+    "stale_plan": "更新資訊已變更。請開啟更新設定以查看最新版本。",
+    "licenses": "授權與致謝"
   },
   "en": {
     "settings": "Update Settings",
@@ -96,7 +98,8 @@
     "offer": "Update {version} · {size} MB",
     "future": "Install version {version} from the download page.",
     "runtime_busy": "Try again after the LRCDF preview process in Lightroom exits.",
-    "stale_plan": "The update changed. Open Update Settings for the current version."
+    "stale_plan": "The update changed. Open Update Settings for the current version.",
+    "licenses": "Licences and credits"
   },
   "ja": {
     "settings": "アップデート設定",
@@ -129,7 +132,8 @@
     "offer": "アップデート {version} · {size} MB",
     "future": "ダウンロードページからバージョン {version} をインストールしてください。",
     "runtime_busy": "Lightroom の LRCDF プレビュー処理が終了したら、もう一度お試しください。",
-    "stale_plan": "アップデートが変わりました。アップデート設定で最新のバージョンをご確認ください。"
+    "stale_plan": "アップデートが変わりました。アップデート設定で最新のバージョンをご確認ください。",
+    "licenses": "ライセンスとクレジット"
   },
   "ko": {
     "settings": "업데이트 설정",
@@ -162,7 +166,8 @@
     "offer": "업데이트 {version} · {size} MB",
     "future": "다운로드 페이지에서 버전 {version}을 설치하세요.",
     "runtime_busy": "Lightroom의 LRCDF 미리 보기 프로세스가 끝난 뒤 다시 시도하세요.",
-    "stale_plan": "업데이트가 변경되었습니다. 업데이트 설정에서 현재 버전을 확인하세요."
+    "stale_plan": "업데이트가 변경되었습니다. 업데이트 설정에서 현재 버전을 확인하세요.",
+    "licenses": "라이선스 및 크레딧"
   },
   "es": {
     "settings": "Ajustes de actualización",
@@ -195,7 +200,8 @@
     "offer": "Actualización {version} · {size} MB",
     "future": "Instala la versión {version} desde la página de descarga.",
     "runtime_busy": "Vuelve a intentarlo cuando se cierre el proceso de vista previa de LRCDF en Lightroom.",
-    "stale_plan": "La actualización ha cambiado. Abre los ajustes de actualización para ver la versión actual."
+    "stale_plan": "La actualización ha cambiado. Abre los ajustes de actualización para ver la versión actual.",
+    "licenses": "Licencias y créditos"
   },
   "fr": {
     "settings": "Paramètres de mise à jour",
@@ -228,7 +234,8 @@
     "offer": "Mise à jour {version} · {size} Mo",
     "future": "Installez la version {version} depuis la page de téléchargement.",
     "runtime_busy": "Réessayez après la fermeture du processus d’aperçu LRCDF dans Lightroom.",
-    "stale_plan": "La mise à jour a changé. Ouvrez les paramètres de mise à jour pour voir la version actuelle."
+    "stale_plan": "La mise à jour a changé. Ouvrez les paramètres de mise à jour pour voir la version actuelle.",
+    "licenses": "Licences et crédits"
   },
   "de": {
     "settings": "Update-Einstellungen",
@@ -261,7 +268,8 @@
     "offer": "Update {version} · {size} MB",
     "future": "Installiere Version {version} über die Downloadseite.",
     "runtime_busy": "Versuche es erneut, sobald der LRCDF-Vorschauprozess in Lightroom beendet ist.",
-    "stale_plan": "Das Update hat sich geändert. Öffne die Update-Einstellungen für die aktuelle Version."
+    "stale_plan": "Das Update hat sich geändert. Öffne die Update-Einstellungen für die aktuelle Version.",
+    "licenses": "Lizenzen und Danksagungen"
   },
   "pt-BR": {
     "settings": "Configurações de atualização",
@@ -294,7 +302,8 @@
     "offer": "Atualização {version} · {size} MB",
     "future": "Instale a versão {version} pela página de download.",
     "runtime_busy": "Tente novamente depois que o processo de visualização do LRCDF no Lightroom terminar.",
-    "stale_plan": "A atualização mudou. Abra as configurações de atualização para ver a versão atual."
+    "stale_plan": "A atualização mudou. Abra as configurações de atualização para ver a versão atual.",
+    "licenses": "Licenças e créditos"
   },
   "it": {
     "settings": "Impostazioni aggiornamenti",
@@ -327,7 +336,8 @@
     "offer": "Aggiornamento {version} · {size} MB",
     "future": "Installa la versione {version} dalla pagina di download.",
     "runtime_busy": "Riprova quando termina il processo di anteprima di LRCDF in Lightroom.",
-    "stale_plan": "L’aggiornamento è cambiato. Apri le impostazioni degli aggiornamenti per vedere la versione corrente."
+    "stale_plan": "L’aggiornamento è cambiato. Apri le impostazioni degli aggiornamenti per vedere la versione corrente.",
+    "licenses": "Licenze e crediti"
   },
   "nl": {
     "settings": "Update-instellingen",
@@ -360,7 +370,8 @@
     "offer": "Update {version} · {size} MB",
     "future": "Installeer versie {version} via de downloadpagina.",
     "runtime_busy": "Probeer het opnieuw nadat het LRCDF-voorbeeldproces in Lightroom is gestopt.",
-    "stale_plan": "De update is gewijzigd. Open Update-instellingen voor de huidige versie."
+    "stale_plan": "De update is gewijzigd. Open Update-instellingen voor de huidige versie.",
+    "licenses": "Licenties en vermeldingen"
   },
   "ru": {
     "settings": "Настройки обновления",
@@ -393,7 +404,8 @@
     "offer": "Обновление {version} · {size} МБ",
     "future": "Установите версию {version} со страницы скачивания.",
     "runtime_busy": "Повторите попытку после завершения процесса предпросмотра LRCDF в Lightroom.",
-    "stale_plan": "Обновление изменилось. Откройте настройки обновления, чтобы узнать актуальную версию."
+    "stale_plan": "Обновление изменилось. Откройте настройки обновления, чтобы узнать актуальную версию.",
+    "licenses": "Лицензии и благодарности"
   },
   "sv": {
     "settings": "Uppdateringsinställningar",
@@ -426,7 +438,8 @@
     "offer": "Uppdatering {version} · {size} MB",
     "future": "Installera version {version} från hämtningssidan.",
     "runtime_busy": "Försök igen när LRCDF:s förhandsvisningsprocess i Lightroom har avslutats.",
-    "stale_plan": "Uppdateringen har ändrats. Öppna uppdateringsinställningarna för att se aktuell version."
+    "stale_plan": "Uppdateringen har ändrats. Öppna uppdateringsinställningarna för att se aktuell version.",
+    "licenses": "Licenser och erkännanden"
   },
   "th": {
     "settings": "การตั้งค่าการอัปเดต",
@@ -459,7 +472,8 @@
     "offer": "อัปเดต {version} · {size} MB",
     "future": "ติดตั้งเวอร์ชัน {version} จากหน้าดาวน์โหลด",
     "runtime_busy": "ลองอีกครั้งหลังจากกระบวนการแสดงตัวอย่าง LRCDF ใน Lightroom สิ้นสุดแล้ว",
-    "stale_plan": "มีการเปลี่ยนแปลงการอัปเดต เปิดการตั้งค่าการอัปเดตเพื่อดูเวอร์ชันปัจจุบัน"
+    "stale_plan": "มีการเปลี่ยนแปลงการอัปเดต เปิดการตั้งค่าการอัปเดตเพื่อดูเวอร์ชันปัจจุบัน",
+    "licenses": "สัญญาอนุญาตและเครดิต"
   },
   "nb": {
     "settings": "Innstillinger for oppdatering",
@@ -492,7 +506,8 @@
     "offer": "Oppdatering {version} · {size} MB",
     "future": "Installer versjon {version} fra nedlastingssiden.",
     "runtime_busy": "Prøv igjen når LRCDFs forhåndsvisningsprosess i Lightroom er avsluttet.",
-    "stale_plan": "Oppdateringen er endret. Åpne innstillinger for oppdatering for å se gjeldende versjon."
+    "stale_plan": "Oppdateringen er endret. Åpne innstillinger for oppdatering for å se gjeldende versjon.",
+    "licenses": "Lisenser og anerkjennelser"
   },
   "pl": {
     "settings": "Ustawienia aktualizacji",
@@ -525,7 +540,8 @@
     "offer": "Aktualizacja {version} · {size} MB",
     "future": "Zainstaluj wersję {version} ze strony pobierania.",
     "runtime_busy": "Spróbuj ponownie po zamknięciu procesu podglądu LRCDF w Lightroom.",
-    "stale_plan": "Aktualizacja się zmieniła. Otwórz ustawienia aktualizacji, aby zobaczyć bieżącą wersję."
+    "stale_plan": "Aktualizacja się zmieniła. Otwórz ustawienia aktualizacji, aby zobaczyć bieżącą wersję.",
+    "licenses": "Licencje i podziękowania"
   },
   "vi": {
     "settings": "Cài đặt cập nhật",
@@ -558,7 +574,8 @@
     "offer": "Bản cập nhật {version} · {size} MB",
     "future": "Cài đặt phiên bản {version} từ trang tải xuống.",
     "runtime_busy": "Hãy thử lại sau khi tiến trình xem trước LRCDF trong Lightroom đã thoát.",
-    "stale_plan": "Bản cập nhật đã thay đổi. Mở Cài đặt cập nhật để xem phiên bản hiện tại."
+    "stale_plan": "Bản cập nhật đã thay đổi. Mở Cài đặt cập nhật để xem phiên bản hiện tại.",
+    "licenses": "Giấy phép và ghi công"
   },
   "id": {
     "settings": "Pengaturan Pembaruan",
@@ -591,7 +608,8 @@
     "offer": "Pembaruan {version} · {size} MB",
     "future": "Instal versi {version} dari halaman unduhan.",
     "runtime_busy": "Coba lagi setelah proses pratinjau LRCDF di Lightroom berhenti.",
-    "stale_plan": "Pembaruan berubah. Buka Pengaturan Pembaruan untuk melihat versi terbaru."
+    "stale_plan": "Pembaruan berubah. Buka Pengaturan Pembaruan untuk melihat versi terbaru.",
+    "licenses": "Lisensi dan kredit"
   },
   "tr": {
     "settings": "Güncelleme Ayarları",
@@ -624,7 +642,8 @@
     "offer": "Güncelleme {version} · {size} MB",
     "future": "{version} sürümünü indirme sayfasından yükleyin.",
     "runtime_busy": "Lightroom’daki LRCDF önizleme işlemi kapandıktan sonra yeniden deneyin.",
-    "stale_plan": "Güncelleme değişti. Geçerli sürümü görmek için Güncelleme Ayarları’nı açın."
+    "stale_plan": "Güncelleme değişti. Geçerli sürümü görmek için Güncelleme Ayarları’nı açın.",
+    "licenses": "Lisanslar ve teşekkürler"
   },
   "cs": {
     "settings": "Nastavení aktualizací",
@@ -657,6 +676,7 @@
     "offer": "Aktualizace {version} · {size} MB",
     "future": "Nainstalujte verzi {version} ze stránky ke stažení.",
     "runtime_busy": "Zkuste to znovu po ukončení procesu náhledu LRCDF v Lightroomu.",
-    "stale_plan": "Aktualizace se změnila. Aktuální verzi najdete v nastavení aktualizací."
+    "stale_plan": "Aktualizace se změnila. Aktuální verzi najdete v nastavení aktualizací.",
+    "licenses": "Licence a poděkování"
   }
 }

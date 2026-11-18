@@ -14,6 +14,7 @@ struct LRCDFApp: App {
                 .environmentObject(studio)
                 .frame(minWidth: 760, minHeight: 620)       // below 1000 wide the controls become a paged bar (Views.swift)
                 .preferredColorScheme(.dark)
+                .debugWindows()
                 .onAppear { studio.start() }
         }
         .windowStyle(.hiddenTitleBar)
@@ -24,5 +25,8 @@ struct LRCDFApp: App {
             CommandGroup(after: .help) { Button(L.rightsMenu) { RightsCenter.shared.openCard() } }
         }
         Settings { UpdateSettings() }
+        Window(L.licences, id: Licences.windowID) { LicencesView() }
+            .windowStyle(.hiddenTitleBar)
+            .defaultSize(width: 780, height: 700)
     }
 }

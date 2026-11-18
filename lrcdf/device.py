@@ -125,6 +125,12 @@ def plan():
         _PLAN = Plan(tier, memory, chip, cores, mps=True, release_gpu=True, tiles=8, small_face_model=False, work_mp=12,
                      strip_rows=256, threads=min(cores, 4), preview_idle=120, preview_during_run="release", chunk=3)
     _PLAN = _fit_graphics_memory(_PLAN)
+    if tier == 16 and pick() == "cpu":
+        # Without a graphics card the tiles only cost time: each carries a 128 px rim, so 4 x 4 is about four times
+        # the work. Measured on a 16-thread PC (2026-11-18, 8 large faces): tiles 4 / 2 / 1 = 11.3 / 6.2 / 2.8 s per
+        # face, 1.7 / 3.0 / 4.2 GiB more memory at the peak, output byte-identical. So 2, and 1 from 24 GB on.
+        from dataclasses import replace
+        _PLAN = replace(_PLAN, tiles=1 if memory >= 24 else 2)
     if _PLAN.threads:
         try:
             import cv2

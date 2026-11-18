@@ -24,8 +24,11 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | Python | Interpreter | PSF License |
 | ModelScope skin-retouching package (RetinaFace code) | Face detection code | Apache-2.0 (RetinaFace implementation: MIT) |
 | RetouchFormer model code | Blemish network code | See the RetouchFormer project (AAAI 2024) |
-| OpenCV Zoo | SFace model | Apache-2.0 |
-| Apple system frameworks (SwiftUI, AppKit) | Desktop app | Part of macOS; not redistributed |
+| OpenCV Zoo | SFace model (also converted to Core ML for Tonewell) | Apache-2.0 |
+| Google MediaPipe Face Landmarker models | Face landmarks and blendshapes, converted to Core ML for Tonewell (eye-closure check) | Apache-2.0 |
+| Apple MobileCLIP2-S2 (weights, as a modified Model Derivative) | Make-up and skin-depth scorer | Apple Machine Learning Research Model License Agreement; text in `licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt`. Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement. |
+| Core ML Tools (`coremltools`) | Converts models to Core ML (build time only) | BSD-3-Clause |
+| Apple system frameworks (SwiftUI, AppKit, Core ML, Vision, Core Image) | Desktop and Tonewell apps | Part of macOS; not redistributed |
 | Adobe Lightroom Classic SDK | Plug-in interface | Used under Adobe's SDK terms; not redistributed |
 
 Other packages that the ones above install as their own dependencies (checked with `pip-licenses` on the

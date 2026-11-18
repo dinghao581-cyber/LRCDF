@@ -25,7 +25,7 @@ if (Test-Path -LiteralPath $updateLock) {
 
 # Remove only application-owned paths. Leave plugin_work and APPDATA\LRCDF intact.
 $ownedNames = @('models', 'legacy', 'python', '.update', '.previous', 'project',
-    '.components.json', '.update_build.json', '.update_seen', '.update_result.json')
+    '.components.json', '.update_build.json', '.update_seen', '.update_result.json', '.python_slim.json')
 $targets = @($ownedNames | ForEach-Object { Join-Path $root $_ })
 $targets += @(Get-ChildItem -LiteralPath $root -Directory -Filter 'python.previous-*' | ForEach-Object FullName)
 foreach ($target in $targets) {

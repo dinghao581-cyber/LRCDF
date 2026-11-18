@@ -22,9 +22,8 @@ analytics, no telemetry and no crash reporting.
   descriptor for each clearly seen face, so that the same person can be given
   the same retouching level across photos.
 
-None of this leaves your computer. The only network use is the update check
-and, on the iPad, the one-time download of a title font from Apple, both
-described under "Network use" below; neither sends photos or personal
+None of this leaves your computer. The only outgoing network use is the update
+check described under "Network use" below; it sends no photos or personal
 information.
 
 ## What LRCDF stores on your device
@@ -70,11 +69,26 @@ face data while the photo is open; it is not shown, not written to disk, not
 logged, not sent anywhere, and never used to identify, group or label people. It
 needs no extra model or download. No ethnicity or age/gender is inferred.
 
-On the iPad, face detection uses Apple's on-device Vision framework. The iPad app
-does not compute face features used to recognise who someone is, does not run
-the age/sex estimate, and does not keep `known_people.json`, `people.json` or `person_*.jpg`. Its two settings
-(hide the launch notice, break reminder) and the automatic-update switch are
-kept in the app's preferences.
+On the iPad (and in the standalone Mac app), face detection uses Apple's
+on-device Vision framework. Neither app keeps `known_people.json`, `people.json`
+or `person_*.jpg`; its settings (hide the launch notice, break reminder, turn
+person recognition off, automatic updates) are kept in the app's preferences.
+
+**Per-person settings (from version 0.3).** When you import photos, the app
+computes a face feature vector (OpenCV SFace) on your device for each clearly
+seen face, to recognise the same person across that batch of photos so you can
+set each person separately. The vectors and the 96 px thumbnails shown in the
+people bar exist only in memory: they are not written to disk, not uploaded, and
+disappear when you close the batch or clear it. The people bar appears only when
+a batch contains two or more people. You can switch this off with "turn off
+person recognition" in the settings (it is on by default). Versions before 0.3
+do not do this.
+
+**Optional age/sex model (planned for version 0.3).** An age/sex estimate can be
+added as an optional download. The Mac app asks the first time you use
+per-person settings; on the iPad you can download it manually in the settings.
+It runs on your device and uploads no photos, and per-person settings work
+without it. The download is described under "Network use".
 
 ## Network use
 
@@ -89,13 +103,6 @@ kept in the app's preferences.
   address, the time and LRCDF's version and platform; those servers (Gitee,
   GitHub) handle that under their own privacy policies. LRCDF itself keeps no
   record of it and has no server of its own.
-- **Title font on the iPad.** The iPad app shows its titles in Songti, a font
-  that Apple provides but that is not on every iPad. While automatic updates
-  are on, the app asks iPadOS to fetch that font once from Apple's font
-  servers. The request is made by the system to Apple and is handled under
-  Apple's privacy policy; it carries nothing about you or your photos, and
-  LRCDF keeps no record of it. Until the font has arrived, titles use the
-  system font.
 - **Tethered shooting on the iPad (off by default).** Only after you tap
   "Start receiving" on the tethered-shooting page, and only until you tap stop or
   the app leaves the foreground, the iPad app listens on TCP port 2121 on local
@@ -122,8 +129,13 @@ kept in the app's preferences.
   the shutter, or delete anything on the memory card. Nothing is sent anywhere.
 - **Turning it off.** You can switch automatic updates off in LRCDF's settings at
   any time. With it off, LRCDF makes **no outgoing network connections** while running:
-  no update check and no font download. (Tethered shooting, if you turn it on,
+  no update check. (Tethered shooting, if you turn it on,
   only receives from your local network, as described above.)
+- **Optional age/sex model (planned for version 0.3).** If you choose to
+  download it, the app fetches one model file from the project's release page
+  on GitHub. The request shows GitHub your IP address, the time and the app's
+  version, handled under GitHub's privacy policy; nothing about you or your
+  photos is sent. Nothing is downloaded unless you choose it.
 - Installing LRCDF may download the software itself, its dependencies (for
   example Python packages) and its model files from the servers of the project's
   release page, your package manager or the model publishers. Those downloads are governed by the privacy policies of those

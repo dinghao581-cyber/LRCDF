@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "cpu": "8da4b95de633d9bb",
+    "cu124": "9f835f0a3cf43829"
+  },
+  "remove": {
+    "suffixes": [".lib", ".h", ".hpp", ".hxx", ".pyi"],
+    "folders": ["test", "tests"],
+    "keep_names": ["pyconfig.h"]
+  },
+  "remove_after_testing": {
+    "packages": ["jax", "jaxlib", "networkx"]
+  }
+}

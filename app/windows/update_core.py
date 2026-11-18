@@ -488,6 +488,8 @@ class UpdateClient:
                         self._menu_changed(output / "project")):
                     restart_lightroom = True
                 installed[part.name] = part.version
+                for note in [key for key in installed if key.startswith(part.name + ":")]:
+                    del installed[note]         # what a slimmed bundle noted about the component it replaces
             _cancelled(stop)
             targets.sort(key=lambda item: 2 if item["target"] == "app" else item["target"].count("/"))
             plan = {"version": offer.version, "platform": offer.platform, "components": installed,
