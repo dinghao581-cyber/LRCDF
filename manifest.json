@@ -21,27 +21,23 @@
    ]
   },
   "ipad": {
-   "version": "0.1",
+   "version": "0.3",
    "min_os": "27.0",
    "notes": {
-    "zh": "iPad 版改名为 Tonewell。",
-    "en": "The iPad app is now called Tonewell."
+    "zh": "Tonewell 0.3：五官和身形精细调整、按人设置、选片、20 种语言、更快的滑块；可选年龄模型下载。",
+    "en": "Tonewell 0.3: fine control over face and body, settings for each person, photo selection, 20 languages, much faster sliders; optional age model download."
    },
-   "components": [
-    "models-ipad"
-   ],
+   "components": [],
    "ipa": "ipa-ipad"
   },
   "mac-studio": {
-   "version": "0.1",
+   "version": "0.3",
    "min_os": "14.0",
    "notes": {
-    "zh": "Tonewell for Mac：不需要 Lightroom 的独立版。",
-    "en": "Tonewell for Mac: the standalone app that does not need Lightroom."
+    "zh": "Tonewell 0.3：五官和身形精细调整、按人设置、选片、20 种语言、更快的滑块；可选年龄模型下载；导出新增 JPEG XL 10 位。",
+    "en": "Tonewell 0.3: fine control over face and body, settings for each person, photo selection, 20 languages, much faster sliders; optional age model download; JPEG XL 10-bit export."
    },
-   "components": [
-    "models-ipad"
-   ]
+   "components": []
   },
   "win-x64-cpu": {
    "version": "0.1.4",
@@ -315,16 +311,16 @@
    "sha256_joined": "899bd233b4739e204661502d78f9ab43f551097a7528689477261f8cb519b714"
   },
   "ipa-ipad": {
-   "version": "0.1-1",
+   "version": "0.3-3",
    "install": "app",
    "keep": [],
    "restart": "none",
    "files": [
     {
-     "size": 109402829,
-     "sha256": "eac36a417bc3ccf81ad1e0bfdcf917372b68f610f38794faf69648d7d1bbf3b1",
+     "size": 130457772,
+     "sha256": "215a46ab881d23d4b889565373b5ad8b59955d1016d7707fa7b40c1fe7fbb4b4",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/ipad-models-1a7b80b619719eda/Tonewell-iPad-0.1.ipa"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3/Tonewell-iPad-0.3.ipa"
      ]
     }
    ]
@@ -777,5 +773,5 @@
    "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
   }
  },
- "published": "2026-11-18T15:20:56Z"
+ "published": "2026-11-19T12:51:20Z"
 }

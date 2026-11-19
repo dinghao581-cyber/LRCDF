@@ -1,0 +1,42 @@
+{
+ "name": "Tonewell",
+ "identifier": "io.github.dinghao581-cyber.lrcdf",
+ "subtitle": "Tonewell for iPad",
+ "description": "Tonewell, from the LRCDF project: one-click portrait retouch, all on the device.",
+ "iconURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3/Tonewell-icon.png",
+ "website": "https://github.com/dinghao581-cyber/LRCDF",
+ "tintColor": "#F5C400",
+ "apps": [
+  {
+   "name": "Tonewell",
+   "bundleIdentifier": "com.ding.lrcdf.ipad",
+   "developerName": "LRCDF contributors",
+   "subtitle": "One-click portrait retouch",
+   "localizedDescription": "Tone looks and skin retouch (frequency separation) on the iPad, offline.",
+   "iconURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3/Tonewell-icon.png",
+   "tintColor": "#F5C400",
+   "category": "photo-video",
+   "appPermissions": {
+    "entitlements": [],
+    "privacy": {
+     "NSCameraUsageDescription": "Tethered shooting by cable: read photos newly taken on a camera connected with a USB cable.",
+     "NSLocalNetworkUsageDescription": "Tethered shooting: receive photos your camera sends over your local network using its FTP auto-transfer.",
+     "NSPhotoLibraryAddUsageDescription": "Save your retouched photos to your photo library.",
+     "NSPhotoLibraryUsageDescription": "Choose photos from your library to retouch."
+    }
+   },
+   "versions": [
+    {
+     "version": "0.3",
+     "buildVersion": "3",
+     "date": "2026-11-19T12:51:20Z",
+     "localizedDescription": "Tonewell 0.3: fine control over face and body, settings for each person, photo selection, 20 languages, much faster sliders; optional age model download.",
+     "downloadURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3/Tonewell-iPad-0.3.ipa",
+     "size": 130457772,
+     "minOSVersion": "27.0"
+    }
+   ]
+  }
+ ],
+ "news": []
+}
