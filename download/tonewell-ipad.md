@@ -2,9 +2,9 @@
 
 The standalone app from the LRCDF project: one-click portrait retouching that runs entirely on the iPad and does not need Lightroom. Photos never leave the device.
 
-**Latest version: 0.1** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda)
+**Latest version: 0.3** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-ipad-v0.3)
 
-- Download: [Tonewell-iPad-0.1.ipa](https://github.com/dinghao581-cyber/LRCDF/releases/download/ipad-models-1a7b80b619719eda/Tonewell-iPad-0.1.ipa)
+- Download: [Tonewell-iPad-0.3.ipa](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3/Tonewell-iPad-0.3.ipa)
 
 ## Requirements
 
@@ -29,23 +29,20 @@ iPadOS 27 or newer.
 
 ## Install
 
-(not on the App Store; you sign it with your own Apple Account)
-The easiest way is to let an AI assistant guide you: give it [`ipad/INSTALL_WITH_AI.md`](https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md).
-- **Route A, from source (Mac with Xcode):** run
-  `curl -fsSL https://raw.githubusercontent.com/dinghao581-cyber/LRCDF/main/ipad/install.sh -o install.sh && zsh install.sh`
-  It downloads the source and the model package from the release page, checks them and installs the app on your connected iPad.
-- **Route B, ready-made app:** download `Tonewell-iPad-0.1.ipa` from this page and sign it with Sideloadly or AltStore.
+Not on the App Store: you sign it with your own Apple Account.
+Download `Tonewell-iPad-0.3.ipa` from this page and sign it with AltStore, SideStore or Sideloadly. To get updates in AltStore or SideStore, add the source `https://raw.githubusercontent.com/dinghao581-cyber/LRCDF/update/altstore.json`. The build-from-source route (`ipad/install.sh`) still installs version 0.1; the 0.3 source will follow.
 
-Apps signed with a free Apple Account must be installed again every 7 days (run the script again, or sign the same `.ipa` again). With a paid developer account it lasts a year.
+Apps signed with a free Apple Account must be installed again every 7 days (sign the same `.ipa` again). With a paid developer account it lasts a year.
 
 ## Updates
 
-The app tells you when a new version is out. Install it the same way as before.
+The app tells you when a new version is out; if you added the AltStore source above, AltStore offers it. The optional age and sex model (about 78 MB) is downloaded only when you choose it in Settings.
 
 ## All versions
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3 | [tonewell-ipad-v0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-ipad-v0.3) |  |
 | 0.1 | [ipad-models-1a7b80b619719eda](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda) |  |
 
 ## Licences

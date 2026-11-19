@@ -2,9 +2,9 @@
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your Mac.
 
-**Latest version: 0.1** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1)
+**Latest version: 0.3** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3)
 
-- Download: [Tonewell-macOS-0.1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.1/Tonewell-macOS-0.1.zip)
+- Download: [Tonewell-macOS-0.3.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3/Tonewell-macOS-0.3.zip)
 
 ## What it does
 
@@ -21,17 +21,18 @@ macOS 14 Sonoma or newer, on Apple silicon or Intel. On macOS 26 the app uses Li
 
 ## Install
 
-1. Download `Tonewell-macOS-0.1.zip`, unzip it and move `Tonewell.app` to Applications.
+1. Download `Tonewell-macOS-0.3.zip`, unzip it and move `Tonewell.app` to Applications (replace Tonewell 0.1 if you have it).
 2. The app is not signed with an Apple developer certificate, so macOS blocks it the first time. On macOS 15 and newer: click **Done** in the message, open **System Settings → Privacy & Security**, click **Open Anyway** next to the note about Tonewell and enter your login password, then open the app again and confirm with **Open Anyway**. On macOS 14: right-click the app, choose **Open**, then **Open** again. You only do this once.
 
 ## Updates
 
-The app tells you when a new version is out; download it from this page.
+The app tells you when a new version is out; download it from this page. The optional age and sex model (about 78 MB) is downloaded only when you choose it in Settings.
 
 ## All versions
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3 | [tonewell-mac-v0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3) |  |
 | 0.1 | [tonewell-mac-v0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) |  |
 
 ## Licences
