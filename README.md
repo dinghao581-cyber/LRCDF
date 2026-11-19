@@ -19,10 +19,12 @@ computer; nothing is uploaded.
 
 | Version | Download | Requires | Needs Lightroom Classic |
 |---|---|---|---|
-| **LRCDF for Mac** (Lightroom plug-in) | [Latest release](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer | Yes |
-| **Tonewell for Mac** (standalone app from the LRCDF project) | [Tonewell for Mac 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) | macOS 14 or newer, Apple silicon or Intel | No |
-| **Tonewell for iPad** (standalone app from the LRCDF project) | [Tonewell for iPad 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
-| **LRCDF for Windows** (Lightroom plug-in) | [LRCDF for Windows 0.1.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4) | Windows 10 or 11, 64-bit; CPU package, or CUDA package for NVIDIA graphics cards | Yes |
+| [**LRCDF for Mac**](download/lrcdf-mac.md) (Lightroom plug-in) | [Latest release](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer | Yes |
+| [**Tonewell for Mac**](download/tonewell-mac.md) (standalone app from the LRCDF project) | [Tonewell for Mac 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) | macOS 14 or newer, Apple silicon or Intel | No |
+| [**Tonewell for iPad**](download/tonewell-ipad.md) (standalone app from the LRCDF project) | [Tonewell for iPad 0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/ipad-models-1a7b80b619719eda) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
+| [**LRCDF for Windows**](download/lrcdf-windows.md) (Lightroom plug-in) | [LRCDF for Windows 0.1.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4) | Windows 10 or 11, 64-bit; CPU package, or CUDA package for NVIDIA graphics cards | Yes |
+
+Each version has its own page with requirements, installation steps and every release: [LRCDF for Mac](download/lrcdf-mac.md) · [LRCDF for Windows](download/lrcdf-windows.md) · [Tonewell for Mac](download/tonewell-mac.md) · [Tonewell for iPad](download/tonewell-ipad.md).
 
 Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 
