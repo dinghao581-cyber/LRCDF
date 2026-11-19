@@ -16,6 +16,9 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | ONNX Runtime | Runs the age/sex model | MIT |
 | Pillow | Image I/O | MIT-CMU (HPND) |
 | rawpy / LibRaw | RAW decoding (where used) | rawpy: MIT; LibRaw: LGPL-2.1 or CDDL-1.0 (dynamic use) |
+| pi-heif (decode-only build of pillow-heif) with libheif and libde265 | Read HEIC photos (Windows app) | pi-heif: BSD-3-Clause; libheif: LGPL-3.0; libde265: LGPL-3.0 (shipped as separate DLLs) |
+| Microsoft Visual C++ runtime (`vcomp140.dll`, bundled in the rawpy wheel) | OpenMP runtime for LibRaw | Microsoft Visual C++ Redistributable terms |
+| Lucide icons | Interface icons (Windows app) | ISC; portions derived from Feather: MIT (copyright notices on lucide.dev/license) |
 | tifffile | 16-bit TIFF I/O | BSD-3-Clause |
 | imageio | Image I/O | BSD-2-Clause |
 | albumentations | Legacy retouch pre-processing | MIT |
@@ -24,6 +27,7 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | Python | Interpreter | PSF License |
 | ModelScope skin-retouching package (RetinaFace code) | Face detection code | Apache-2.0 (RetinaFace implementation: MIT) |
 | RetouchFormer model code | Blemish network code | See the RetouchFormer project (AAAI 2024) |
+| ternaus/retinaface and biubug6/Pytorch_Retinaface | RetinaFace implementation and ResNet-50 weights (face detection) | MIT (texts in `licenses/`) |
 | OpenCV Zoo | SFace model (also converted to Core ML for Tonewell) | Apache-2.0 |
 | Google MediaPipe Face Landmarker models | Face landmarks and blendshapes, converted to Core ML for Tonewell (eye-closure check) | Apache-2.0 |
 | Apple MobileCLIP2-S2 (weights, as a modified Model Derivative) | Make-up and skin-depth scorer | Apple Machine Learning Research Model License Agreement; text in `licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt`. Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement. |
@@ -38,6 +42,13 @@ filelock, fonttools, pyparsing, cffi, sounddevice (MIT / MIT-0); Jinja2, MarkupS
 lazy-loader, networkx, fsspec, mpmath, sympy, protobuf, pycparser, python-dateutil, scikit-image, coremltools (BSD);
 packaging (Apache-2.0 or BSD-2-Clause); matplotlib (PSF-based Matplotlib licence); typing-extensions (PSF-2.0);
 certifi (MPL-2.0); pyaml (public domain). Re-run `pip-licenses` on the environment that is actually shipped.
+
+LGPL libraries (LibRaw, libheif, libde265) are shipped as separate dynamic libraries
+that you can replace with your own build of the same version family. Their licence
+texts ship with the package, and their source is available from the upstream
+projects: https://github.com/LibRaw/LibRaw, https://github.com/strukturag/libheif,
+https://github.com/strukturag/libde265. Do not substitute `pillow-heif`'s Windows
+wheel: it additionally bundles the GPL-2.0 x265 encoder, which LRCDF does not use or ship.
 
 Apache-2.0 and BSD/MIT notices are preserved in the packages as installed. If
 you redistribute a bundled environment (for example the installer package),
