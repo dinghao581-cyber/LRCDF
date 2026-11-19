@@ -2,6 +2,8 @@
 
 One-click portrait retouching inside Lightroom Classic on Windows x64. Everything is inside the package: Python, all packages, the models, the Lightroom plug-in and the LRCDF desktop app. Photos never leave your computer.
 
+> Note: this version bundles Google MediaPipe 1.2.3, which sends usage statistics (not your photos) to Google while face/body detection runs. See [PRIVACY.md](../legal/PRIVACY.md).
+
 **Latest version: 0.1.4** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4)
 
 - Download: [LRCDF-Windows-x64-cpu.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/win-v0.1.4/LRCDF-Windows-x64-cpu.zip)

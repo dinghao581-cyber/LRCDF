@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: 2026-11-16 · Applies to LRCDF on every platform it
+Last updated: 2026-11-20 · Applies to LRCDF on every platform it
 runs on: macOS, Windows and iPad (the Lightroom Classic plug-in, the companion
 app, the iPad app and the command-line tools).
 
@@ -8,7 +8,9 @@ app, the iPad app and the command-line tools).
 
 LRCDF runs entirely on your own device (Mac, Windows PC or iPad). It does not collect, upload, sell or share
 your photos, faces or any personal information. It has no accounts, no
-analytics, no telemetry and no crash reporting.
+analytics of its own, no telemetry of its own and no crash reporting. One
+exception: the LRCDF Lightroom plug-in bundles a Google MediaPipe library that
+sends usage statistics to Google (see "Network use" below). Tonewell does not.
 
 ## What LRCDF processes
 
@@ -22,9 +24,11 @@ analytics, no telemetry and no crash reporting.
   descriptor for each clearly seen face, so that the same person can be given
   the same retouching level across photos.
 
-None of this leaves your computer. The only outgoing network use is the update
-check described under "Network use" below; it sends no photos or personal
-information.
+None of this leaves your computer. The only outgoing network use that LRCDF
+itself makes is the update check described under "Network use" below; it sends no
+photos or personal information. In the LRCDF plug-in, a bundled Google library
+also sends usage statistics, described in the same section; it does not send your
+photos.
 
 ## What LRCDF stores on your device
 
@@ -156,9 +160,28 @@ applied to the wrong person; check every result.
   the iPad's own). LRCDF then only reads photos newly taken on that camera and
   saves them in its own folder. It does not change the camera's settings, release
   the shutter, or delete anything on the memory card. Nothing is sent anywhere.
+- **Google MediaPipe usage statistics (LRCDF Lightroom plug-in, Mac and Windows).**
+  The plug-in bundles Google's MediaPipe library (version 1.2.3) for face and body
+  detection. Google's own terms say that MediaPipe sends metrics about the
+  performance and use of its APIs to Google (engagement such as installs and session
+  counts, inference counts and hardware-level performance, an app identifier and
+  general characteristics of the processed media such as image or video, and the host
+  system and version), and that the input data itself, such as your photos, is
+  processed on your device and not sent to Google. In practice the library contacts
+  `play.googleapis.com` while it is in use, that is, in the steps that use face or
+  body detection (retouching, shaping, culling and the skin-tone check). LRCDF does
+  not start, receive or see this traffic and cannot read its content, which is
+  encrypted; LRCDF does not upload your photos. Google documents no setting to turn
+  it off; the data is handled under Google's privacy policy. If you want to avoid it
+  completely, use the plug-in without an internet connection (the features work
+  offline) or block `play.googleapis.com`. Tonewell on Mac and iPad does not include
+  this library, and Tonewell for Windows uses a MediaPipe build without this
+  reporting.
 - **Turning it off.** You can switch automatic updates off in LRCDF's settings at
-  any time. With it off, LRCDF makes **no outgoing network connections** while running:
-  no update check. (Tethered shooting, if you turn it on,
+  any time. With it off, LRCDF itself makes **no outgoing network connections** while
+  running: no update check. (This switch does not control the bundled Google
+  MediaPipe library of the LRCDF plug-in, described above; Tonewell has no such
+  reporting.) (Tethered shooting, if you turn it on,
   only receives from your local network, as described above.)
 - **Optional age/sex model download (Tonewell Mac and iPad, version 0.3).** If you choose to
   download it, the app fetches one model file from the project's release page

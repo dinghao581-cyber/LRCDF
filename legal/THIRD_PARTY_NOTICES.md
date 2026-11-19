@@ -12,7 +12,7 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | NumPy | Arrays | BSD-3-Clause |
 | SciPy | Filtering, image maths | BSD-3-Clause |
 | OpenCV (`opencv-python-headless`, `opencv-contrib-python`) | Image processing, SFace | Apache-2.0 |
-| MediaPipe | Face, pose and segmentation runtime | Apache-2.0 |
+| MediaPipe (LRCDF plug-in: version 1.2.3) | Face, pose and segmentation runtime | Apache-2.0. This build sends usage statistics to Google; see `PRIVACY.md`, "Network use" |
 | ONNX Runtime | Runs the age/sex model | MIT |
 | Pillow | Image I/O | MIT-CMU (HPND) |
 | rawpy / LibRaw | RAW decoding (where used) | rawpy: MIT; LibRaw: LGPL-2.1 or CDDL-1.0 (dynamic use) |
@@ -33,10 +33,10 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | Google MediaPipe Pose Landmarker models (BlazePose GHUM 3D) | Body landmarks for shaping | Apache-2.0 (per the model card) |
 | Google MediaPipe Face Landmarker models | Face landmarks and blendshapes, converted to Core ML for Tonewell (eye-closure check) | Apache-2.0 |
 | Apple MobileCLIP2-S2 (weights, as a modified Model Derivative) | Make-up and skin-depth scorer | Apple Machine Learning Research Model License Agreement; text in `licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt`. Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement. |
-| libjxl 0.11.1 (tag v0.11.1; "the JPEG XL Project Authors") | JPEG XL export, statically linked (Tonewell for Mac only) | BSD-3-Clause with the JPEG XL patent grant (`licenses_mac/LIBJXL_LICENSE.txt`, `licenses_mac/LIBJXL_PATENTS.txt`) |
-| Highway 1.2.0 (commit 457c891, bundled with libjxl; "The Highway Project Authors") | SIMD support for libjxl (Tonewell for Mac only) | Apache-2.0 or BSD-3-Clause (`licenses_mac/HIGHWAY_LICENSE.txt`, `licenses_mac/HIGHWAY_BSD3_LICENSE.txt`) |
-| Brotli 1.0.9 (commit 36533a8, bundled with libjxl; "the Brotli Authors") | Compression for libjxl (Tonewell for Mac only) | MIT (`licenses_mac/BROTLI_LICENSE.txt`) |
-| skcms (commit 42030a7, bundled with libjxl; Google Inc.) | Colour management for libjxl (Tonewell for Mac only) | BSD-3-Clause (`licenses_mac/SKCMS_LICENSE.txt`) |
+| libjxl 0.11.1 (tag v0.11.1; "the JPEG XL Project Authors") | JPEG XL export. Tonewell for Mac: statically linked. Tonewell for Windows: the official v0.11.1 release DLLs `jxl.dll`, `jxl_cms.dll`, `jxl_threads.dll` | BSD-3-Clause with the JPEG XL patent grant (`licenses_mac/LIBJXL_LICENSE.txt`, `licenses_mac/LIBJXL_PATENTS.txt`) |
+| Highway 1.2.0 (commit 457c891, bundled with libjxl; "The Highway Project Authors") | SIMD support for libjxl (Tonewell for Mac; on Windows it is linked into `jxl.dll` of the official release) | Apache-2.0 or BSD-3-Clause (`licenses_mac/HIGHWAY_LICENSE.txt`, `licenses_mac/HIGHWAY_BSD3_LICENSE.txt`) |
+| Brotli 1.0.9 (commit 36533a8, bundled with libjxl; "the Brotli Authors") | Compression for libjxl (Tonewell for Mac; on Windows the release's `brotlicommon.dll`, `brotlienc.dll`, `brotlidec.dll`) | MIT (`licenses_mac/BROTLI_LICENSE.txt`) |
+| skcms (commit 42030a7, bundled with libjxl; Google Inc.) | Colour management for libjxl (Tonewell for Mac; on Windows it is part of `jxl_cms.dll`) | BSD-3-Clause (`licenses_mac/SKCMS_LICENSE.txt`) |
 | Core ML Tools (`coremltools`) | Converts models to Core ML (build time only) | BSD-3-Clause |
 | Apple system frameworks (SwiftUI, AppKit, Core ML, Vision, Core Image) | Desktop and Tonewell apps | Part of macOS; not redistributed |
 | Adobe Lightroom Classic SDK | Plug-in interface | Used under Adobe's SDK terms; not redistributed |

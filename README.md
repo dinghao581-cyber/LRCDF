@@ -1,7 +1,7 @@
 # LRCDF
 
-One-click portrait retouching for Adobe Lightroom Classic on Apple-silicon Macs. Everything runs on your own
-computer; nothing is uploaded.
+One-click portrait retouching for Adobe Lightroom Classic on Apple-silicon Macs. Your photos stay on your
+own computer.
 
 - **Tone**: a model predicts Lightroom develop settings per photo (several built-in looks, small nudges, and your own
   looks learnt from the photos you have edited).
@@ -67,7 +67,7 @@ with the ready-to-use app on the Releases page. Their terms are described in `le
 
 ## Privacy
 
-No accounts, analytics, telemetry or network use while running. See `legal/PRIVACY.md`.
+LRCDF itself has no accounts, analytics or telemetry. The Lightroom plug-in bundles Google's MediaPipe library, which sends usage statistics to Google while face or body detection runs (no photos; details and how to avoid it in [`legal/PRIVACY.md`](legal/PRIVACY.md)). Tonewell does not.
 
 ## Trademarks
 
