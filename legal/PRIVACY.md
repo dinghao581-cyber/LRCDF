@@ -67,28 +67,57 @@ to decide, for that photo, how much of a look's brightening to take back so that
 dark skin keeps its natural depth. It is kept in memory with that photo's other
 face data while the photo is open; it is not shown, not written to disk, not
 logged, not sent anywhere, and never used to identify, group or label people. It
-needs no extra model or download. No ethnicity or age/gender is inferred.
+needs no extra model or download. This skin-depth step infers no ethnicity, age or sex (age and sex are estimated only by the separate age/sex model described below).
 
-On the iPad (and in the standalone Mac app), face detection uses Apple's
-on-device Vision framework. Neither app keeps `known_people.json`, `people.json`
-or `person_*.jpg`; its settings (hide the launch notice, break reminder, turn
-person recognition off, automatic updates) are kept in the app's preferences.
+In Tonewell on a Mac or iPad, face detection uses Apple's on-device Vision
+framework; on Windows it uses a face detector that runs inside the app on your PC.
+Tonewell does not keep `known_people.json`, `people.json` or `person_*.jpg`. Its
+settings (hide the launch notice, break reminder, turn person recognition off,
+automatic updates) are kept in the app's preferences on a Mac or iPad, and in the
+app's local data folder on your PC on Windows.
 
-**Per-person settings (from version 0.3).** When you import photos, the app
+**Per-person settings (Tonewell).** When you import photos, the app
 computes a face feature vector (OpenCV SFace) on your device for each clearly
 seen face, to recognise the same person across that batch of photos so you can
 set each person separately. The vectors and the 96 px thumbnails shown in the
 people bar exist only in memory: they are not written to disk, not uploaded, and
 disappear when you close the batch or clear it. The people bar appears only when
 a batch contains two or more people. You can switch this off with "turn off
-person recognition" in the settings (it is on by default). Versions before 0.3
-do not do this.
+person recognition" in the settings (it is on by default). Tonewell for Windows
+does not have per-person settings yet; none of this happens there until it does.
 
-**Optional age/sex model (planned for version 0.3).** An age/sex estimate can be
-added as an optional download. The Mac app asks the first time you use
-per-person settings; on the iPad you can download it manually in the settings.
-It runs on your device and uploads no photos, and per-person settings work
-without it. The download is described under "Network use".
+**Age/sex model (Tonewell).** An age/sex estimate is used to start children
+and men at the lightest retouch level, and as one safeguard for the "Fuller bust"
+shaping step. In the Tonewell Mac and iPad apps the model is an optional download:
+the Mac app asks the first time you use per-person settings; on the iPad you can
+download it manually in the settings. The Tonewell Windows app includes the model,
+so nothing is downloaded. The model always runs on your device and
+uploads no photos; its result for a face is kept only in memory with that photo.
+
+**The "Fuller bust" step (Tonewell for Mac, iPad and Windows).** For each person in each photo,
+the first time you use "Fuller bust", the app asks you to type that person's age and
+to tick "I confirm this person is 18 or older." (the box is never pre-ticked and
+is not remembered). Nothing carries over to another photo, even if the same person
+appears in it. The step works only if the age you enter is 18 or more and the box
+is ticked; for under 18 it is not available, whether or not the box is ticked.
+This does not depend on the age model and applies even when the model is not
+installed (on Windows the model is always included, so the limit below always
+applies there). If the optional model is installed, there is one more limit: for a
+person the model reads as under 18, the step is not available and cannot be
+switched on by typing an age. The step is also never used on people the model
+reads as men (when the model is installed). Other body and face shaping is not
+changed by age.
+
+**An age you type** for a person is kept only in memory, with that photo. It is
+not written to disk, not included in exported files or logs, and not uploaded, and
+it is gone when you close the photo. Per-person settings work without the model.
+The download is described under "Network use".
+
+Age estimates can be wrong, in either direction. The age model often reads
+teenagers as adults, so it is only used to block people it reads as under 18; it
+does not confirm that anyone is an adult. The software also cannot verify an age
+you type. These safeguards reduce, but do not remove, the chance that a step is
+applied to the wrong person; check every result.
 
 ## Network use
 
@@ -131,7 +160,7 @@ without it. The download is described under "Network use".
   any time. With it off, LRCDF makes **no outgoing network connections** while running:
   no update check. (Tethered shooting, if you turn it on,
   only receives from your local network, as described above.)
-- **Optional age/sex model (planned for version 0.3).** If you choose to
+- **Optional age/sex model download (Tonewell Mac and iPad, version 0.3).** If you choose to
   download it, the app fetches one model file from the project's release page
   on GitHub. The request shows GitHub your IP address, the time and the app's
   version, handled under GitHub's privacy policy; nothing about you or your
