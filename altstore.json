@@ -27,6 +27,15 @@
    },
    "versions": [
     {
+     "version": "0.3.1",
+     "buildVersion": "4",
+     "date": "2026-11-20T11:21:45Z",
+     "localizedDescription": "Tonewell 0.3.1: pictures appear sooner, no pause the first time a slider is used, JPEG/HEIC face areas no longer one row off, and models downloaded for an earlier version are no longer used after an update.",
+     "downloadURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.1/Tonewell-iPad-0.3.1.ipa",
+     "size": 130475094,
+     "minOSVersion": "27.0"
+    },
+    {
      "version": "0.3",
      "buildVersion": "3",
      "date": "2026-11-19T12:51:20Z",

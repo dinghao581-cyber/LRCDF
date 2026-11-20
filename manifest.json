@@ -21,21 +21,21 @@
    ]
   },
   "ipad": {
-   "version": "0.3",
+   "version": "0.3.1",
    "min_os": "27.0",
    "notes": {
-    "zh": "Tonewell 0.3：五官和身形精细调整、按人设置、选片、20 种语言、更快的滑块；可选年龄模型下载。",
-    "en": "Tonewell 0.3: fine control over face and body, settings for each person, photo selection, 20 languages, much faster sliders; optional age model download."
+    "zh": "Tonewell 0.3.1：打开照片后更快出图；滑块第一次使用不再停顿；修正 JPEG/HEIC 照片人脸区域错位一行；更新后不再使用旧版本下载的模型。",
+    "en": "Tonewell 0.3.1: pictures appear sooner, no pause the first time a slider is used, JPEG/HEIC face areas no longer one row off, and models downloaded for an earlier version are no longer used after an update."
    },
    "components": [],
    "ipa": "ipa-ipad"
   },
   "mac-studio": {
-   "version": "0.3",
+   "version": "0.3.1",
    "min_os": "14.0",
    "notes": {
-    "zh": "Tonewell 0.3：五官和身形精细调整、按人设置、选片、20 种语言、更快的滑块；可选年龄模型下载；导出新增 JPEG XL 10 位。",
-    "en": "Tonewell 0.3: fine control over face and body, settings for each person, photo selection, 20 languages, much faster sliders; optional age model download; JPEG XL 10-bit export."
+    "zh": "Tonewell 0.3.1：打开照片后更快出图；滑块第一次使用不再停顿；修正 JPEG/HEIC 照片人脸区域错位一行；更新后不再使用旧版本下载的模型。",
+    "en": "Tonewell 0.3.1: pictures appear sooner, no pause the first time a slider is used, JPEG/HEIC face areas no longer one row off, and models downloaded for an earlier version are no longer used after an update."
    },
    "components": []
   },
@@ -320,16 +320,16 @@
    "sha256_joined": "899bd233b4739e204661502d78f9ab43f551097a7528689477261f8cb519b714"
   },
   "ipa-ipad": {
-   "version": "0.3-3",
+   "version": "0.3.1-4",
    "install": "app",
    "keep": [],
    "restart": "none",
    "files": [
     {
-     "size": 130457772,
-     "sha256": "215a46ab881d23d4b889565373b5ad8b59955d1016d7707fa7b40c1fe7fbb4b4",
+     "size": 130475094,
+     "sha256": "c31bdfee0fc90b05ece69d46309a2732591a5c314cb9ced47e7803e7e02bdba2",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3/Tonewell-iPad-0.3.ipa"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.1/Tonewell-iPad-0.3.1.ipa"
      ]
     }
    ]
@@ -782,5 +782,5 @@
    "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
   }
  },
- "published": "2026-11-20T10:40:45Z"
+ "published": "2026-11-20T11:21:45Z"
 }
