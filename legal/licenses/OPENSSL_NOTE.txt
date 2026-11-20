@@ -1,0 +1,4 @@
+OpenSSL 4.0.3 is statically included in the cryptography wheel (cryptography 50.0.2,
+Windows) and is licensed under the Apache License, Version 2.0. Its licence text is the
+Apache-2.0 text in CRYPTOGRAPHY_LICENSE.APACHE.txt (same folder). OpenSSL ships no
+separate NOTICE file.

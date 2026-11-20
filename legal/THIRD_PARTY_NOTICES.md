@@ -19,7 +19,8 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | pi-heif (decode-only build of pillow-heif) with libheif and libde265 | Read HEIC photos (Windows app) | pi-heif: BSD-3-Clause; libheif: LGPL-3.0; libde265: LGPL-3.0 (shipped as separate DLLs) |
 | Microsoft Visual C++ runtime (`vcomp140.dll`, bundled in the rawpy wheel) | OpenMP runtime for LibRaw | Microsoft Visual C++ Redistributable terms |
 | Lucide icons | Interface icons (Windows app) | ISC; portions derived from Feather: MIT (copyright notices on lucide.dev/license) |
-| cryptography 50.0.2 (statically includes OpenSSL 4.0.3) | Verify update signatures (Windows apps) | Apache-2.0 or BSD-3-Clause (texts in `licenses/CRYPTOGRAPHY_LICENSE*.txt`); OpenSSL: Apache-2.0 |
+| Qt for Python: PySide6_Essentials and shiboken6 6.8.3 (Qt 6.8.3 libraries) | Interface of the LRCDF and Tonewell apps for Windows | Used under the **LGPL-3.0** (the packages are offered under LGPL-3.0-only, GPL-2.0-only, GPL-3.0-only or a Qt commercial licence; we use the LGPL option). Texts: `licenses/LGPL-3.0.txt`, `licenses/GPL-3.0.txt`. Qt itself bundles further third-party components, listed at https://doc.qt.io/qt-6/licenses-used-in-qt.html |
+| cryptography 50.0.2 (statically includes OpenSSL 4.0.3) | Verify update signatures (Windows apps) | Apache-2.0 or BSD-3-Clause (texts in `licenses/CRYPTOGRAPHY_LICENSE*.txt`); OpenSSL: Apache-2.0 (`licenses/OPENSSL_NOTE.txt`) |
 | tifffile | 16-bit TIFF I/O | BSD-3-Clause |
 | imageio | Image I/O | BSD-2-Clause |
 | albumentations | Legacy retouch pre-processing | MIT |
@@ -49,6 +50,14 @@ filelock, fonttools, pyparsing, cffi, sounddevice (MIT / MIT-0); Jinja2, MarkupS
 lazy-loader, networkx, fsspec, mpmath, sympy, protobuf, pycparser, python-dateutil, scikit-image, coremltools (BSD);
 packaging (Apache-2.0 or BSD-2-Clause); matplotlib (PSF-based Matplotlib licence); typing-extensions (PSF-2.0);
 certifi (MPL-2.0); pyaml (public domain). Re-run `pip-licenses` on the environment that is actually shipped.
+
+Qt for Python and Qt (LGPL-3.0): the Windows apps use them as separate dynamic
+libraries (the `PySide6\*.dll`, `shiboken6\*.dll` and Python extension files in
+the installation folder), without modification. You may replace them with your own
+build of the same Qt / PySide6 version family; the app then runs against your
+build. Source code: Qt https://download.qt.io/official_releases/qt/6.8/6.8.3/ and
+Qt for Python https://code.qt.io/cgit/pyside/pyside-setup.git (tag v6.8.3). The
+app's own licence does not restrict this replacement.
 
 LGPL libraries (LibRaw, libheif, libde265) are shipped as separate dynamic libraries
 that you can replace with your own build of the same version family. Their licence
