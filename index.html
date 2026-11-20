@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LRCDF and Tonewell: free portrait retouching on your own computer</title>
+<meta name="description" content="Free, open-source portrait retouching that fades blemishes, keeps real skin texture and runs entirely on your own device. For Lightroom Classic, or as a standalone app for Mac, iPad and Windows.">
+<meta name="theme-color" content="#141414">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="img/favicon.png" type="image/png">
+<link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/webp" href="img/hero-before-1169.webp" imagesrcset="img/hero-before-720.webp 720w, img/hero-before-1169.webp 1169w" imagesizes="(max-width: 860px) 100vw, 55vw" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" href="img/hero-after-1169.webp" imagesrcset="img/hero-after-720.webp 720w, img/hero-after-1169.webp 1169w" imagesizes="(max-width: 860px) 100vw, 55vw" fetchpriority="high">
+<style>
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("fonts/bricolage-grotesque-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+:root {
+  --bg: #141414;
+  --raised: #1e1e1e;
+  --line: rgba(255, 255, 255, .11);
+  --ink: #f3f3f0;
+  --soft: #aaaaa5;
+  --peach: #ffc794;
+  --yellow: #ffd60a;
+  --gutter: clamp(20px, 4vw, 56px);
+  --display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --text: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; font: 400 17px/1.55 var(--text); }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-underline-offset: .18em; text-decoration-thickness: 1px; }
+a:hover { color: #fff; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+h1, h2, h3, p, ul, figure, table { margin: 0; }
+h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: -.022em; text-wrap: balance; }
+h1 { font-size: clamp(2.9rem, 5.5vw, 5.5rem); line-height: .98; }
+h2 { font-size: clamp(2.1rem, 3.7vw, 3.5rem); line-height: 1.03; }
+h3 { font-size: 1rem; font-weight: 600; }
+ul { padding: 0; list-style: none; }
+.soft { color: var(--soft); }
+.small { font-size: .875rem; line-height: 1.5; }
+
+/* Before / after */
+.cmp { --p: 50%; position: relative; overflow: hidden; background: #222 center / cover no-repeat; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.cmp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.cmp .after { clip-path: inset(0 0 0 var(--p)); }
+.cmp .bar { position: absolute; top: 0; bottom: 0; left: var(--p); width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); pointer-events: none; }
+.cmp .grip { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 46px; height: 46px; margin: -23px; border-radius: 50%; background: #fff; color: #111; }
+.cmp .grip svg { width: 22px; height: 22px; }
+.cmp input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cmp input:focus-visible ~ .bar .grip { outline: 2px solid #fff; outline-offset: 3px; }
+.tag { position: absolute; top: 14px; padding: 3px 10px; border-radius: 4px; background: rgba(0, 0, 0, .62); color: #fff; font-size: .8125rem; font-weight: 500; pointer-events: none; }
+.tag.b { left: 14px; }
+.tag.a { right: 14px; }
+
+/* Top */
+.hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); min-height: 100vh; min-height: 100svh; }
+.intro { display: flex; flex-direction: column; padding: 22px var(--gutter) clamp(24px, 4vh, 44px); }
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: .9375rem; }
+.brand b { font-family: var(--display); font-size: 1.125rem; font-weight: 600; white-space: nowrap; }
+.brand nav { display: flex; align-items: center; gap: 16px; white-space: nowrap; }
+.brand nav a:first-child { display: none; }
+@media (max-width: 1239px) { .brand nav a:nth-child(2) { display: none; } }
+.brand nav a { color: var(--soft); text-decoration: none; }
+.brand nav a:hover { color: var(--ink); }
+.pitch { margin-block: auto; padding-block: clamp(28px, 5vh, 56px); }
+.pitch p { max-width: 31em; margin-top: 20px; color: var(--soft); font-size: clamp(1.0625rem, 1.3vw, 1.1875rem); }
+.paths { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.path { --accent: var(--peach); display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--raised); text-decoration: none; transition: border-color .15s; }
+.path.tw { --accent: var(--yellow); }
+.path:hover { border-color: var(--accent); }
+.path .who { font-family: var(--display); font-size: 1.1875rem; font-weight: 600; line-height: 1.15; }
+.path .what { display: flex; align-items: center; gap: 10px; margin-top: auto; font-size: .875rem; line-height: 1.3; color: var(--soft); }
+.path .what img { flex: none; width: 40px; height: 40px; }
+.path .what b { display: block; color: var(--accent); font-weight: 600; }
+.hero .cmp { min-height: 520px; }
+.hero figcaption { position: absolute; left: 14px; bottom: 14px; max-width: calc(100% - 28px); padding: 3px 10px; border-radius: 4px; background: rgba(0, 0, 0, .62); color: #e8e8e4; font-size: .8125rem; pointer-events: none; }
+
+/* Results */
+.result { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; gap: clamp(28px, 5vw, 80px); padding: clamp(56px, 9vw, 128px) var(--gutter) 0 0; }
+.result.flip { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); padding-inline: var(--gutter) 0; }
+.result.flip .copy { order: -1; }
+.result .cmp { aspect-ratio: 1; }
+.result .cmp.skin { aspect-ratio: 4 / 3; }
+.result .cmp.loupe { width: min(100%, 300px); margin-top: 22px; }
+.loupe .grip { width: 34px; height: 34px; margin: -17px; }
+.loupe .grip svg { width: 18px; height: 18px; }
+.loupe .tag { top: 8px; font-size: .75rem; }
+.loupe .tag.b { left: 8px; }
+.loupe .tag.a { right: 8px; }
+.copy p { max-width: 30em; margin-top: 18px; color: var(--soft); }
+.copy p.limit { padding-top: 14px; border-top: 1px solid var(--line); font-size: .9375rem; }
+.copy p strong { color: var(--ink); font-weight: 600; }
+.wide { padding: clamp(56px, 9vw, 128px) 0 0; }
+.wide .head { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: end; gap: 14px clamp(28px, 5vw, 80px); padding: 0 var(--gutter) clamp(24px, 3vw, 40px); }
+.wide .head p { color: var(--soft); max-width: 32em; }
+.wide .head p + p { margin-top: 12px; font-size: .9375rem; }
+.group { aspect-ratio: 2400 / 1594; }
+.group .who { position: absolute; bottom: 5%; transform: translateX(-50%); padding: 4px 11px; border-radius: 4px; background: #fff; color: #111; font-size: .875rem; font-weight: 600; white-space: nowrap; pointer-events: none; }
+.warm { aspect-ratio: 1000 / 430; max-width: 1000px; margin-inline: var(--gutter); }
+
+/* Which one */
+section.plain { padding: clamp(72px, 10vw, 144px) var(--gutter) 0; }
+.lede { max-width: 36em; margin-top: 16px; color: var(--soft); }
+.compare { width: 100%; margin-top: 34px; border-collapse: collapse; }
+.compare th, .compare td { padding: 13px 16px 13px 0; border-top: 1px solid var(--line); text-align: left; vertical-align: top; font-weight: 400; }
+.compare thead th { border-top: 0; padding-bottom: 16px; vertical-align: bottom; scroll-margin-top: 20px; }
+.compare tbody th { width: 26%; color: var(--soft); }
+.compare td { width: 37%; }
+.compare .name { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-size: 1.5rem; font-weight: 600; }
+.compare .name img { width: 48px; height: 48px; }
+.no { color: #77776f; }
+
+/* Download */
+.get { margin-top: 34px; border-bottom: 1px solid var(--line); }
+.get li { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 4fr) auto; gap: 8px 24px; align-items: center; padding: 18px 0; border-top: 1px solid var(--line); }
+.get h3 { font-family: var(--display); font-size: 1.1875rem; line-height: 1.2; }
+.get .for { display: block; margin-top: 2px; color: var(--soft); font: 400 .875rem/1.4 var(--text); }
+.get .btn { justify-self: end; padding: 9px 15px; border-radius: 7px; background: var(--ink); color: #111; font-size: .9375rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.get .btn:hover { background: #fff; color: #000; }
+.note { margin-top: 16px; }
+
+/* Before you install */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px clamp(24px, 4vw, 56px); margin-top: 34px; }
+.facts p { margin-top: 6px; color: var(--soft); font-size: .9688rem; }
+
+footer { margin-top: clamp(72px, 10vw, 144px); padding: 36px var(--gutter) 44px; border-top: 1px solid var(--line); color: var(--soft); font-size: .875rem; line-height: 1.55; }
+footer .cols { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px clamp(28px, 5vw, 80px); }
+footer h3 { margin-bottom: 8px; color: var(--ink); font-size: .875rem; }
+footer li + li { margin-top: 6px; }
+footer p + p { margin-top: 10px; }
+
+@media (max-width: 860px) {
+  body { font-size: 16px; }
+  .hero { display: flex; flex-direction: column; min-height: 0; }
+  .intro { display: contents; }
+  .brand { order: 1; padding: 16px var(--gutter) 0; }
+  .pitch { order: 2; margin: 0; padding: 20px var(--gutter) 16px; }
+  h1 { font-size: 2.625rem; }
+  .pitch p { margin-top: 10px; font-size: 1rem; line-height: 1.4; }
+  .brand nav { gap: 12px; }
+  #lang { max-width: 7.5em; }
+  .brand nav a:nth-child(2) { display: none; }
+  .hero .cmp { order: 3; min-height: 0; aspect-ratio: 1 / .94; }
+  .paths { order: 4; gap: 10px; padding: 14px var(--gutter) 0; }
+  .path { padding: 13px; }
+  .path .who { font-size: 1.0625rem; }
+  .path .what { gap: 8px; font-size: .8125rem; }
+  .path .what img { width: 34px; height: 34px; }
+  .result, .result.flip { display: flex; flex-direction: column; align-items: stretch; gap: 22px; padding: 64px 0 0; }
+  .result.flip .copy { order: 0; }
+  .copy { padding-inline: var(--gutter); }
+  .wide .head { grid-template-columns: 1fr; }
+  .group { aspect-ratio: 1.15; }
+  .group img { object-position: 45% 50%; }
+  .group .who { padding: 3px 8px; font-size: .75rem; }
+  .warm { aspect-ratio: 1.75; margin-inline: 0; }
+  .compare th, .compare td { padding-right: 10px; font-size: .875rem; }
+  .compare tbody th { width: 24%; }
+  .compare td { width: 38%; }
+  .compare .name { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 1.1875rem; }
+  .compare .name img { width: 38px; height: 38px; }
+  .get li { grid-template-columns: minmax(0, 1fr) auto; }
+  .get .needs, .get .first { grid-column: 1 / -1; }
+  .get .btn { grid-column: 2; grid-row: 1; }
+  .facts, footer .cols { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .path { transition: none; }
+}
+
+/* Language switch */
+#lang { max-width: 9.5em; text-overflow: ellipsis; appearance: none; -webkit-appearance: none; padding: 5px 26px 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--raised) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23aaa' stroke-width='1.5'/%3E%3C/svg%3E") right 9px center / 9px no-repeat; color: var(--ink); font: inherit; font-size: .875rem; cursor: pointer; }
+#lang[hidden] { display: none; }
+/* The heading font has Western European letters only: other scripts use the system's own face throughout. */
+html.sysfont { --display: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans", "Microsoft YaHei", "Malgun Gothic", "Noto Sans", sans-serif; }
+html.sysfont h1, html.sysfont h2 { letter-spacing: 0; line-height: 1.12; }
+:lang(zh) h1, :lang(ko) h1, :lang(ko) h2 { word-break: keep-all; line-break: strict; }
+html.sysfont h1 { font-size: clamp(2.4rem, 4.4vw, 4.6rem); overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+
+<main>
+<div class="hero">
+  <div class="intro">
+    <header class="brand">
+      <b>LRCDF + Tonewell</b>
+      <nav aria-label="Page" data-i18n-aria="t133">
+        <a href="#results" data-i18n="t080">Results</a>
+        <a href="#download" data-i18n="t081">Download</a>
+        <a href="https://github.com/dinghao581-cyber/LRCDF">GitHub</a>
+        <select id="lang" aria-label="Language" hidden></select>
+      </nav>
+    </header>
+    <div class="pitch">
+      <h1 data-i18n="t001">Fade the blemish. Keep the skin.</h1>
+      <p data-i18n="t002">Free, open-source portrait retouching that runs entirely on your own device. Your photos are never uploaded.</p>
+    </div>
+    <div class="paths">
+      <a class="path" href="#lrcdf">
+        <span class="who" data-i18n="t082">I edit in Lightroom Classic</span>
+        <span class="what"><img src="img/icon-lrcdf-96.webp" width="40" height="40" alt=""><span><b>LRCDF</b><span data-i18n="t083">Plug-in for Mac and Windows</span></span></span>
+      </a>
+      <a class="path tw" href="#tonewell">
+        <span class="who" data-i18n="t084">I don’t use Lightroom</span>
+        <span class="what"><img src="img/icon-tonewell-96.webp" width="40" height="40" alt=""><span><b>Tonewell</b><span data-i18n="t085">App for Mac, iPad and Windows</span></span></span>
+      </a>
+    </div>
+  </div>
+  <figure class="cmp" data-intro style="background-image:url(data:image/webp;base64,UklGRroAAABXRUJQVlA4IK4AAAAQBQCdASoTABgAPu1sq1EppaOiqAqpMB2JQBdgAaLS9ySHQs3qT4bSh4hWdkWCr8gAAP7upyRI0XKbWVP0LBbDQ7jZigzDkz9jm7bpsd9tqFRFnjwVJaGFGSsLaM+dLb31HvbH+29D5Cex2Y+rGcWaVraXwmByDc3IRP9S4f2+dX9IqVQgP1h46E6imJKK/Rpr/8irleSbouRJn0Gosuw3EXkeHFlXAHeUQzgAAAA=)">
+    <img src="img/hero-before-1169.webp" srcset="img/hero-before-720.webp 720w, img/hero-before-1169.webp 1169w" sizes="(max-width: 860px) 100vw, 55vw" width="1169" height="1461" fetchpriority="high" alt="Portrait of a smiling woman with dark skin and sunglasses on her head, as photographed." data-i18n-alt="t121">
+    <img class="after" src="img/hero-after-1169.webp" srcset="img/hero-after-720.webp 720w, img/hero-after-1169.webp 1169w" sizes="(max-width: 860px) 100vw, 55vw" width="1169" height="1461" fetchpriority="high" alt="The same portrait after toning and retouching. Her skin stays deep and its texture is still visible." data-i18n-alt="t122">
+    <span class="tag b" data-i18n="t086">Before</span><span class="tag a" data-i18n="t087">After</span>
+    <input type="range" min="0" max="100" value="50" aria-label="Move the divider between before and after" data-i18n-aria="t134">
+    <span class="bar"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span></span>
+    <figcaption data-i18n="t003">Real LRCDF output, one click, no hand edits</figcaption>
+  </figure>
+</div>
+
+<div id="results">
+  <section class="result">
+    <figure class="cmp skin" style="background-image:url(data:image/webp;base64,UklGRqIAAABXRUJQVlA4IJYAAAAwBQCdASoYABIAPxF6tlMsJ6UiqAqpgCIJYgC3uAup+Xx5DlAuvyxfKXxPgT8oPIHGAAD+oUNfeA7hEHe8A+tvPuRZ/mTP4E656f3KB6q8GQU/CeziIPwM2wa4XvEWwAjqgY7BPVFYUkMg7xjUb9SzxFb0GCOklZnqO/VxeEQM2lsAUNxOAyF4LdFDWrXZZeZAIc0AAAA=)">
+      <img loading="lazy" decoding="async" src="img/skin-before-1400.webp" srcset="img/skin-before-800.webp 800w, img/skin-before-1400.webp 1400w" sizes="(max-width: 860px) 100vw, 58vw" width="1400" height="1050" alt="Close portrait of an older man with grey hair, with dark spots across his nose and cheeks." data-i18n-alt="t123">
+      <img class="after" loading="lazy" decoding="async" src="img/skin-after-1400.webp" srcset="img/skin-after-800.webp 800w, img/skin-after-1400.webp 1400w" sizes="(max-width: 860px) 100vw, 58vw" width="1400" height="1050" alt="The same portrait after retouching. The dark spots have faded and his wrinkles and stubble remain." data-i18n-alt="t124">
+      <span class="tag b" data-i18n="t088">Before</span><span class="tag a" data-i18n="t089">After</span>
+      <input type="range" min="0" max="100" value="50" aria-label="Move the divider on the skin portrait" data-i18n-aria="t135">
+      <span class="bar"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span></span>
+    </figure>
+    <div class="copy">
+      <h2 data-i18n="t004">Spots fade. Pores stay.</h2>
+      <p data-i18n="t005">Retouching works by frequency separation. Colour and light are evened in one layer, while the fine texture sits in another and is only reduced on the blemishes themselves. Skin still looks like skin.</p>
+      <figure class="cmp loupe" style="background-image:url(data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAACwBQCdASoYABgAPxF6sFMsJ6QiqA1RgCIJQBWGYwA0WWmkLE9vMlvLaRAsySZNSbZN9Mxb94AA/eDnaokrE/O7DGV+mBot8F8zE8EHa/7qLGdLt5oUrCr8ANnU7ypKNEOU0MJUVa+XC4M+U1YvLYmKt/oGSJStO7UvNbYuxIAAAA==)">
+        <img loading="lazy" decoding="async" src="img/pores-before-600.webp" width="600" height="600" alt="Magnified side of the nose and cheek before retouching, with dark spots and clear pores." data-i18n-alt="t125">
+        <img class="after" loading="lazy" decoding="async" src="img/pores-after-600.webp" width="600" height="600" alt="The same area after retouching. The spots are lighter and the pores remain." data-i18n-alt="t126">
+        <span class="tag b" data-i18n="t090">Before</span><span class="tag a" data-i18n="t091">After</span>
+        <input type="range" min="0" max="100" value="50" aria-label="Move the divider on the magnified skin" data-i18n-aria="t136">
+        <span class="bar"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span></span>
+      </figure>
+      <p class="limit" data-i18n="t006">Zoomed in on the same cheek. Large raised spots may not disappear completely, so some marks stay faintly visible. For those, finish by hand.</p>
+    </div>
+  </section>
+
+  <section class="result flip">
+    <figure class="cmp" style="background-image:url(data:image/webp;base64,UklGRr4AAABXRUJQVlA4ILIAAAAwBQCdASoYABgAPu1krE6ppaSiKA1RMB2JYwCdABBaH/vTopKh1zZskIk1auZYPF0OAAD9U76Z9Tg/jvHbELDhqttDy/cPwB2rq3NUpIH+Be8QUE5X/8wlwiujTVOxSWeaR2aYJZbfhWOiyS7I0nm1h27FGixB6xozrgxj93GNMCS06D/XrSosgQGaYO9+pjyn6dtJ7+Gx8Ri7OZxQI7LjczwCBsy0m8Inz+VJIgjSQzAA)">
+      <img loading="lazy" decoding="async" src="img/deep-before-1400.webp" srcset="img/deep-before-760.webp 760w, img/deep-before-1400.webp 1400w" sizes="(max-width: 860px) 100vw, 58vw" width="1400" height="1400" alt="A laughing woman with deep brown skin wearing a beaded headdress." data-i18n-alt="t127">
+      <img class="after" loading="lazy" decoding="async" src="img/deep-after-1400.webp" srcset="img/deep-after-760.webp 760w, img/deep-after-1400.webp 1400w" sizes="(max-width: 860px) 100vw, 58vw" width="1400" height="1400" alt="The same photo after retouching. Her skin is just as deep as before." data-i18n-alt="t128">
+      <span class="tag b" data-i18n="t092">Before</span><span class="tag a" data-i18n="t093">After</span>
+      <input type="range" min="0" max="100" value="50" aria-label="Move the divider on the deep skin portrait" data-i18n-aria="t137">
+      <span class="bar"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span></span>
+    </figure>
+    <div class="copy">
+      <h2 data-i18n="t007">Deep skin stays deep.</h2>
+      <p data-i18n="t008">Retouching doesn’t make anyone lighter. If you can barely tell the two sides apart here, that’s the point. Colour looks are also held back on faces that read as dark, so they keep their own depth.</p>
+      <p class="limit" data-i18n="t009">Toning still corrects exposure. An under-exposed or backlit face can get brighter along with the rest of the photo, and you can pull that back with the brightness control.</p>
+    </div>
+  </section>
+
+  <section class="wide">
+    <div class="head">
+      <h2 data-i18n="t010">Everyone in the photo gets their own setting.</h2>
+      <div>
+        <p data-i18n="t011">LRCDF recognises the people across a shoot. Choose a level for each of them, including no retouching at all. Here the woman on the left was left alone.</p>
+        <p data-i18n="t012">Tonewell does this too on Mac and iPad, not yet on Windows.</p>
+      </div>
+    </div>
+    <figure class="cmp group" style="background-image:url(data:image/webp;base64,UklGRr4AAABXRUJQVlA4ILIAAACwBACdASoYABAAPu1iqU2ppaOiMAgBMB2JbACxG1ABfHEZewrsQvu6iH4K+RQAAP7maON3NXSFN7NcDV4Aym4PFLzbpUICDy36Qr5WpVoQdKCKFSkI37fhxFlPGK1+gt+Gr8wr46c1j9YwW710udOScqyZbJAu87Dz/zi8c+2F6Xr1NM1I9BLJyJIJnPVyf+Pu94qmenCE3uXPyufTEmbNlW/Q3424juBSLGCIXFxMAAAA)">
+      <img loading="lazy" decoding="async" src="img/group-before-1800.webp" srcset="img/group-before-1000.webp 1000w, img/group-before-1800.webp 1800w" sizes="100vw" width="1800" height="1196" alt="Three smiling women standing close together in front of red pillars." data-i18n-alt="t129">
+      <img class="after" loading="lazy" decoding="async" src="img/group-after-1800.webp" srcset="img/group-after-1000.webp 1000w, img/group-after-1800.webp 1800w" sizes="100vw" width="1800" height="1196" alt="The same photo. The woman on the left is unchanged, the woman in the centre has stronger retouching and the woman on the right has natural retouching." data-i18n-alt="t130">
+      <span class="tag b" data-i18n="t094">Before</span><span class="tag a" data-i18n="t095">After</span>
+      <span class="who" style="left:22%" data-i18n="t096">Off</span><span class="who" style="left:48%" data-i18n="t097">Refined</span><span class="who" style="left:74%" data-i18n="t098">Natural</span>
+      <input type="range" min="0" max="100" value="60" aria-label="Move the divider on the group photo" data-i18n-aria="t138">
+      <span class="bar"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span></span>
+    </figure>
+  </section>
+
+  <section class="wide">
+    <div class="head">
+      <h2 data-i18n="t013">Warm colours stay warm.</h2>
+      <div>
+        <p data-i18n="t014">A look’s orange and yellow skin corrections are applied to skin alone, so warm clothes, props and backgrounds aren’t thinned out with it.</p>
+        <p data-i18n="t015">Paint or make-up on skin counts as skin and can soften a little.</p>
+      </div>
+    </div>
+    <figure class="cmp warm" style="background-image:url(data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAAAwBACdASoYAAoAPu1iqU2ppaOiMAgBMB2JZgCdL1ABZKmEe1nwhFw1c6AA94ZD8T3wxLZ32A7kgTZCsWjaBPDoe6FTiEviuttcRAlmYHGLBNr/jC9v8mNRx2oZuZDi7igDUajLbSb9n9eNnnrCnc67H3MPOdFIIxjlsEde1vUQ8mE5J28v0+vTGUrvyWt7lf8HIezapaOlD5//BnSAAA==)">
+      <img loading="lazy" decoding="async" src="img/warm-before-1000.webp" srcset="img/warm-before-640.webp 640w, img/warm-before-1000.webp 1000w" sizes="100vw" width="1000" height="430" alt="Bright orange feathers worn in dark curly hair." data-i18n-alt="t131">
+      <img class="after" loading="lazy" decoding="async" src="img/warm-after-1000.webp" srcset="img/warm-after-640.webp 640w, img/warm-after-1000.webp 1000w" sizes="100vw" width="1000" height="430" alt="The same feathers after a look is applied, still fully orange." data-i18n-alt="t132">
+      <span class="tag b" data-i18n="t099">Before</span><span class="tag a" data-i18n="t100">After</span>
+      <input type="range" min="0" max="100" value="50" aria-label="Move the divider on the orange feathers" data-i18n-aria="t139">
+      <span class="bar"><span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span></span>
+    </figure>
+  </section>
+</div>
+
+<section class="plain" id="which">
+  <h2 data-i18n="t016">Which one is yours?</h2>
+  <p class="lede" data-i18n="t017">If your photos already live in Lightroom Classic, use LRCDF. If they don’t, Tonewell does the job on its own.</p>
+  <table class="compare">
+    <thead>
+      <tr>
+        <td aria-hidden="true"></td>
+        <th scope="col" id="lrcdf"><span class="name"><img loading="lazy" src="img/icon-lrcdf-96.webp" width="48" height="48" alt="">LRCDF</span></th>
+        <th scope="col" id="tonewell"><span class="name"><img loading="lazy" src="img/icon-tonewell-96.webp" width="48" height="48" alt="">Tonewell</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row" data-i18n="t018">Runs on</th><td data-i18n="t019">Mac and Windows</td><td data-i18n="t020">Mac, iPad and Windows</td></tr>
+      <tr><th scope="row" data-i18n="t021">Lightroom Classic</th><td data-i18n="t022">Required</td><td data-i18n="t023">Not needed</td></tr>
+      <tr><th scope="row" data-i18n="t024">Finished photos</th><td data-i18n="t025">A new TIFF stacked above the original in your catalogue</td><td data-i18n="t026">New files saved separately; originals untouched</td></tr>
+      <tr><th scope="row" data-i18n="t027">Skin retouching</th><td data-i18n="t028">Yes</td><td data-i18n="t029">Yes</td></tr>
+      <tr><th scope="row" data-i18n="t030">Looks and fine tuning</th><td data-i18n="t031">Yes</td><td data-i18n="t032">Yes</td></tr>
+      <tr><th scope="row" data-i18n="t033">Face and body shaping</th><td data-i18n="t034">Optional</td><td data-i18n="t035">Optional</td></tr>
+      <!-- Tonewell: when a feature ships, change <td class="no" data-i18n="t036">No</td> to <td data-i18n="t037">Yes</td> in the row. See README.md. -->
+      <tr id="row-people"><th scope="row" data-i18n="t038">A level for each person</th><td data-i18n="t039">Yes</td><td data-i18n="t040">Mac and iPad</td></tr>
+      <tr id="row-learn"><th scope="row" data-i18n="t041">Learns a look from your edits</th><td data-i18n="t042">Yes</td><td class="no" data-i18n="t043">No</td></tr>
+      <tr id="row-culling"><th scope="row" data-i18n="t044">Flags closed eyes and soft focus</th><td data-i18n="t045">Yes</td><td data-i18n="t046">Mac and iPad</td></tr>
+      <tr><th scope="row" data-i18n="t047">Tethered shooting</th><td class="no" data-i18n="t048">No</td><td data-i18n="t049">iPad only: USB (Sony A7R V) or the camera’s FTP transfer over Wi-Fi. Tested with a Sony A7R V.</td></tr>
+      <tr id="row-language"><th scope="row" data-i18n="t050">Interface language</th><td data-i18n="t051">20 languages</td><td data-i18n="t052">20 languages</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="plain" id="download">
+  <h2 data-i18n="t053">Pick your device.</h2>
+  <p class="lede" data-i18n="t054">Downloads are on the project’s GitHub releases page, where each release lists its files and install steps.</p>
+  <!-- Release links and sizes: see README.md. -->
+  <ul class="get">
+    <li>
+      <h3><span data-i18n="t101">Mac with Lightroom Classic</span><span class="for">LRCDF</span></h3>
+      <span class="needs small soft" data-i18n="t102">Apple silicon (M1 or later), macOS 14 or newer, 8 GB memory</span>
+      <span class="first small soft" data-i18n="t103">About 1.8 GB. Allow it once in System Settings.</span>
+      <a class="btn" href="https://github.com/dinghao581-cyber/LRCDF/releases/latest" data-i18n="t104">Get it</a>
+    </li>
+    <li>
+      <h3><span data-i18n="t105">Windows with Lightroom Classic</span><span class="for">LRCDF</span></h3>
+      <span class="needs small soft" data-i18n="t106">Windows 10 or 11, 64-bit, 16 GB memory. NVIDIA build optional.</span>
+      <span class="first small soft" data-i18n="t107">1.9 GB, or 4.2 GB in three parts for NVIDIA. Installed from PowerShell.</span>
+      <a class="btn" href="https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.5" data-i18n="t108">Get it</a>
+    </li>
+    <li>
+      <h3><span data-i18n="t109">Mac without Lightroom</span><span class="for">Tonewell</span></h3>
+      <span class="needs small soft" data-i18n="t110">Apple silicon or Intel, macOS 14 or newer. Tested on Apple silicon only so far.</span>
+      <span class="first small soft" data-i18n="t111">About 130 MB. Allow it once in System Settings.</span>
+      <a class="btn" href="https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.1" data-i18n="t112">Get it</a>
+    </li>
+    <li>
+      <h3><span data-i18n="t113">iPad</span><span class="for">Tonewell</span></h3>
+      <span class="needs small soft" data-i18n="t114">iPadOS 27 or newer, plus a Mac or PC to install from</span>
+      <span class="first small soft" data-i18n="t115">About 130 MB. Sideloaded with your own Apple Account.</span>
+      <a class="btn" href="https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-ipad-v0.3.1" data-i18n="t116">Get it</a>
+    </li>
+    <li>
+      <h3><span data-i18n="t117">Windows without Lightroom</span><span class="for">Tonewell</span></h3>
+      <span class="needs small soft" data-i18n="t118">Windows 11, 64-bit. An NVIDIA card makes it faster but isn’t needed. Tested on one PC so far.</span>
+      <span class="first small soft" data-i18n="t119">3 GB in two files. Extract both into one folder, then run Tonewell.</span>
+      <a class="btn" href="https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1" data-i18n="t120">Get it</a>
+    </li>
+  </ul>
+</section>
+
+<section class="plain" id="know">
+  <h2 data-i18n="t055">Worth knowing first.</h2>
+  <div class="facts">
+    <div>
+      <h3 data-i18n="t056">Free and open source</h3>
+      <p data-i18n="t057">There is no paid tier and no account. The source code is Apache-2.0. Model weights come with the apps and have their own terms, listed in the repository.</p>
+    </div>
+    <div>
+      <h3 data-i18n="t058">Your photos stay with you</h3>
+      <p data-i18n="t059">All toning and retouching happens on your device, and no photo is ever uploaded. The apps check for updates, which sends nothing about you and can be switched off. One exception: a Google library inside LRCDF sends usage statistics, without photos, to Google while it looks for faces. Tonewell sends nothing of the kind. The <a href="https://github.com/dinghao581-cyber/LRCDF/blob/main/legal/PRIVACY.md">privacy policy</a> has the details.</p>
+    </div>
+    <div>
+      <h3 data-i18n="t060">A spare-time project</h3>
+      <p data-i18n="t061">This is independent software, not a company’s product, so expect rough edges. If a photo comes out wrong or an install gets stuck, please <a href="https://github.com/dinghao581-cyber/LRCDF/issues">open an issue</a>.</p>
+    </div>
+    <div>
+      <h3 data-i18n="t062">First launch on a Mac</h3>
+      <p data-i18n="t063">The apps aren’t signed by Apple, so macOS blocks them the first time. Go to System Settings, then Privacy &amp; Security, and choose Open Anyway. You only do this once.</p>
+    </div>
+    <div>
+      <h3 data-i18n="t064">First launch on Windows</h3>
+      <p data-i18n="t065">Neither app is signed for Windows, so you may see a warning. LRCDF installs by running the included script in PowerShell. Tonewell needs no installer: extract both downloads into the same folder and run it. No administrator rights are needed.</p>
+    </div>
+    <div>
+      <h3 data-i18n="t066">Installing on iPad</h3>
+      <p data-i18n="t067">Tonewell isn’t on the App Store, so you sideload it. With a free Apple Account it has to be reinstalled every 7 days. The <a href="https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md">install guide</a> can be handed to an AI assistant to walk you through it.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="cols">
+    <div>
+      <h3 data-i18n="t068">Photo credits</h3>
+      <ul>
+        <li data-i18n="t069">Top portrait: <a href="https://www.flickr.com/photos/136483850@N04/35293905281/">H JACQUOT</a>, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+        <li data-i18n="t070"><a href="https://commons.wikimedia.org/wiki/File:Old_man_face.jpg">Old man face (Laos)</a> — Basile Morin, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, retouched. This retouched version is shared under CC BY-SA 4.0.</li>
+        <li data-i18n="t071">Deep skin portrait: <a href="https://commons.wikimedia.org/wiki/File:African_woman_rusinga.jpg">Jeffmugendi</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></li>
+        <li data-i18n="t072">Group photo: <a href="https://www.flickr.com/photos/chleong/4465080514/">chee.hong</a>, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+        <li data-i18n="t073">Orange feathers: <a href="https://www.flickr.com/photos/danboarder/34032807992/">dan lundmark</a>, <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a></li>
+      </ul>
+      <p data-i18n="t074">All “after” images were cropped and processed with LRCDF, with no manual retouching. The CC BY-SA adaptations are shared under the same licence. The photographers and the people pictured have no connection with this project and do not endorse it.</p>
+    </div>
+    <div>
+      <h3 data-i18n="t075">About this page</h3>
+      <p data-i18n="t076">No cookies, analytics or third-party resources. The web host may keep ordinary server logs.</p>
+      <p data-i18n="t077">Heading font: Bricolage Grotesque (<a href="fonts/OFL.txt">SIL Open Font License</a>).</p>
+      <p data-i18n="t078">Adobe, Lightroom and Lightroom Classic are trademarks of Adobe Inc. Mac and iPad are trademarks of Apple Inc. Windows is a trademark of Microsoft. This project is independent of all three.</p>
+      <p data-i18n="t079"><a href="https://github.com/dinghao581-cyber/LRCDF/tree/main/legal">Privacy policy and terms</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.cmp').forEach(function (box) {
+    var input = box.querySelector('input');
+    var touched = false, dragging = false;
+    function set(v) {
+      v = Math.max(0, Math.min(100, v));
+      box.style.setProperty('--p', v + '%');
+      input.value = Math.round(v);
+    }
+    function fromEvent(e) {
+      var r = box.getBoundingClientRect();
+      set((e.clientX - r.left) / r.width * 100);
+    }
+    set(+input.value);
+    box.addEventListener('pointerdown', function (e) {
+      if (e.button) return;
+      touched = dragging = true;
+      box.setPointerCapture(e.pointerId);
+      fromEvent(e);
+      input.focus({ preventScroll: true });
+    });
+    box.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    box.addEventListener('pointermove', function (e) { if (dragging) fromEvent(e); });
+    ['pointerup', 'pointercancel'].forEach(function (n) {
+      box.addEventListener(n, function () { dragging = false; });
+    });
+    input.addEventListener('input', function () { touched = true; set(+input.value); });
+    if (box.hasAttribute('data-intro') && !reduced) {
+      // One small sway after loading, to show that the divider moves.
+      var time = 1500, reach = 6, start;
+      setTimeout(function () {
+        requestAnimationFrame(function step(now) {
+          if (touched) return;
+          start = start || now;
+          var t = Math.min(1, (now - start) / time);
+          set(50 + reach * Math.sin(t * Math.PI * 2) * (1 - t));
+          if (t < 1) requestAnimationFrame(step);
+        });
+      }, 500);
+    }
+  });
+})();
+
+(function () {
+  // Languages: English is in the page itself; the others are small files in i18n/, fetched only when chosen.
+  var names = { en: 'English', 'zh-Hans': '简体中文', 'zh-Hant': '繁體中文', ja: '日本語', ko: '한국어', es: 'Español', fr: 'Français', de: 'Deutsch', 'pt-BR': 'Português (Brasil)', it: 'Italiano', nl: 'Nederlands', ru: 'Русский', sv: 'Svenska', nb: 'Norsk bokmål', pl: 'Polski', cs: 'Čeština', tr: 'Türkçe', th: 'ไทย', vi: 'Tiếng Việt', id: 'Bahasa Indonesia' };
+  var western = { en: 1, es: 1, fr: 1, de: 1, 'pt-BR': 1, it: 1, nl: 1, sv: 1, nb: 1, id: 1 };
+  var select = document.getElementById('lang'), english = null;
+  function nodes(f) {
+    document.querySelectorAll('[data-i18n]').forEach(function (e) { f(e, e.getAttribute('data-i18n'), 'html'); });
+    document.querySelectorAll('[data-i18n-alt]').forEach(function (e) { f(e, e.getAttribute('data-i18n-alt'), 'alt'); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (e) { f(e, e.getAttribute('data-i18n-aria'), 'aria-label'); });
+  }
+  function keep() {          // the English text, read once from the page
+    english = { title: document.title };
+    nodes(function (e, k, how) { english[k] = how === 'html' ? e.innerHTML : e.getAttribute(how); });
+  }
+  function show(lang, table) {
+    nodes(function (e, k, how) {
+      var v = table[k] || english[k];
+      if (how === 'html') e.innerHTML = v; else e.setAttribute(how, v);
+    });
+    document.title = table.title || english.title;
+    document.documentElement.lang = lang === 'en' ? 'en-AU' : lang;
+    document.documentElement.classList.toggle('sysfont', !western[lang]);
+    select.value = lang;
+  }
+  function choose(lang, remember) {
+    if (!names[lang]) lang = 'en';
+    if (!english) keep();
+    if (remember) { try { localStorage.setItem('lang', lang); } catch (e) {} }
+    if (lang === 'en') return show('en', english);
+    fetch('i18n/' + lang + '.json').then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (t) { show(lang, t); }, function () { show('en', english); });
+  }
+  Object.keys(names).forEach(function (k) { var o = document.createElement('option'); o.value = k; o.textContent = names[k]; select.appendChild(o); });
+  select.hidden = false;
+  select.addEventListener('change', function () { choose(select.value, true); });
+  var asked = new URLSearchParams(location.search).get('lang'), saved = null;
+  try { saved = localStorage.getItem('lang'); } catch (e) {}
+  if (asked || saved) choose(asked || saved, false);      // English unless the visitor chose otherwise
+})();
+</script>
+</body>
+</html>
