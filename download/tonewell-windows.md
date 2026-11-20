@@ -1,5 +1,7 @@
 # Tonewell for Windows
 
+**Known issue in 0.3 and 0.3.1:** the Settings page does not open in these versions. As a result you cannot switch off the automatic update check, open the in-app licence list or the full privacy policy link, or reopen the "Your rights at work" screen. The licence texts are still included in the `legal` folder inside the installation folder, and the rights notice still appears at startup. The update check still runs: it only downloads a small signed version file and sends no personal information. Because the "new version" message is also shown on the Settings page, you will not be told about updates, so please check the release page. A fix (0.3.2) is being prepared.
+
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
 **Latest version: 0.3.1** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1)
