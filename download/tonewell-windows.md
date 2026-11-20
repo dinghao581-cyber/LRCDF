@@ -17,7 +17,7 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## What it does
 
 - Finds every face and retouches skin with the same models as the Mac and iPad apps: blemishes, smoothing that keeps real skin texture, under-eye, eyes and teeth.
-- Fine control over face and body, symmetry, and photo selection (closed eyes, out of focus, overexposed, repeats).
+- Fine control over face and body, and symmetry.
 - Looks, stepless fine adjustment and a colour wheel.
 - Saves JPEG, JPEG XL and 16-bit TIFF. Originals are never overwritten.
 - 20 languages.
