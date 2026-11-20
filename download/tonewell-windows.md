@@ -2,17 +2,17 @@
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
-**Latest version: 0.3** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3)
+**Latest version: 0.3.1** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3/Tonewell-Windows-x64-0.3-part1.zip) (1,456,325,100 bytes)
-- [Tonewell-Windows-x64-0.3-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3/Tonewell-Windows-x64-0.3-part2.zip) (1,580,467,179 bytes)
+- [Tonewell-Windows-x64-0.3.1-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.1/Tonewell-Windows-x64-0.3.1-part1.zip) (1,456,432,911 bytes)
+- [Tonewell-Windows-x64-0.3.1-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.1/Tonewell-Windows-x64-0.3.1-part2.zip) (1,580,467,204 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3-part1.zip` | `9c3eefdd81fafcbf4e6441e60e7f0c85243ecd3a7853c555f1359a6d44d88f14` |
-| `Tonewell-Windows-x64-0.3-part2.zip` | `90aea468054cdb3e4ca12190293e2387bfbb5831ea8a13b42a9f6054e1b21bcb` |
+| `Tonewell-Windows-x64-0.3.1-part1.zip` | `54062266b2995a7b6e86f85d3751f4fe96ae281c139ee86841534f0af1628643` |
+| `Tonewell-Windows-x64-0.3.1-part2.zip` | `76d66ce38ee724e034efcbf62c51c8181588be5c82cca7f4b9315a310c21ac2b` |
 
 ## What it does
 
@@ -29,8 +29,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.1`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.1` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -53,6 +53,7 @@ Tonewell checks once a day whether a new version is out (switch it off in Settin
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.1 | [tonewell-win-v0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1) |  |
 | 0.3 | [tonewell-win-v0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3) | First Windows version |
 
 ## Licences
