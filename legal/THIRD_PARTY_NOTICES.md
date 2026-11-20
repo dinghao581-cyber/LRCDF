@@ -19,6 +19,7 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | pi-heif (decode-only build of pillow-heif) with libheif and libde265 | Read HEIC photos (Windows app) | pi-heif: BSD-3-Clause; libheif: LGPL-3.0; libde265: LGPL-3.0 (shipped as separate DLLs) |
 | Microsoft Visual C++ runtime (`vcomp140.dll`, bundled in the rawpy wheel) | OpenMP runtime for LibRaw | Microsoft Visual C++ Redistributable terms |
 | Lucide icons | Interface icons (Windows app) | ISC; portions derived from Feather: MIT (copyright notices on lucide.dev/license) |
+| cryptography 50.0.2 (statically includes OpenSSL 4.0.3) | Verify update signatures (Windows apps) | Apache-2.0 or BSD-3-Clause (texts in `licenses/CRYPTOGRAPHY_LICENSE*.txt`); OpenSSL: Apache-2.0 |
 | tifffile | 16-bit TIFF I/O | BSD-3-Clause |
 | imageio | Image I/O | BSD-2-Clause |
 | albumentations | Legacy retouch pre-processing | MIT |

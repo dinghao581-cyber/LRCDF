@@ -49,4 +49,4 @@ The app tells you when a new version is out; if you added the AltStore source ab
 
 Licence texts are attached to each release page and kept in [`legal/`](../legal/) in this repository.
 
-Other versions: [LRCDF for Mac (Lightroom plug-in)](lrcdf-mac.md) · [LRCDF for Windows (Lightroom plug-in)](lrcdf-windows.md) · [Tonewell for Mac](tonewell-mac.md)
+Other versions: [LRCDF for Mac (Lightroom plug-in)](lrcdf-mac.md) · [LRCDF for Windows (Lightroom plug-in)](lrcdf-windows.md) · [Tonewell for Mac](tonewell-mac.md) · [Tonewell for Windows](tonewell-windows.md)

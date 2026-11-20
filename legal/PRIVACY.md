@@ -131,6 +131,21 @@ applied to the wrong person; check every result.
   the current version. When there is one, it tells you, downloads only the parts
   that changed, checks their signature and installs them when it is not working
   on your photos; the version you had is kept so you can go back.
+- **Update check in Tonewell for Windows (on by default).** Tonewell for Windows
+  makes the same kind of check, at start and then about once a day, from the same
+  servers (Gitee and GitHub), with the same switch in its settings. It downloads
+  only a small signed version file and its signature and checks the signature. If
+  a newer version exists it tells you and opens the download page; it does not
+  download or install anything by itself. The request carries no parameters,
+  identifiers or cookies; the only extra request header is a User-Agent with the
+  app name, version and platform.
+- **Update check in Tonewell for Mac and iPad (on by default).** The same check,
+  from the same servers and with the same switch. It tells you when a newer version
+  of the app exists (the iPad app is updated through AltStore; the Mac app through
+  its download page). It can also download an updated set of retouching models:
+  small updates are fetched automatically, larger ones only after you agree. Each
+  download is checked against the signed version file before use, and the previous
+  models are kept so you can go back. Nothing about you or your photos is sent.
 - **What the update check sends.** Nothing about you, your photos or your
   catalog. Like any download, the request itself shows the server your IP
   address, the time and LRCDF's version and platform; those servers (Gitee,
