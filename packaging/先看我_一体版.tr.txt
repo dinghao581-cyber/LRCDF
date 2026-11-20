@@ -19,7 +19,7 @@ Gereksinimler
   - 6 GB boş alan (uygulama için yaklaşık 2,7 GB ve kurulan dosyalar için 2,7 GB).
 
 Lisanslar ve gizlilik
-  - Tüm işlemler Mac’inizde çalışır ve hiçbir veri yüklenmez.
+  - Everything runs on your Mac and your photos are never uploaded. The bundled Google MediaPipe library may send usage statistics (no photos) to Google while face/body detection runs; see legal/PRIVACY.md.
   - Kurulumdan sonra lisansları ve kullanım koşullarını ~/LRCDF/project/legal/ konumunda bulabilirsiniz.
 
 Güncellemek için eski LRCDF.app yerine yenisini koyun ve çift tıklayın. Uygulama kendini günceller.

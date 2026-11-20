@@ -20168,121 +20168,121 @@
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF kontroluje aktualizace jednou při spuštění a pak přibližně jednou denně. Stahuje jen jeden malý veřejně dostupný soubor s číslem verze. Neodesílá žádné údaje o vás, fotkách ani katalogu. Po vypnutí této volby se LRCDF za běhu vůbec nepřipojuje k síti."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF sucht beim Öffnen und danach etwa einmal am Tag nach Updates. Dabei lädt die App nur eine kleine öffentliche Datei mit der Versionsnummer herunter. Sie sendet keine Informationen über dich, deine Fotos oder deinen Katalog. Ist die Option aus, stellt LRCDF während der Nutzung keine Internetverbindung her."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF checks when you open it, then about once a day. It only downloads a small public file with the version number. It sends nothing about you, your photos or your catalog. With this off, LRCDF never connects to the internet while it’s running."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF busca actualizaciones al abrirse y después aproximadamente una vez al día. Solo descarga un pequeño archivo público con el número de versión. No envía ninguna información sobre ti, tus fotos ni tu catálogo. Si desactivas esta opción, LRCDF no se conecta a internet en ningún momento mientras está en ejecución."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF vérifie les mises à jour au démarrage, puis environ une fois par jour. L’application télécharge seulement un petit fichier public qui contient le numéro de version. Elle n’envoie rien sur vous, vos photos ou votre catalogue. Si vous désactivez cette option, LRCDF ne se connecte jamais à Internet pendant son exécution."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF memeriksa pembaruan sekali saat dibuka, lalu kira-kira sekali sehari. Aplikasi hanya mengunduh satu berkas publik kecil yang berisi nomor versi dan tidak mengirim informasi apa pun tentang Anda, foto, atau katalog. Jika setelan ini dimatikan, LRCDF sama sekali tidak menggunakan koneksi jaringan saat berjalan."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF verifica la disponibilità di aggiornamenti all’apertura, poi circa una volta al giorno. Scarica solo un piccolo file pubblico con il numero di versione. Non invia alcuna informazione su di te, sulle tue foto o sul tuo catalogo. Se disattivi l’opzione, LRCDF non si connette mai a Internet mentre è in esecuzione."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF を開いたときに一度、その後は約 1 日に一度アップデートを確認します。バージョン番号が書かれた小さな公開ファイルをダウンロードするだけで、あなたや写真、カタログに関する情報は一切送信しません。この設定をオフにすると、LRCDF は動作中にネットワークに一切接続しません。"
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF를 열 때 한 번 확인하고 그 뒤로는 하루에 한 번 정도 확인합니다. 버전 번호가 적힌 작은 공개 파일 하나만 다운로드하며, 사용자나 사진, 카탈로그에 관한 정보는 전혀 보내지 않습니다. 이 설정을 끄면 LRCDF는 실행 중에 네트워크에 전혀 연결하지 않습니다."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF ser etter oppdateringer når du åpner appen, og deretter omtrent én gang om dagen. Appen laster bare ned en liten offentlig fil med versjonsnummeret. Den sender ingen opplysninger om deg, bildene dine eller katalogen din. Når valget er slått av, kobler LRCDF seg aldri til internett mens appen kjører."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF controleert bij het openen op updates en daarna ongeveer één keer per dag. De app downloadt alleen een klein openbaar bestand met het versienummer. Er wordt niets over jou, je foto’s of je catalogus verstuurd. Staat deze optie uit, dan maakt LRCDF op geen enkel moment verbinding met internet terwijl het programma draait."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF sprawdza aktualizacje raz po uruchomieniu, a potem mniej więcej raz dziennie. Pobiera tylko jeden mały publicznie dostępny plik z numerem wersji. Nie wysyła żadnych informacji o Tobie, zdjęciach ani katalogu. Gdy wyłączysz to ustawienie, LRCDF w ogóle nie łączy się z siecią podczas pracy."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O LRCDF verifica se há atualizações ao abrir e depois cerca de uma vez por dia. Ele baixa apenas um pequeno arquivo público com o número da versão. Não envia nenhuma informação sobre você, suas fotos ou seu catálogo. Com a opção desativada, o LRCDF não se conecta à internet em nenhum momento enquanto está em execução."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF проверяет обновления один раз при запуске, а затем примерно раз в день. Приложение скачивает только один небольшой общедоступный файл с номером версии и не отправляет никаких данных о вас, ваших фото или каталоге. Если выключить эту настройку, LRCDF во время работы вообще не подключается к сети."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF söker efter uppdateringar när du öppnar appen och sedan ungefär en gång om dagen. Appen hämtar bara en liten offentlig fil med versionsnumret. Den skickar ingenting om dig, dina foton eller din katalog. Om du stänger av inställningen ansluter LRCDF aldrig till internet medan appen körs."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF ตรวจสอบการอัปเดตหนึ่งครั้งเมื่อเปิดแอป จากนั้นจะตรวจสอบประมาณวันละครั้ง แอปจะดาวน์โหลดเพียงไฟล์สาธารณะขนาดเล็กหนึ่งไฟล์ที่ระบุหมายเลขเวอร์ชัน และไม่ส่งข้อมูลใด ๆ เกี่ยวกับคุณ ภาพถ่าย หรือแค็ตตาล็อก เมื่อปิดการตั้งค่านี้ LRCDF จะไม่เชื่อมต่อเครือข่ายเลยขณะทำงาน"
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF açıldığında bir kez, sonra yaklaşık günde bir kez güncellemeleri denetler. Yalnızca sürüm numarasının yazılı olduğu, herkese açık küçük bir dosya indirir. Sizinle, fotoğraflarınızla veya kataloğunuzla ilgili hiçbir bilgi göndermez. Bu ayarı kapattığınızda LRCDF çalışırken ağa hiç bağlanmaz."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "LRCDF kiểm tra một lần khi bạn mở ứng dụng, sau đó khoảng một lần mỗi ngày. Ứng dụng chỉ tải xuống một tệp công khai nhỏ có ghi số phiên bản và không gửi bất kỳ thông tin nào về bạn, ảnh hay danh mục. Khi tắt tùy chọn này, LRCDF hoàn toàn không kết nối mạng trong lúc chạy."
+            "value" : "Checks once when LRCDF opens, then about once a day. Only downloads a small public file with the version number; nothing about you, your photos or your catalog is sent. With it off, LRCDF itself makes no connections (the bundled Google MediaPipe library may still send usage statistics, no photos; see the privacy policy)."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开 LRCDF 时检查一次，之后大约每天一次。只下载一个写着版本号的公开小文件，不发送任何关于你、照片或目录的内容。关掉后，LRCDF 运行时完全不联网。"
+            "value" : "打开 LRCDF 时检查一次，之后大约每天一次。只下载一个写着版本号的公开小文件，不发送任何关于你、照片或目录的内容。关掉后，LRCDF 自己不再联网；随附的 Google MediaPipe 库在做人脸/人体检测时仍可能向 Google 发送使用统计（不含照片），详见隐私政策。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開啟 LRCDF 時會檢查一次，之後約每天一次。只會下載一個含有版本號碼的小型公開檔案，不會傳送任何關於你、相片或目錄的資訊。關閉後，LRCDF 執行時完全不會連線到網際網路。"
+            "value" : "開啟 LRCDF 時檢查一次，之後大約每天一次。只下載一個寫著版本號的公開小檔案，不傳送任何關於你、照片或目錄的內容。關閉後，LRCDF 本身不再連線；隨附的 Google MediaPipe 函式庫在進行臉部／身體偵測時仍可能向 Google 傳送使用統計（不含照片），詳見隱私權政策。"
           }
         }
       }

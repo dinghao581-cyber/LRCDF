@@ -19,7 +19,7 @@ What you need
   - 6 GB of free space (about 2.7 GB for the app and 2.7 GB for the installed files).
 
 Licenses and privacy
-  - Everything runs on your Mac. Nothing is uploaded.
+  - Everything runs on your Mac and your photos are never uploaded. The bundled Google MediaPipe library may send usage statistics (no photos) to Google while face/body detection runs; see legal/PRIVACY.md.
   - After installation, see ~/LRCDF/project/legal/ for the licenses and terms.
 
 To update later, replace the old LRCDF.app with the new one and double-click it. The app updates itself.

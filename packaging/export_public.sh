@@ -14,4 +14,8 @@ rm -f "$OUT/LRCDF/packaging/"Windows-Install.*.md       # translations of the Wi
 rm -rf "$OUT/LRCDF/app/windows/fonts"           # 17 MB font of the Windows app: not public until the user decides
 rm -rf "$OUT/LRCDF/packaging/windows_port"     # briefs for the helper on the PC: internal
 rm -f "$OUT/LRCDF/packaging/publish_source.sh"  # its safety scan lists private words: internal
+# The website is not public until the user says so, and it goes live through its own launch plan, never through this export
+rm -rf "$OUT/LRCDF/site" "$OUT/LRCDF/site_preview"
+find "$OUT/LRCDF" -type d -name _candidates -prune -exec rm -rf {} +
+if find "$OUT/LRCDF" -type d \( -name site -o -name site_preview -o -name _candidates \) | grep -q .; then echo "STOP: website files in the export"; exit 1; fi
 echo "exported to $OUT/LRCDF"; (cd "$OUT/LRCDF" && find . -type f | wc -l)

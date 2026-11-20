@@ -20,7 +20,10 @@ LRCDF you accept the points below, in addition to those licences.
    shown where the law requires it.
 4. **Retouching is automatic and imperfect.** Results (skin, shape, tone, closed-eye
    or focus flags, age/sex estimate, face matching) can be wrong. Review every
-   image before delivering it.
+   image before delivering it. In particular, the age estimate that withholds the
+   "Fuller bust" step from people read as under 18 is unreliable, especially for
+   teenagers: it is only a partial safeguard, and you remain responsible for not
+   using that step on anyone under 18.
 5. **Ages you enter.** Where the software asks you to type a person's age
    (for example to allow a step that is limited to adults), you confirm that the
    age is true to the best of your knowledge, you are responsible for it, and you

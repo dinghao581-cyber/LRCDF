@@ -505,6 +505,8 @@ def retouch(rgb, models, opt, device):
         opt["_guard"] = []
         guard(rgb, out, faces, each, device, opt["_guard"])
     opt["_men"] = list(who.men) if who else []
+    if faces and float(opt.get("chest") or 0) > 0:          # nobody read as under 18 gets a fuller chest, known or not
+        opt["_men"] += people.minors(rgb8, [d["bbox"] for d in faces], who.seen if who else ())
     return out, len(faces), meshes, alone
 
 

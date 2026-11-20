@@ -19,7 +19,7 @@ Krav
   - 6 GB ledig plass (omtrent 2,7 GB til appen og 2,7 GB til de installerte filene).
 
 Lisenser og personvern
-  - Alt behandles på Macen, og ingenting lastes opp.
+  - Everything runs on your Mac and your photos are never uploaded. The bundled Google MediaPipe library may send usage statistics (no photos) to Google while face/body detection runs; see legal/PRIVACY.md.
   - Etter installasjon finner du lisenser og bruksvilkår i ~/LRCDF/project/legal/.
 
 For å oppdatere erstatter du den gamle LRCDF.app med den nye og dobbeltklikker på den. Appen oppdateres automatisk.

@@ -3,7 +3,19 @@ import SwiftUI
 /// The licence texts that travel with the app (Contents/Resources/licenses, put there by app/copy_licenses.sh).
 /// They are shown exactly as they are: never translated, never reformatted.
 enum Licences {
-    static let files = ["APPLE_ML_RESEARCH_MODEL_LICENSE.txt", "MODEL_LICENSES.md", "THIRD_PARTY_NOTICES.md", "NOTICE", "LICENSE"]
+    struct Entry { let file: String; let title: String }
+
+    /// Every file of legal/licenses must be listed here: app/copy_licenses.sh stops the build otherwise.
+    /// Titles are file or project names, so they are not translated.
+    static let entries = [
+        Entry(file: "APPLE_ML_RESEARCH_MODEL_LICENSE.txt", title: "APPLE_ML_RESEARCH_MODEL_LICENSE.txt"),
+        Entry(file: "RETINAFACE_ternaus_LICENSE.txt", title: "RetinaFace (ternaus), MIT"),
+        Entry(file: "PYTORCH_RETINAFACE_biubug6_LICENSE.txt", title: "Pytorch_Retinaface (biubug6), MIT"),
+        Entry(file: "MODEL_LICENSES.md", title: "MODEL_LICENSES.md"),
+        Entry(file: "THIRD_PARTY_NOTICES.md", title: "THIRD_PARTY_NOTICES.md"),
+        Entry(file: "NOTICE", title: "NOTICE"),
+        Entry(file: "LICENSE", title: "LICENSE"),
+    ]
     /// Required wording: the same in every language.
     static let notice = "Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement."
     static let windowID = "licences"
@@ -15,9 +27,9 @@ enum Licences {
     }
 }
 
-/// The read-only window: a row of file names at the top, every file below it under its own heading.
+/// The read-only window: a row of titles at the top, every file below it under its own heading.
 struct LicencesView: View {
-    private let sections = Licences.files.map { (name: $0, text: Licences.text(of: $0)) }
+    private let sections = Licences.entries.map { (name: $0.file, title: $0.title, text: Licences.text(of: $0.file)) }
 
     var body: some View {
         ScrollViewReader { reader in
@@ -25,7 +37,7 @@ struct LicencesView: View {
                 Text(L.licences).font(DS.display(24)).foregroundStyle(DS.ink).padding(.top, 34).padding(.horizontal, 6)
                 LicenceRow(spacing: 8) {
                     ForEach(sections, id: \.name) { section in
-                        Button(section.name) { withAnimation(DS.pick) { reader.scrollTo(section.name, anchor: .top) } }
+                        Button(section.title) { withAnimation(DS.pick) { reader.scrollTo(section.name, anchor: .top) } }
                             .buttonStyle(QuietButton())
                     }
                 }
@@ -33,7 +45,7 @@ struct LicencesView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         ForEach(sections, id: \.name) { section in
                             VStack(alignment: .leading, spacing: 12) {
-                                Text(verbatim: section.name).font(DS.section).foregroundStyle(DS.ink)
+                                Text(verbatim: section.title).font(DS.section).foregroundStyle(DS.ink)
                                 Text(verbatim: section.text).font(DS.body).foregroundStyle(DS.soft).lineSpacing(3)
                                     .fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
                             }

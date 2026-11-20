@@ -239,6 +239,21 @@ def ipad(a):
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:      # stored/deflated only: what the iPad reads
         for n in names:
             z.write(os.path.join(root, n), n)
+        # the licence texts travel with the models (under models/: the only place the iPad unpacks; not part of the
+        # version, so an update of the texts alone is not a new models version)
+        legal = os.path.join(HERE, "..", "legal")
+        texts = [os.path.join(legal, "licenses", f) for f in sorted(os.listdir(os.path.join(legal, "licenses")))]
+        texts += [os.path.join(legal, "MODEL_LICENSES.md"), os.path.join(legal, "THIRD_PARTY_NOTICES.md")]
+        for t in texts:
+            if not os.path.getsize(t):
+                raise SystemExit(f"STOP: empty licence text {t}")
+            z.write(t, "models/licenses/" + os.path.basename(t))
+    with zipfile.ZipFile(zpath) as z:                       # the finished package, not what was meant to go in it
+        for t in texts:
+            if z.read("models/licenses/" + os.path.basename(t)) != open(t, "rb").read():
+                raise SystemExit(f"STOP: {os.path.basename(t)} differs in the package")
+        if any("RetinaFace" in n for n in z.namelist()) and not {"models/licenses/RETINAFACE_ternaus_LICENSE.txt", "models/licenses/PYTORCH_RETINAFACE_biubug6_LICENSE.txt"} <= set(z.namelist()):
+            raise SystemExit("STOP: RetinaFace without its two MIT texts")
     joined = digest(zpath)
     models = dict(version=mversion, install="models", keep=[], restart="none", files=entries(pieces(zpath), a.url))
     if len(models["files"]) > 1:

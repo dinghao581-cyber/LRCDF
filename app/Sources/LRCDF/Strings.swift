@@ -237,7 +237,7 @@ enum L {
     static var updateTooNew: String { String(localized: "update.tooNew", defaultValue: "有新版本，但这一版 LRCDF 太旧，不能自动更新，请到下载页获取", comment: "Line when the update feed is of a newer kind than this app understands.") }
     static var updateOpenPage: String { String(localized: "update.openPage", defaultValue: "打开下载页", comment: "Button on the update line: opens the download page in the browser.") }
     static var updateAuto: String { String(localized: "update.auto", defaultValue: "自动检查并安装更新", comment: "Switch in Settings.") }
-    static var updateAutoNote: String { String(localized: "update.autoNote", defaultValue: "打开 LRCDF 时检查一次，之后大约每天一次。只下载一个写着版本号的公开小文件，不发送任何关于你、照片或目录的内容。关掉后，LRCDF 运行时完全不联网。", comment: "Explanation under the switch in Settings. Must stay true to the privacy policy: translate faithfully.") }
+    static var updateAutoNote: String { String(localized: "update.autoNote", defaultValue: "打开 LRCDF 时检查一次，之后大约每天一次。只下载一个写着版本号的公开小文件，不发送任何关于你、照片或目录的内容。关掉后，LRCDF 自己不再联网；随附的 Google MediaPipe 库在做人脸/人体检测时仍可能向 Google 发送使用统计（不含照片），详见隐私政策。", comment: "Explanation under the switch in Settings. Must stay true to the privacy policy: translate faithfully.") }
     static var updateCheckNow: String { String(localized: "update.checkNow", defaultValue: "现在检查更新", comment: "Button in Settings and item in the app menu.") }
     static var updateGoBack: String { String(localized: "update.goBack", defaultValue: "退回上一个版本", comment: "Button in Settings: undo the last update.") }
 

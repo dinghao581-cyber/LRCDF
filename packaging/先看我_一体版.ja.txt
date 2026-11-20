@@ -19,7 +19,7 @@ LRCDF 一体型アプリ。必要なものがすべて入っており、オフ�
   - 6 GB の空き容量（アプリ本体とインストール後のファイルにそれぞれ約 2.7 GB）。
 
 ライセンスとプライバシー
-  - すべての処理をお使いの Mac 上で行います。データはアップロードされません。
+  - Everything runs on your Mac and your photos are never uploaded. The bundled Google MediaPipe library may send usage statistics (no photos) to Google while face/body detection runs; see legal/PRIVACY.md.
   - インストール後に ~/LRCDF/project/legal/ でライセンスと利用条件を確認できます。
 
 更新するときは古い LRCDF.app を新しいものに置き換え、ダブルクリックしてください。自動で更新されます。

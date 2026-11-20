@@ -90,6 +90,16 @@ a batch contains two or more people. You can switch this off with "turn off
 person recognition" in the settings (it is on by default). Tonewell for Windows
 does not have per-person settings yet; none of this happens there until it does.
 
+**Age estimate in the LRCDF plug-in.** The plug-in runs the same kind of local
+age/sex estimate on your computer (no photo leaves it) and uses it in two ways:
+to retouch men and children more lightly by default, and to leave out the "Fuller
+bust" step for people the model reads as under 18 and for people it reads as men.
+The plug-in does not ask you for an age. The estimate is not reliable: it can read
+a young person as an adult, especially a teenager, and it can read an adult as
+younger. It is a partial safeguard only; it does not confirm that anyone is an
+adult, and you remain responsible for not using that step on anyone under 18. The
+result is kept only in memory while the photo is processed.
+
 **Age/sex model (Tonewell).** An age/sex estimate is used to start children
 and men at the lightest retouch level, and as one safeguard for the "Fuller bust"
 shaping step. In the Tonewell Mac and iPad apps the model is an optional download:

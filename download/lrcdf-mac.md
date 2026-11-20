@@ -4,7 +4,7 @@ One-click portrait retouching inside Lightroom Classic, for Apple-silicon Macs. 
 
 > Note: this version bundles Google MediaPipe 1.2.3, which sends usage statistics (not your photos) to Google while face/body detection runs. See [PRIVACY.md](../legal/PRIVACY.md).
 
-**Latest version: 0.1.6** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/v0.1.6)
+**Latest version: 0.1.7** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/v0.1.7)
 
 - Download: [LRCDF-macOS-arm64.zip](https://github.com/dinghao581-cyber/LRCDF/releases/latest/download/LRCDF-macOS-arm64.zip)
 
@@ -49,6 +49,7 @@ Installed copies from 0.1.2 on update themselves: the app downloads only the par
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.1.7 | [v0.1.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/v0.1.7) |  |
 | 0.1.6 | [v0.1.6](https://github.com/dinghao581-cyber/LRCDF/releases/tag/v0.1.6) |  |
 | 0.1.5 | [v0.1.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/v0.1.5) |  |
 | 0.1.4 | [v0.1.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/v0.1.4) |  |

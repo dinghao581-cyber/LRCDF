@@ -19,7 +19,7 @@ Yêu cầu
   - 6 GB dung lượng trống (khoảng 2,7 GB cho ứng dụng và 2,7 GB cho các tệp đã cài).
 
 Giấy phép và quyền riêng tư
-  - Mọi thứ chạy trên máy Mac của bạn và không có dữ liệu nào được tải lên.
+  - Everything runs on your Mac and your photos are never uploaded. The bundled Google MediaPipe library may send usage statistics (no photos) to Google while face/body detection runs; see legal/PRIVACY.md.
   - Sau khi cài đặt, xem giấy phép và điều khoản trong ~/LRCDF/project/legal/.
 
 Để cập nhật, thay LRCDF.app cũ bằng bản mới rồi nhấp đúp để mở. Ứng dụng tự cập nhật.

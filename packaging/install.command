@@ -4,10 +4,12 @@ set -e
 cd "$(dirname "$0")"
 cat <<'T'
 ============ Please read before installing LRCDF ============
-Privacy: LRCDF runs entirely on this computer. It does not collect or upload your
-         photos, faces or any personal information; no account, analytics or crash
-         reports. Only this installation goes online, to download the Python
-         runtime (from astral.sh and PyPI). Full text: LRCDF/project/legal/PRIVACY.md
+Privacy: LRCDF itself collects nothing and uploads none of your photos, faces or personal
+         information; no account, analytics or crash reports. One exception: the Google
+         MediaPipe library bundled with LRCDF sends usage statistics (no photos) to Google
+         while face/body detection runs; there is no setting to turn it off, but it works
+         offline. The installation itself goes online to download the Python runtime (astral.sh,
+         PyPI). Full text: LRCDF/project/legal/PRIVACY.md
 Models:  this package includes model weights; please read their terms first.
          Full text: LRCDF/project/legal/MODEL_LICENSES.md
 Code:    Apache-2.0 licence (LRCDF/project/LICENSE, NOTICE).

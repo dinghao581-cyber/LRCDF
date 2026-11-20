@@ -7,6 +7,7 @@ from lrcdf import paths
 
 MODEL = paths.models("sface", "face_recognition_sface_2021dec.onnx")
 ABOUT = paths.models("agegender", "model.onnx")
+ADULT = 18      # read as younger than this: no fuller chest (the model reads teenagers old, so this only blocks)
 SAME = 0.40      # cosine similarity from which a face is taken for a known person (the model's own threshold is 0.363; at 0.36 two strangers merged)
 TWICE = 0.60     # two faces in ONE photo are the same person only from here (a mirror: 0.63-0.70 measured); relatives
                  # reach 0.55, the same person in different photos 0.34-0.70 - which is why one photo's faces are told
@@ -32,8 +33,7 @@ class Reader:
     def about(self, rgb8, box):
         """-> (age in years, probability of female) for the face in the box."""
         if self.guess is None:
-            import onnxruntime as ort
-            self.guess = ort.InferenceSession(ABOUT, providers=["CPUExecutionProvider"])
+            self.guess = _guesser()
         x0, y0, x1, y1 = box
         m = 0.25 * max(x1 - x0, y1 - y0); H, W = rgb8.shape[:2]
         crop = rgb8[int(max(0, y0 - m)):int(min(H, y1 + m)), int(max(0, x0 - m)):int(min(W, x1 + m))]
@@ -79,7 +79,7 @@ class Choices:
     KEYS = ("blemish", "smooth", "undereye", "eyes", "teeth")
 
     def __init__(self, path, choices, levels):
-        self.reader, self.vectors, self.wanted, self.male, self.men = None, [], [], [], []
+        self.reader, self.vectors, self.wanted, self.male, self.men, self.seen = None, [], [], [], [], []
         table = {}
         for part in filter(None, (levels or "").split("/")):
             name, values = part.split("=")
@@ -91,13 +91,16 @@ class Choices:
                 level = want.get(str(person["id"]))
                 self.vectors.append(np.float32(person["vec"]))
                 self.wanted.append(None if level == "off" else table[level] if level in table else {})
-                self.male.append(person.get("guesses", 0) > 0 and person.get("female", 0.5) < 0.5)      # likely a man: no fuller chest (a miss costs a woman little)
+                known = person.get("guesses", 0) > 0
+                # no fuller chest for a likely man (a miss costs a woman little) or for anyone read as under 18
+                self.male.append(known and (person.get("female", 0.5) < 0.5 or person.get("age", 99.0) < ADULT))
             self.reader = Reader() if self.vectors else None
 
     def of(self, rgb8, faces):
         """faces: the detector's results for one photo. Per face: {} (nothing chosen), None (leave this person alone)
-        or the options chosen for them. Afterwards self.men holds the face boxes of the men among them."""
-        self.men = []
+        or the options chosen for them. Afterwards self.men holds the face boxes of those who get no fuller chest (likely men, people read as under 18)
+        and self.seen those of everyone recognised."""
+        self.men, self.seen = [], []
         if not self.reader:
             return [{} for _ in faces]
         good = [k for k, d in enumerate(faces) if whole(d["bbox"], d["landmarks"])]
@@ -105,7 +108,28 @@ class Choices:
         out = [{} for _ in faces]
         for k, p in zip(good, who):
             if p is not None:
-                out[k] = self.wanted[p]
+                out[k] = self.wanted[p]; self.seen.append(faces[k]["bbox"])
                 if self.male[p]:
                     self.men.append(faces[k]["bbox"])
         return out
+
+
+_GUESS = None
+
+
+def _guesser():
+    global _GUESS
+    if _GUESS is None:
+        import onnxruntime as ort
+        _GUESS = ort.InferenceSession(ABOUT, providers=["CPUExecutionProvider"])
+    return _GUESS
+
+
+def minors(rgb8, boxes, seen=()):
+    """The boxes among `boxes` whose face is read as under 18, leaving out those in `seen` (people we know: their
+    average over the shoot was already used). For the fuller chest only; nothing is kept. Without the model: none."""
+    if not os.path.exists(ABOUT):
+        return []
+    reader = Reader.__new__(Reader); reader.guess = None        # the guess alone: no face vectors needed
+    known = {tuple(map(float, b)) for b in seen}
+    return [b for b in boxes if tuple(map(float, b)) not in known and reader.about(rgb8, b)[0] < ADULT]

@@ -19,7 +19,7 @@
   - พื้นที่ว่าง 6 GB (ประมาณ 2.7 GB สำหรับแอปและ 2.7 GB สำหรับไฟล์ที่ติดตั้ง)
 
 สัญญาอนุญาตและความเป็นส่วนตัว
-  - ประมวลผลทุกอย่างบน Mac ของคุณ ไม่มีการอัปโหลดข้อมูล
+  - Everything runs on your Mac and your photos are never uploaded. The bundled Google MediaPipe library may send usage statistics (no photos) to Google while face/body detection runs; see legal/PRIVACY.md.
   - หลังติดตั้ง ดูสัญญาอนุญาตและข้อกำหนดได้ที่ ~/LRCDF/project/legal/
 
 หากต้องการอัปเดต ให้แทนที่ LRCDF.app ตัวเก่าด้วยตัวใหม่แล้วดับเบิลคลิก แอปจะอัปเดตเอง
