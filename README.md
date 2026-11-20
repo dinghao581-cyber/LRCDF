@@ -20,8 +20,8 @@ own computer.
 | Version | Download | Requires | Needs Lightroom Classic |
 |---|---|---|---|
 | [**LRCDF for Mac**](download/lrcdf-mac.md) (Lightroom plug-in) | [Latest release](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer | Yes |
-| [**Tonewell for Mac**](download/tonewell-mac.md) (standalone app from the LRCDF project) | [Tonewell for Mac 0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3) | macOS 14 or newer, Apple silicon or Intel | No |
-| [**Tonewell for iPad**](download/tonewell-ipad.md) (standalone app from the LRCDF project) | [Tonewell for iPad 0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-ipad-v0.3) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
+| [**Tonewell for Mac**](download/tonewell-mac.md) (standalone app from the LRCDF project) | [Tonewell for Mac 0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.1) | macOS 14 or newer, Apple silicon or Intel | No |
+| [**Tonewell for iPad**](download/tonewell-ipad.md) (standalone app from the LRCDF project) | [Tonewell for iPad 0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-ipad-v0.3.1) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
 | [**Tonewell for Windows**](download/tonewell-windows.md) (standalone app from the LRCDF project) | [Tonewell for Windows 0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3) (two files, download both) | 64-bit Windows; uses an NVIDIA graphics card when present | No |
 | [**LRCDF for Windows**](download/lrcdf-windows.md) (Lightroom plug-in) | [LRCDF for Windows 0.1.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4) | Windows 10 or 11, 64-bit; CPU package, or CUDA package for NVIDIA graphics cards | Yes |
 
