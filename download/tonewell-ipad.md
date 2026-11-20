@@ -25,7 +25,7 @@ iPadOS 27 or newer.
 - Darker skin keeps its own depth; the looks' orange correction acts on skin only.
 - Looks, stepless fine adjustment, full-size export.
 - Noise reduction for high-ISO JPEG and HEIC photos (not for RAW).
-- Photos straight from the camera over USB-C or Wi-Fi (FTP).
+- Photos straight from the camera: by USB-C cable (Sony A7R V only) or over Wi-Fi with the camera's own FTP transfer (tested only with a Sony A7R V).
 
 ## Install
 

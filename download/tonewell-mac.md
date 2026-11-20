@@ -12,12 +12,11 @@ The standalone app from the LRCDF project. It works without Lightroom: open your
 - Looks, stepless fine adjustment and a colour wheel; shaping; noise reduction for high-ISO JPEG and HEIC photos.
 - Open photos with ⌘O or drag photos and folders onto the window; save with ⌘S as JPEG, HEIC or 16-bit TIFF. Originals are never overwritten (files are named `<name>-Tonewell`).
 - Undo and redo (⌘Z / ⇧⌘Z), zoom with the mouse wheel or a pinch.
-- Photos straight from the camera over USB or Wi-Fi (FTP).
 - Tells you when a new version is out.
 
 ## Which Macs
 
-macOS 14 Sonoma or newer, on Apple silicon or Intel. On macOS 26 the app uses Liquid Glass; on 14 and 15 it uses plain dark panels. 8 GB of memory works; 16 GB or more is recommended for high-resolution RAW files.
+macOS 14 Sonoma or newer, on Apple silicon or Intel (not yet tested on an Intel Mac). On macOS 26 the app uses Liquid Glass; on 14 and 15 it uses plain dark panels. 8 GB should be enough but has not been tested; measured on a 48 GB Mac, a 60 MP RAW peaks at about 4.5 GB including export.
 
 ## Install
 
