@@ -40,11 +40,11 @@
    "components": []
   },
   "win-x64-cpu": {
-   "version": "0.1.4",
+   "version": "0.1.5",
    "min_os": "10.0",
    "notes": {
-    "zh": "安装包更小；没有独立显卡的电脑修图更快；设置里新增“许可与致谢”；应用名统一为 LRCDF。",
-    "en": "Smaller packages; faster retouching on PCs without a dedicated graphics card; Settings now has Licences and credits; the app is called LRCDF in every language."
+    "zh": "丰胸不再用于模型读作未满 18 岁的人；安装说明和更新开关下的隐私说明改为与隐私政策一致。",
+    "en": "Fuller chest is no longer applied to anyone read as under 18; the installer and update notes now match the privacy policy."
    },
    "components": [
     "app-win",
@@ -55,11 +55,11 @@
    ]
   },
   "win-x64-cu124": {
-   "version": "0.1.4",
+   "version": "0.1.5",
    "min_os": "10.0",
    "notes": {
-    "zh": "安装包更小；没有独立显卡的电脑修图更快；设置里新增“许可与致谢”；应用名统一为 LRCDF。",
-    "en": "Smaller packages; faster retouching on PCs without a dedicated graphics card; Settings now has Licences and credits; the app is called LRCDF in every language."
+    "zh": "丰胸不再用于模型读作未满 18 岁的人；安装说明和更新开关下的隐私说明改为与隐私政策一致。",
+    "en": "Fuller chest is no longer applied to anyone read as under 18; the installer and update notes now match the privacy policy."
    },
    "components": [
     "app-win",
@@ -335,29 +335,29 @@
    ]
   },
   "app-win": {
-   "version": "c6999d1f766ad948",
+   "version": "1d083c0cb5fa66d8",
    "install": "app",
    "restart": "app",
    "files": [
     {
-     "size": 25086189,
-     "sha256": "7ec6c92d25bf9be20c8ffd4832cb0238974599eaef56827cb3dc5798bec96d79",
+     "size": 25083763,
+     "sha256": "4afd7558650d11a254918375ea0bacef995e03bf0864c6516619ecd6d015b918",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-c6999d1f766ad948.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-1d083c0cb5fa66d8.zip"
      ]
     }
    ]
   },
   "code-win": {
-   "version": "9985abbd1b0993b7",
+   "version": "8f56eaf038467034",
    "install": "project",
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 236156,
-     "sha256": "89398b635155e0ca65ce65d89b9b9fe0d967ea1348e1ad85e862a0afd21bb2da",
+     "size": 263757,
+     "sha256": "6b6bc2075e3bd7e62e90b75cd1b12df8eb32f2da7d54539c18427a843e645902",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-9985abbd1b0993b7.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-8f56eaf038467034.zip"
      ]
     }
    ],
@@ -782,5 +782,5 @@
    "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
   }
  },
- "published": "2026-11-20T11:21:45Z"
+ "published": "2026-11-20T12:09:26Z"
 }
