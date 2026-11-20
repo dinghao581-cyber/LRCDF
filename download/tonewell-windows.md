@@ -1,6 +1,20 @@
 # Tonewell for Windows
 
-**Known issue in 0.3 and 0.3.1:** the Settings page does not open in these versions. As a result you cannot switch off the automatic update check, open the in-app licence list or the full privacy policy link, or reopen the "Your rights at work" screen. The licence texts are still included in the `legal` folder inside the installation folder, and the rights notice still appears at startup. The update check still runs: it only downloads a small signed version file and sends no personal information. Because the "new version" message is also shown on the Settings page, you will not be told about updates, so please check the release page. A fix (0.3.2) is being prepared.
+**Known issue in 0.3 and 0.3.1:** the "Open Photos…", "Settings" and "Clear and choose again" items in the "…" menu do nothing. To open photos, use Ctrl+O or the button on the start page; there is no other way to use "Clear and choose again". Because the Settings page does not open, you also cannot switch off the automatic update check, change the language, open the in-app licence list or the full privacy policy link, or reopen the "Your rights at work" screen. The licence texts are still included in the `legal` folder inside the installation folder, and the rights notice still appears at startup. The update check still runs: it only downloads a small signed version file and sends no personal information. Because the "new version" message is also shown on the Settings page, you will not be told about updates, so please check the release page.
+
+**Temporary workaround to turn the update check off (0.3 and 0.3.1):**
+1. Quit Tonewell completely.
+2. Press Win+R, type `%APPDATA%\Tonewell` and press Enter. (If the folder does not exist, create it.)
+3. Open `preferences.json` in Notepad. If the file does not exist, create it.
+4. Make its entire contents exactly `{"update.auto": false}`. If the file already contains other settings, add `"update.auto": false` inside the outer braces as one more entry, separated by commas.
+5. Save it as **UTF-8 without BOM**. In Notepad's Save As box, choose "UTF-8", not "UTF-8 with BOM", and make sure the file name does not end in `.txt`. A file saved with a BOM is not read: Tonewell keeps checking for updates and overwrites the file, removing your setting.
+6. Start Tonewell again.
+
+Only edit this file while Tonewell is closed; the app rewrites it when it runs.
+
+To change the language the same way, add `"app.language": "zh-CN"` (for example) to the same file. The accepted codes are zh-CN, zh-TW, en, ja, ko, de, fr, es, it, pt-BR, nl, sv, nb, pl, cs, tr, ru, id, vi, th. A complete file with both settings looks like this: `{"update.auto": false, "app.language": "zh-CN"}`.
+
+A fix (0.3.2) is being prepared.
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
