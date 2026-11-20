@@ -4,10 +4,10 @@ One-click portrait retouching inside Lightroom Classic on Windows x64. Everythin
 
 > Note: this version bundles Google MediaPipe 1.2.3, which sends usage statistics (not your photos) to Google while face/body detection runs. See [PRIVACY.md](../legal/PRIVACY.md).
 
-**Latest version: 0.1.4** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4)
+**Latest version: 0.1.5** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.5)
 
-- Download: [LRCDF-Windows-x64-cpu.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/win-v0.1.4/LRCDF-Windows-x64-cpu.zip)
-- Download: [CUDA package (three parts and Join-Bundle.ps1)](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4)
+- Download: [LRCDF-Windows-x64-cpu.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/win-v0.1.5/LRCDF-Windows-x64-cpu.zip)
+- Download: [CUDA package (three parts and Join-Bundle.ps1)](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.5)
 
 ## What it does
 
@@ -63,6 +63,7 @@ Installed copies from 0.1.3 on update themselves: the app downloads only the par
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.1.5 | [win-v0.1.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.5) |  |
 | 0.1.4 | [win-v0.1.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4) |  |
 | 0.1.3 | [win-v0.1.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.3) |  |
 

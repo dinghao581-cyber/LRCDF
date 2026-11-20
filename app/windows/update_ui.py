@@ -26,7 +26,12 @@ SELECTION = QColor(10, 132, 255, 150)          # the text fields' selection colo
 # Required by the model licence: shown word for word, in every language.
 MODEL_NOTICE = "Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement."
 LICENSE_FILES = ("legal/licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt", "legal/MODEL_LICENSES.md",
-                 "legal/THIRD_PARTY_NOTICES.md", "NOTICE", "LICENSE")
+                 "legal/THIRD_PARTY_NOTICES.md",
+                 # every licence text legal ships (board 11-20 21:31: Qt for Python is LGPL-3.0, with GPL-3.0 beside it)
+                 "legal/licenses/RETINAFACE_ternaus_LICENSE.txt", "legal/licenses/PYTORCH_RETINAFACE_biubug6_LICENSE.txt",
+                 "legal/licenses/CRYPTOGRAPHY_LICENSE.txt", "legal/licenses/CRYPTOGRAPHY_LICENSE.APACHE.txt",
+                 "legal/licenses/CRYPTOGRAPHY_LICENSE.BSD.txt", "legal/licenses/OPENSSL_NOTE.txt",
+                 "legal/licenses/LGPL-3.0.txt", "legal/licenses/GPL-3.0.txt", "NOTICE", "LICENSE")
 
 
 def dark_palette():
