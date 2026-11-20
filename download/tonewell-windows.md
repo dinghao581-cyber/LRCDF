@@ -14,21 +14,21 @@ Only edit this file while Tonewell is closed; the app rewrites it when it runs.
 
 To change the language the same way, add `"app.language": "zh-CN"` (for example) to the same file. The accepted codes are zh-CN, zh-TW, en, ja, ko, de, fr, es, it, pt-BR, nl, sv, nb, pl, cs, tr, ru, id, vi, th. A complete file with both settings looks like this: `{"update.auto": false, "app.language": "zh-CN"}`.
 
-A fix (0.3.2) is being prepared.
+Fixed in [0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2) — please update.
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
-**Latest version: 0.3.1** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1)
+**Latest version: 0.3.2** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.1-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.1/Tonewell-Windows-x64-0.3.1-part1.zip) (1,456,432,911 bytes)
-- [Tonewell-Windows-x64-0.3.1-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.1/Tonewell-Windows-x64-0.3.1-part2.zip) (1,580,467,204 bytes)
+- [Tonewell-Windows-x64-0.3.2-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.2/Tonewell-Windows-x64-0.3.2-part1.zip) (1,456,438,895 bytes)
+- [Tonewell-Windows-x64-0.3.2-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.2/Tonewell-Windows-x64-0.3.2-part2.zip) (1,580,467,205 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.1-part1.zip` | `54062266b2995a7b6e86f85d3751f4fe96ae281c139ee86841534f0af1628643` |
-| `Tonewell-Windows-x64-0.3.1-part2.zip` | `76d66ce38ee724e034efcbf62c51c8181588be5c82cca7f4b9315a310c21ac2b` |
+| `Tonewell-Windows-x64-0.3.2-part1.zip` | `a37136c62f80936c751117ea13b1a2f58aa9c4acf363bf04d3dc9673629d6e49` |
+| `Tonewell-Windows-x64-0.3.2-part2.zip` | `dcdbbb254994764f8820fb53f4532bbc343457c9255bd4c2c5a18d1741cc7932` |
 
 ## What it does
 
@@ -45,8 +45,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.1`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.1` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.2`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.2` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -69,6 +69,7 @@ Tonewell checks once a day whether a new version is out (switch it off in Settin
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.2 | [tonewell-win-v0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2) | Fixes the "…" menu and the Settings page |
 | 0.3.1 | [tonewell-win-v0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1) |  |
 | 0.3 | [tonewell-win-v0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3) | First Windows version |
 
