@@ -6,11 +6,11 @@
  },
  "releases": {
   "mac-arm64": {
-   "version": "0.1.6",
+   "version": "0.1.7",
    "min_os": "14.0",
    "notes": {
-    "zh": "照片在后台成批加载，选多张时更快；设置里新增“许可与致谢”；目录里找不到的照片不再让整批失败。",
-    "en": "Photos load in the background in batches, so large selections open faster; Settings now has Licences and credits; a photo missing from the catalog no longer stops the whole batch."
+    "zh": "丰胸不再用于模型读作未满 18 岁的人；安装说明和更新开关下的隐私说明改为与隐私政策一致。",
+    "en": "Fuller chest is no longer applied to anyone read as under 18; the installer and update notes now match the privacy policy."
    },
    "components": [
     "app-mac",
@@ -81,7 +81,7 @@
  },
  "components": {
   "code": {
-   "version": "643d051b47f3e176",
+   "version": "c6cfe2ff227304fa",
    "install": "project",
    "keep": [
     "project/runs"
@@ -89,10 +89,10 @@
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 901161,
-     "sha256": "6cad560566bff2592b4d6f5c4a0d55c6df649e9d2ff584a657c618a5b5272be6",
+     "size": 963856,
+     "sha256": "ec4ffc0b3bb2207dcb939742bf575d1846f385ca2c5e1339d31fc6e1a1572f94",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-643d051b47f3e176.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/code-c6cfe2ff227304fa.zip"
      ]
     }
    ]
@@ -282,16 +282,16 @@
    "sha256_joined": "47604b0438f8ddf2dfeb8e523024cfbc95cccef9f22a2fa128accefe127cf994"
   },
   "app-mac": {
-   "version": "09097a3fdf5f8fdc",
+   "version": "6b26d68e073bfa69",
    "install": "app",
    "keep": [],
    "restart": "app",
    "files": [
     {
-     "size": 1496235,
-     "sha256": "ca3ba90e1cdcbcbfd5cca6c5a4621395044ff629fd9eceb105ec7f03094c2f1e",
+     "size": 1502081,
+     "sha256": "a78dac397b0016ddc8092aad21ac91045024945a6a1a3330dc82c9fcc2ebacd0",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-09097a3fdf5f8fdc.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/mac-updates/app-mac-6b26d68e073bfa69.zip"
      ]
     }
    ]
@@ -782,5 +782,5 @@
    "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
   }
  },
- "published": "2026-11-20T06:24:16Z"
+ "published": "2026-11-20T10:40:45Z"
 }
