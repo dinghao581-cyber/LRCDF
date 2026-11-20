@@ -68,6 +68,15 @@
     "models-third-win",
     "python-win-cu124"
    ]
+  },
+  "win-studio": {
+   "version": "0.3",
+   "min_os": "10.0.22000",
+   "notes": {
+    "zh": "Tonewell for Windows 0.3：首个 Windows 版，不需要 Lightroom；两个文件都要下载，解压到同一个文件夹后运行 Tonewell.exe。",
+    "en": "Tonewell for Windows 0.3: the first Windows version, no Lightroom needed. Download both files, extract them into the same folder and run Tonewell.exe."
+   },
+   "components": []
   }
  },
  "components": {
@@ -773,5 +782,5 @@
    "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
   }
  },
- "published": "2026-11-19T12:51:20Z"
+ "published": "2026-11-20T06:24:16Z"
 }
