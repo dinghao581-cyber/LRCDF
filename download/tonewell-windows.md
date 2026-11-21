@@ -1,6 +1,6 @@
 # Tonewell for Windows
 
-**Known issue (RTX 50-series):** On NVIDIA GeForce RTX 50-series graphics cards the picture area is reported to stay black: the bundled PyTorch build (2.6.0+cu124) has no support for these cards. Other GeForce generations are not affected. A fix is planned for 0.3.3.
+**Known issue (RTX 50-series):** On NVIDIA GeForce RTX 50-series graphics cards the picture area is reported to stay black: the bundled PyTorch build (2.6.0+cu124) has no support for these cards. Other GeForce generations are not affected. [0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3) carries a newer library (PyTorch 2.8.0 with CUDA 12.8) that supports these cards; it has not yet been tested on an RTX 50-series card.
 
 **Known issue in 0.3 and 0.3.1:** the "Open Photos…", "Settings" and "Clear and choose again" items in the "…" menu do nothing. To open photos, use Ctrl+O or the button on the start page; there is no other way to use "Clear and choose again". Because the Settings page does not open, you also cannot switch off the automatic update check, change the language, open the in-app licence list or the full privacy policy link, or reopen the "Your rights at work" screen. The licence texts are still included in the `legal` folder inside the installation folder, and the rights notice still appears at startup. The update check still runs: it only downloads a small signed version file and sends no personal information. Because the "new version" message is also shown on the Settings page, you will not be told about updates, so please check the release page.
 
@@ -20,17 +20,17 @@ Fixed in [0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
-**Latest version: 0.3.2** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2)
+**Latest version: 0.3.3** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.2-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.2/Tonewell-Windows-x64-0.3.2-part1.zip) (1,456,438,895 bytes)
-- [Tonewell-Windows-x64-0.3.2-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.2/Tonewell-Windows-x64-0.3.2-part2.zip) (1,580,467,205 bytes)
+- [Tonewell-Windows-x64-0.3.3-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.3/Tonewell-Windows-x64-0.3.3-part1.zip) (1,687,976,109 bytes)
+- [Tonewell-Windows-x64-0.3.3-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.3/Tonewell-Windows-x64-0.3.3-part2.zip) (1,803,657,182 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.2-part1.zip` | `a37136c62f80936c751117ea13b1a2f58aa9c4acf363bf04d3dc9673629d6e49` |
-| `Tonewell-Windows-x64-0.3.2-part2.zip` | `dcdbbb254994764f8820fb53f4532bbc343457c9255bd4c2c5a18d1741cc7932` |
+| `Tonewell-Windows-x64-0.3.3-part1.zip` | `9e1f761b532aa2c07479961f754395f66782a1ac96a3d004e17c3fc62bebb836` |
+| `Tonewell-Windows-x64-0.3.3-part2.zip` | `d3c09f70cbf3a2dedab04a8e5d88cd09ff48a45e560e0b55c85461c9776de4ee` |
 
 ## What it does
 
@@ -42,18 +42,19 @@ Tonewell for Windows comes in two parts. **Download both:**
 
 ## Which PCs
 
-64-bit Windows. An NVIDIA graphics card is used when present; without one, Tonewell runs on the processor, more slowly. About 5 GB of free disk space is needed for the extracted folder.
+64-bit Windows. An NVIDIA GeForce graphics card (GTX 10 series or newer) is used when present; without one, Tonewell runs on the processor, more slowly. About 6 GB of free disk space is needed for the extracted folder.
 
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.2`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.2` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.3`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.3` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
 ## Known limits
 
+- Graphics acceleration is meant to work with NVIDIA GeForce GTX 10 series and newer (GTX 10 and 16, RTX 20, 30, 40 and 50 series) and a recent NVIDIA driver (NVIDIA lists 570.65 or newer for CUDA 12.8; older drivers from 525 on are expected to work for GTX 10 to RTX 40 series, untested). With any other graphics card, or when the card or its driver cannot be used, Tonewell uses the processor and says so in Settings.
 - Tested on one PC only (Windows 11 Pro, RTX 3090); figures without a graphics card were measured with the card hidden from the app.
 - Without a dedicated graphics card, the preview of a photo with faces is shown first without skin retouching and updates by itself after about 10–20 seconds. Exports always wait for the full result. Large faces can take up to about 2.5 seconds to update after you let go of a slider, and an export takes about 8–25 seconds.
 - RAW colour is matched to Tonewell for Mac, but not identical: on a few cameras (for example Sony A7R V, A6700 and A1) strongly saturated greens and reds differ in hue by about 5–7°. Lateral colour correction is not applied to Panasonic files. DNG files from phones and drones (iPhone, DJI) can look different from the Mac version.
@@ -71,6 +72,7 @@ Tonewell checks once a day whether a new version is out (switch it off in Settin
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.3 | [tonewell-win-v0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3) | Newer graphics library for GeForce GTX 10 to RTX 50 series; style cards show their styles |
 | 0.3.2 | [tonewell-win-v0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2) | Fixes the "…" menu and the Settings page |
 | 0.3.1 | [tonewell-win-v0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1) |  |
 | 0.3 | [tonewell-win-v0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3) | First Windows version |

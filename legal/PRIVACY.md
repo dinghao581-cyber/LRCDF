@@ -141,7 +141,11 @@ applied to the wrong person; check every result.
   the current version. When there is one, it tells you, downloads only the parts
   that changed, checks their signature and installs them when it is not working
   on your photos; the version you had is kept so you can go back.
-- **Update check in Tonewell for Windows (on by default).** Tonewell for Windows
+- **Tonewell for Windows, Microsoft Store version.** Updated by the Microsoft
+  Store. It has no update check and makes no network connections at all; every
+  feature works offline.
+- **Update check in Tonewell for Windows, downloaded version (on by default).**
+  The version you download from the project's release page
   makes the same kind of check, at start and then about once a day, from the same
   servers (Gitee and GitHub), with the same switch in its settings. It downloads
   only a small signed version file and its signature and checks the signature. If
@@ -232,6 +236,22 @@ level and is not stored as a record about a person.
 Lightroom Classic is a product of Adobe and is governed by Adobe's own privacy
 policy. LRCDF uses Lightroom's plug-in interface to read and write develop
 settings and to export and import files, locally.
+
+## Who receives your information, and your control over it
+
+Neither LRCDF nor Tonewell has a server, and neither sends or discloses your
+personal information to any third party. The only parties that can receive any
+data are the hosts that serve the update files and downloads described under
+"Network use" (they see your IP address, the time and the app version), and, in the
+LRCDF plug-in only, Google through the bundled MediaPipe library, which sends the
+usage statistics described there by itself (no photos); Google handles those under
+its own privacy policy.
+
+All the information the software works with is on your own device: your photos, the
+files LRCDF stores (see the table above) and, while a photo is open, the in-memory
+data described above. You can view, copy or delete it at any time, and nothing is
+kept elsewhere. To delete everything, remove the data folder and any result files
+as described above, or uninstall the app.
 
 ## Changes and contact
 

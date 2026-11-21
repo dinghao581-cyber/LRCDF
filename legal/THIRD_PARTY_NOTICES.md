@@ -9,6 +9,8 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 |---|---|---|
 | PyTorch | Neural-network runtime | BSD-3-Clause |
 | torchvision | ConvNeXt backbone, image ops | BSD-3-Clause |
+| NVIDIA CUDA runtime libraries that come inside the PyTorch wheel for Windows (CUDA 12.8 from Tonewell for Windows 0.3.3): CUDA Runtime (`cudart`), cuBLAS and cuBLASLt, cuFFT, cuSOLVER, cuSPARSE, NVRTC, nvJitLink, CUPTI (`cupti`) | Graphics-card acceleration on NVIDIA GPUs (Windows apps, CUDA build only) | **NVIDIA proprietary software, not open source and not covered by this project's Apache-2.0 licence.** Redistributed as application components under the NVIDIA CUDA Toolkit End User License Agreement (Attachment A lists these libraries as distributable); text in `licenses/NVIDIA_CUDA_EULA_12.8.txt` |
+| NVIDIA cuDNN 9.10.2.21 (`cudnn*64_9.dll`, inside the PyTorch wheel for Windows) | Graphics-card acceleration on NVIDIA GPUs (Windows apps, CUDA build only) | **NVIDIA proprietary software, not open source and not covered by this project's Apache-2.0 licence.** Redistributed as an application component under the NVIDIA cuDNN Software License Agreement; text in `licenses/NVIDIA_CUDNN_SLA.txt` |
 | NumPy | Arrays | BSD-3-Clause |
 | SciPy | Filtering, image maths | BSD-3-Clause |
 | OpenCV (`opencv-python-headless`, `opencv-contrib-python`) | Image processing, SFace | Apache-2.0 |
@@ -35,10 +37,10 @@ or source repository). Model weights are listed in `MODEL_LICENSES.md`.
 | Google MediaPipe Pose Landmarker models (BlazePose GHUM 3D) | Body landmarks for shaping | Apache-2.0 (per the model card) |
 | Google MediaPipe Face Landmarker models | Face landmarks and blendshapes, converted to Core ML for Tonewell (eye-closure check) | Apache-2.0 |
 | Apple MobileCLIP2-S2 (weights, as a modified Model Derivative) | Make-up and skin-depth scorer | Apple Machine Learning Research Model License Agreement; text in `licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt`. Apple Machine Learning Research Model is licensed under the Apple Machine Learning Research Model License Agreement. |
-| libjxl 0.11.1 (tag v0.11.1; "the JPEG XL Project Authors") | JPEG XL export. Tonewell for Mac: statically linked. Tonewell for Windows: the official v0.11.1 release DLLs `jxl.dll`, `jxl_cms.dll`, `jxl_threads.dll` | BSD-3-Clause with the JPEG XL patent grant (`licenses_mac/LIBJXL_LICENSE.txt`, `licenses_mac/LIBJXL_PATENTS.txt`) |
-| Highway 1.2.0 (commit 457c891, bundled with libjxl; "The Highway Project Authors") | SIMD support for libjxl (Tonewell for Mac; on Windows it is linked into `jxl.dll` of the official release) | Apache-2.0 or BSD-3-Clause (`licenses_mac/HIGHWAY_LICENSE.txt`, `licenses_mac/HIGHWAY_BSD3_LICENSE.txt`) |
-| Brotli 1.0.9 (commit 36533a8, bundled with libjxl; "the Brotli Authors") | Compression for libjxl (Tonewell for Mac; on Windows the release's `brotlicommon.dll`, `brotlienc.dll`, `brotlidec.dll`) | MIT (`licenses_mac/BROTLI_LICENSE.txt`) |
-| skcms (commit 42030a7, bundled with libjxl; Google Inc.) | Colour management for libjxl (Tonewell for Mac; on Windows it is part of `jxl_cms.dll`) | BSD-3-Clause (`licenses_mac/SKCMS_LICENSE.txt`) |
+| libjxl 0.11.1 (tag v0.11.1; "the JPEG XL Project Authors") | JPEG XL export. Tonewell for Mac: statically linked. Tonewell for Windows: the official v0.11.1 release DLLs `jxl.dll`, `jxl_cms.dll`, `jxl_threads.dll` | BSD-3-Clause with the JPEG XL patent grant (texts in the `licenses_mac` folder of the Mac app and in the `licenses` folder of the Windows app: `LIBJXL_LICENSE.txt`, `LIBJXL_PATENTS.txt`) |
+| Highway 1.2.0 (commit 457c891, bundled with libjxl; "The Highway Project Authors") | SIMD support for libjxl (Tonewell for Mac; on Windows it is linked into `jxl.dll` of the official release) | Apache-2.0 or BSD-3-Clause (texts in the `licenses_mac` folder of the Mac app and in the `licenses` folder of the Windows app: `HIGHWAY_LICENSE.txt`, `HIGHWAY_BSD3_LICENSE.txt`) |
+| Brotli 1.0.9 (commit 36533a8, bundled with libjxl; "the Brotli Authors") | Compression for libjxl (Tonewell for Mac; on Windows the release's `brotlicommon.dll`, `brotlienc.dll`, `brotlidec.dll`) | MIT (texts in the `licenses_mac` folder of the Mac app and in the `licenses` folder of the Windows app: `BROTLI_LICENSE.txt`) |
+| skcms (commit 42030a7, bundled with libjxl; Google Inc.) | Colour management for libjxl (Tonewell for Mac; on Windows it is part of `jxl_cms.dll`) | BSD-3-Clause (texts in the `licenses_mac` folder of the Mac app and in the `licenses` folder of the Windows app: `SKCMS_LICENSE.txt`) |
 | Core ML Tools (`coremltools`) | Converts models to Core ML (build time only) | BSD-3-Clause |
 | Apple system frameworks (SwiftUI, AppKit, Core ML, Vision, Core Image) | Desktop and Tonewell apps | Part of macOS; not redistributed |
 | Adobe Lightroom Classic SDK | Plug-in interface | Used under Adobe's SDK terms; not redistributed |
@@ -70,3 +72,13 @@ Apache-2.0 and BSD/MIT notices are preserved in the packages as installed. If
 you redistribute a bundled environment (for example the installer package),
 include each package's licence file, which the standard installers already
 place in the `dist-info` folders.
+
+NVIDIA components (Windows apps, CUDA build): the NVIDIA CUDA and cuDNN libraries
+listed above are proprietary NVIDIA software. They are included only so that the
+app can use an NVIDIA graphics card, and they are used only by the app itself.
+The Apache-2.0 licence of LRCDF's and Tonewell's own code does not apply to them;
+the NVIDIA licence texts in `licenses/` apply. Do not take them out of the app to
+distribute them on their own, and do not remove NVIDIA's notices. Without an
+NVIDIA graphics card the app runs on the processor and these libraries stay unused. NVIDIA and
+CUDA are trademarks of NVIDIA Corporation; this project is not sponsored or
+endorsed by NVIDIA.
