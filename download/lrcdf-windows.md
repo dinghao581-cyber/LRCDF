@@ -4,6 +4,8 @@ One-click portrait retouching inside Lightroom Classic on Windows x64. Everythin
 
 > Note: this version bundles Google MediaPipe 1.2.3, which sends usage statistics (not your photos) to Google while face/body detection runs. See [PRIVACY.md](../legal/PRIVACY.md).
 
+**Known issue (RTX 50-series):** The CUDA package does not support NVIDIA GeForce RTX 50-series graphics cards (the bundled PyTorch build, 2.6.0+cu124, lacks them). On these cards please use the CPU package. A fix is planned for 0.1.6.
+
 **Latest version: 0.1.5** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.5)
 
 - Download: [LRCDF-Windows-x64-cpu.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/win-v0.1.5/LRCDF-Windows-x64-cpu.zip)

@@ -1,5 +1,7 @@
 # Tonewell for Windows
 
+**Known issue (RTX 50-series):** On NVIDIA GeForce RTX 50-series graphics cards the picture area is reported to stay black: the bundled PyTorch build (2.6.0+cu124) has no support for these cards. Other GeForce generations are not affected. A fix is planned for 0.3.3.
+
 **Known issue in 0.3 and 0.3.1:** the "Open Photos…", "Settings" and "Clear and choose again" items in the "…" menu do nothing. To open photos, use Ctrl+O or the button on the start page; there is no other way to use "Clear and choose again". Because the Settings page does not open, you also cannot switch off the automatic update check, change the language, open the in-app licence list or the full privacy policy link, or reopen the "Your rights at work" screen. The licence texts are still included in the `legal` folder inside the installation folder, and the rights notice still appears at startup. The update check still runs: it only downloads a small signed version file and sends no personal information. Because the "new version" message is also shown on the Settings page, you will not be told about updates, so please check the release page.
 
 **Temporary workaround to turn the update check off (0.3 and 0.3.1):**
