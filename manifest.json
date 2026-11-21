@@ -40,11 +40,11 @@
    "components": []
   },
   "win-x64-cpu": {
-   "version": "0.1.5",
+   "version": "0.1.6",
    "min_os": "10.0",
    "notes": {
-    "zh": "丰胸不再用于模型读作未满 18 岁的人；安装说明和更新开关下的隐私说明改为与隐私政策一致。",
-    "en": "Fuller chest is no longer applied to anyone read as under 18; the installer and update notes now match the privacy policy."
+    "zh": "小更新：许可文本更新，修图结果不变。",
+    "en": "Small update: updated licence texts; results are unchanged."
    },
    "components": [
     "app-win",
@@ -55,11 +55,11 @@
    ]
   },
   "win-x64-cu124": {
-   "version": "0.1.5",
+   "version": "0.1.6",
    "min_os": "10.0",
    "notes": {
-    "zh": "丰胸不再用于模型读作未满 18 岁的人；安装说明和更新开关下的隐私说明改为与隐私政策一致。",
-    "en": "Fuller chest is no longer applied to anyone read as under 18; the installer and update notes now match the privacy policy."
+    "zh": "CUDA 版改用较新的运算库（PyTorch 2.8.0，CUDA 12.8），用来支持 GTX 10 到 RTX 50 系显卡（尚未在 RTX 50 系显卡上测过）。LRCDF 先检查显卡，用不了就自动改用处理器。",
+    "en": "The CUDA package now carries a newer library (PyTorch 2.8.0 with CUDA 12.8), meant to support GeForce GTX 10 to RTX 50 series cards (not yet tested on an RTX 50-series card). LRCDF now checks the graphics card first and uses the processor if it cannot compute on it."
    },
    "components": [
     "app-win",
@@ -335,29 +335,29 @@
    ]
   },
   "app-win": {
-   "version": "1d083c0cb5fa66d8",
+   "version": "79f658b5f4ece0d4",
    "install": "app",
    "restart": "app",
    "files": [
     {
-     "size": 25083763,
-     "sha256": "4afd7558650d11a254918375ea0bacef995e03bf0864c6516619ecd6d015b918",
+     "size": 25083860,
+     "sha256": "403f2c2f83c413710bb5730548fe06873f75634eb375bd0ef6d4da017232aa13",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-1d083c0cb5fa66d8.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-79f658b5f4ece0d4.zip"
      ]
     }
    ]
   },
   "code-win": {
-   "version": "8f56eaf038467034",
+   "version": "1c098ecc7d6fc003",
    "install": "project",
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 263757,
-     "sha256": "6b6bc2075e3bd7e62e90b75cd1b12df8eb32f2da7d54539c18427a843e645902",
+     "size": 294179,
+     "sha256": "b181d4c3cc8e22f1cbf6781966693302ccd808194d48c803e197de670442e1c7",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-8f56eaf038467034.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-1c098ecc7d6fc003.zip"
      ]
     }
    ],
@@ -557,230 +557,251 @@
    "sha256_joined": "bd36b0d52c951489351a956027642f1bf32f3490df0ea4a4bd050798bf66760d"
   },
   "python-win-cu124": {
-   "version": "9f835f0a3cf43829",
+   "version": "baa575cdcc3e6086",
    "install": "python",
    "restart": "app",
    "files": [
     {
      "size": 95000000,
-     "sha256": "7addfab72ec69207ef491258704e470fe1d6b79fc155b9e99025864994d625ed",
+     "sha256": "c20631716062ee7d8f6c21087a5dca133281aaab238d3c7b3e01b0c3d71ecf2c",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.001"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.001"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "328ccbef44a55947e1be0658abe3c4190af065148cc4db39bb21d14f90d98a7d",
+     "sha256": "5aaa7016d67d4ba0a15b65a904cdc1fcdb1426265a9244d507e60d81805f27fc",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.002"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.002"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "e70ef4d1a526a07fa7d1ebda7449077949c032585475447422b850cbdd14c86d",
+     "sha256": "9781bea5b238c3e11888c69c44c8c0dc6f3658523b2dd43c2df47f6f497c9f75",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.003"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.003"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "7d36e1949e24e101a6116e02f85b9efd4457b1688f06944f1a81d6c2ed91d330",
+     "sha256": "5de990c49efbb242b778d36c63f0e935f26fbd5e458f6d52675e418bc9dce1e3",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.004"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.004"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "17b7562140bb1fffded622226ff1ae36a8c7f25b4ac6c4208eb8a714a461695c",
+     "sha256": "cb018743fdc0c6c9e4fe9b956f634f09faa3ea9a5da8d8d2a36cb8aaab412c26",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.005"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.005"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "814405e102dc2737c1d4304fc42cd11acbbb380b20353db2f306237112ac9598",
+     "sha256": "f6d6e0d3c2ddbc8d14326a1db6c57b5436443743fbfc0dfa2ecc66c2e8fd694c",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.006"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.006"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "10e4d39bfeda21982e0043733f52d8872a88c8df2e3c1e256f1b8fac3f63d634",
+     "sha256": "64068560d49c3b7707229c85f9f3b194e0b1ce20769cffd865c84841314e0eef",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.007"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.007"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "09d8dfb15090502a0c9f5e24654896751534cf11d07ffeb6d7b127245044fde0",
+     "sha256": "ec2b30f6efbb4a6c98d362cd2b9d7cc3caf051df3df01c9695d7b2153352fbe7",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.008"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.008"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "239c41129700b59fde390b1cf415e734b8221c431c6d31983c0cd137ff6d3119",
+     "sha256": "46b7b459c09289b01d63e5e242ca5008648f2e36e137ac4e311de33891111d17",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.009"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.009"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "310f8445d13f520b9f5708f60a35880540791154456cbc1644b4310a18d5fa09",
+     "sha256": "9d26132bf1cf88d6c2bedaa2377df0535679d0e1478d23ec17f6ac4d9192ec1f",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.010"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.010"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "9011b41c24df6b082295866d420fc9ca43ea9ce6cc9e09277e4362d8bad5dcf5",
+     "sha256": "b248e7dfd4c537047448af29054b068ac28e12689d05988c51d715ab71031bf4",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.011"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.011"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "5d6119ec648c9be7930eb8ec4385afbc3b42017092c10ceb8b91b11dd4c7183c",
+     "sha256": "2264790403b9301bffb343da7d1a0262033d06e53d1564f18482c6a76ba6caf4",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.012"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.012"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "80047ec394f0e52b3d0f60852b23c2276a2fb2ecbf042505d763c97cdc207299",
+     "sha256": "c49a5bae0c490e7c8ed251e3fe295eefe45bf5db529f849e1967c71a55ce0283",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.013"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.013"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "8c1a5e3c96f9df5dab5eb10f21f147d7ba150c6cb169305fa7e819485e8fbef5",
+     "sha256": "aa9724ee37d6e7568527e02fd6057e710a3d93269308e580c580e7eb7ee2755f",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.014"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.014"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "e113a369a32749e73fb6636e93a373b1d68118268aa501d71cd3c2cee9e43dbd",
+     "sha256": "c4f3c1f1e55be3f2bede9666261bd270eafa8a67f659a9e174581756e3bb128f",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.015"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.015"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "7fb8b664f9ad3a0b4404083ae52083bebe7de44c2761a7903b252cc568a48c3e",
+     "sha256": "79ec1573e3422a6078653763c96c1c3691a62b015890e2ebeeb5846137f8aef6",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.016"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.016"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "401b43017380159c2334cce390a9343e35f49dd6ee596315d46230605a41a077",
+     "sha256": "8192b8bdd783dc4c03a4dbf6846cb5ccb86bd9b78fb75c2f866f87f090775abf",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.017"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.017"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "ed1334c8324bd5555f1aec0b78b3f24e79e3c51556f86ba4a0d4cc7d9d57fdfe",
+     "sha256": "a56560330cefe7dc609754dbae81a6fc91dcab66bb58c93104b61050645ffca4",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.018"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.018"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "a8cd9f469653b00b0f48ff67556374b3e612ed1b472a460fa0eca782bb43437f",
+     "sha256": "eb96342d75a4c28664cde8efc19710488a3c4d0c4992c86c9c052929d87810b5",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.019"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.019"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "5a0dea16be549604973c5ba14d2c96f88cc72346c5c90658aca2ca1199de7dd4",
+     "sha256": "01a148cccff4f964b0705c44d6f3739b2ecb75485ee53d1562c806a964d6f535",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.020"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.020"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "5f8843baf4d366ceadc87c58c32e708d50edd52f9e09d01e58b6a4dff28184b2",
+     "sha256": "b3d7a965a4c1a242b8c2a98b72d0ed4ef6b4bfd0ea5fd322f375432c0d993680",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.021"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.021"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "f52809406dc1ed72822040840075f1eb54a6ec2c5523206dc452d8ca00957ef3",
+     "sha256": "cecf1d466f986a377dc2689d687f6b7b1d5d8d99d41c1eae22824d2600f0758f",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.022"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.022"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "91db7eb28e8e65145cbf287ac94531d3e15c23fb01532600ab14897185cb1974",
+     "sha256": "fc52bd2a81e6e9f0db9b38f0269e568fa29d6a460e22faace570c6649ecc631f",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.023"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.023"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "8bc3f8e6c1a9dbe64e302b85a7d12eb013707ea3f1a0d83023cf89b3d3f55402",
+     "sha256": "6edbc7f10c07569ec697aa7157f919aa5b31a28ebf4bef5057f5026542ad1648",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.024"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.024"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "c523983ff9b1b54204ad5e882ad04b02b7c40a8a4598c2d0c68ae6cdfc7254ff",
+     "sha256": "a86b8dfbd3bc7f2a206ce3a8c24bc3e80636f158ef8def7ce8de3c86943a3e75",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.025"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.025"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "f011a9b6e896197ff0c5145ea582402efd6bd8e06d41fa1b8e6fbe11be669d91",
+     "sha256": "d98d6685e5c262e95950f27563ba035546aa11ad78c4d85a2b25872237db0175",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.026"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.026"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "cd028afc41a8fa7e5ec9d6b8567ff43e0887e0b1f60d90a63c20a11652faf258",
+     "sha256": "64a9e3d78c672f5422ecc918395d728f6ea4a63c699c396ffd4a14561b250e6b",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.027"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.027"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "94b7a89fe89c4651aa249fc727d0abe86ad9ddb15c025752bccd3d5902e5cd4a",
+     "sha256": "f5dc5a852cb32022f41c952b2bb895d474854e918de5ae851c2aa916057b3a03",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.028"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.028"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "b5b7664982fed0cbf29bed719b0b10b5800d0e29a0e173fcf959d1e2a4135b0e",
+     "sha256": "9398773742057b1d3e8c32473c1f987b5a033d901ae57981d4bcd921e080b6f5",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.029"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.029"
      ]
     },
     {
      "size": 95000000,
-     "sha256": "c59b64306d682ca635c7627d36d51aff63015b62c7d8feeef3a8f34f27a83174",
+     "sha256": "0489ae8fa206cbf200ccead786c1c4bfa7c4e7d188c3245f78b073e67c7809c4",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.030"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.030"
      ]
     },
     {
-     "size": 49827959,
-     "sha256": "9f0218f0c23ce11abdc6f7556a18bd732f8c4639a9b92f21bfe68f05be660d73",
+     "size": 95000000,
+     "sha256": "de5faff443dafa6ea65b22a4b3d919d9b8bc3ba54131dd8183ec1b34b394e1e0",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-9f835f0a3cf43829.zip.031"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.031"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "86d64b92ddc1f98dea4c88ef73457cc75bdea088d1ceefa7805cf646352e892d",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.032"
+     ]
+    },
+    {
+     "size": 95000000,
+     "sha256": "f24d4402c6fd6e1ac24530787067b25ae07f158ca4d3d5bb02390a32f4d36d07",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.033"
+     ]
+    },
+    {
+     "size": 82427662,
+     "sha256": "3bd498a61167dc3d680816459fcced7fcc2cd9458bc7130a5d7dabd7b31d258c",
+     "urls": [
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/python-win-cu124-baa575cdcc3e6086.zip.034"
      ]
     }
    ],
-   "sha256_joined": "e46e29ed98df4dc6ee565773002ac8c67affde4ea6763c1f843667ba929e32d5"
+   "sha256_joined": "7e6d332401286db92dc3bee7b5f83d3decbe439d90e25b47164213fafe6dd5dd"
   }
  },
- "published": "2026-11-21T10:49:26Z"
+ "published": "2026-11-21T16:31:19Z"
 }
