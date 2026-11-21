@@ -20,17 +20,17 @@ Fixed in [0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
-**Latest version: 0.3.3** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3)
+**Latest version: 0.3.4** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.4)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.3-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.3/Tonewell-Windows-x64-0.3.3-part1.zip) (1,687,976,109 bytes)
-- [Tonewell-Windows-x64-0.3.3-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.3/Tonewell-Windows-x64-0.3.3-part2.zip) (1,803,657,182 bytes)
+- [Tonewell-Windows-x64-0.3.4-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.4/Tonewell-Windows-x64-0.3.4-part1.zip) (1,687,520,401 bytes)
+- [Tonewell-Windows-x64-0.3.4-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.4/Tonewell-Windows-x64-0.3.4-part2.zip) (1,803,657,182 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.3-part1.zip` | `9e1f761b532aa2c07479961f754395f66782a1ac96a3d004e17c3fc62bebb836` |
-| `Tonewell-Windows-x64-0.3.3-part2.zip` | `d3c09f70cbf3a2dedab04a8e5d88cd09ff48a45e560e0b55c85461c9776de4ee` |
+| `Tonewell-Windows-x64-0.3.4-part1.zip` | `6ab093690cd78d66bad8679272bbd39f97e4fda1d26f09228c9872e9ac64f1cb` |
+| `Tonewell-Windows-x64-0.3.4-part2.zip` | `457fec9983dbd7f3a3a940c99610d3950d13d5898a96f2e140e25077f4c8015f` |
 
 ## What it does
 
@@ -47,8 +47,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.3`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.3` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.4`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.4` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -72,6 +72,7 @@ Tonewell checks once a day whether a new version is out (switch it off in Settin
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.4 | [tonewell-win-v0.3.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.4) | Interface text no longer cut off in the 20 languages; faster first start |
 | 0.3.3 | [tonewell-win-v0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3) | Newer graphics library for GeForce GTX 10 to RTX 50 series; style cards show their styles |
 | 0.3.2 | [tonewell-win-v0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2) | Fixes the "…" menu and the Settings page |
 | 0.3.1 | [tonewell-win-v0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.1) |  |
