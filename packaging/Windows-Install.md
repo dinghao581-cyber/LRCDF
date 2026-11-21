@@ -2,7 +2,7 @@
 
 For Windows x64 and Lightroom Classic. The app is available in 20 languages. The program, taskbar, desktop and Start menu all use the same LRCDF icon.
 
-1. Choose the CPU package, or the CUDA package if your NVIDIA graphics card and driver support CUDA 12.4.
+1. Choose the CPU package, or the CUDA package if you have an NVIDIA GeForce GTX 10 series or newer graphics card with a recent driver. The CUDA package's files are named `LRCDF-Windows-x64-cuda.zip` (from 0.1.6; it contains CUDA 12.8).
 2. Extract the CPU package directly. For the CUDA package, first put all its parts (`.zip.001`, `.zip.002` and so on) and `Join-Bundle.ps1` in one folder and run the command below in that folder. Extract the complete ZIP it makes; a single part cannot be extracted on its own.
 
    ```powershell
@@ -32,6 +32,8 @@ Close LRCDF and Lightroom Classic, then find LRCDF under "Apps & features" or "I
 
 ## Known limitations
 
+Graphics acceleration (the CUDA package) works with NVIDIA GeForce GTX 10 series and newer (GTX 10 and 16, RTX 20, 30, 40 and 50 series) and a recent NVIDIA driver. 0.1.6 carries a newer library (PyTorch 2.8.0 with CUDA 12.8) that supports these cards; it has not yet been tested on an RTX 50-series card. With any other graphics card, or when the card or its driver cannot be used, LRCDF uses the processor by itself; results take longer. Which one it uses, and why, is written to `%USERPROFILE%\LRCDF\device.log`; please send that file when you report a problem. Only an RTX 3090 has been tested.
+
 Graphics cards with less than 15 GiB of memory work in tiles. Previews then differ from those of larger cards by amounts the eye cannot see (on average less than 0.1 levels, single pixels up to about 12 levels); full-size results differ by at most 1 level.
 
 The skin area is estimated by a segmentation model: skin in shadow may be missed, and small skin-coloured objects, lips, teeth and the whites of the eyes may be adjusted slightly along with it (saturation about −10 %, brightness about +1/4 stop). This is not noticeable in the final pictures.
@@ -59,7 +61,7 @@ Building needs uv, the Windows .NET Framework 4.x compiler and a network connect
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cpu -ReleaseVersion 0.1.4 -NewPythonIdentity
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cu124 -ReleaseVersion 0.1.4 -NewPythonIdentity -ReuseLauncherFrom '..\dist\LRCDF-Windows-x64-cpu\LRCDF\project\app\windows\LRCDF.exe'
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Split-WindowsBundle.ps1 -ArchivePath '..\dist\LRCDF-Windows-x64-cu124.zip' -OutputDirectory '..\dist\CUDA-parts'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Split-WindowsBundle.ps1 -ArchivePath '..\dist\LRCDF-Windows-x64-cuda.zip' -OutputDirectory '..\dist\CUDA-parts'
 ```
 
 Without `-NewPythonIdentity` the build stops unless `python` is exactly the published runtime, given with `-ReusePythonFrom`.
