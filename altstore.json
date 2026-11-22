@@ -27,6 +27,15 @@
    },
    "versions": [
     {
+     "version": "0.3.4",
+     "buildVersion": "7",
+     "date": "2026-11-22T21:58:12Z",
+     "localizedDescription": "Tonewell 0.3.4: sliders show their first frame sooner when you start dragging (skin Strength on a 60 MP photo about 0.2 s → 0.06 s); finished pictures are identical to 0.3.3.",
+     "downloadURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.4/Tonewell-iPad-0.3.4.ipa",
+     "size": 130491875,
+     "minOSVersion": "27.0"
+    },
+    {
      "version": "0.3.3",
      "buildVersion": "6",
      "date": "2026-11-22T15:21:09Z",
