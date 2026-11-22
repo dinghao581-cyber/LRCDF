@@ -40,11 +40,11 @@
    "components": []
   },
   "win-x64-cpu": {
-   "version": "0.1.6",
+   "version": "0.1.7",
    "min_os": "10.0",
    "notes": {
-    "zh": "小更新：许可文本更新，修图结果不变。",
-    "en": "Small update: updated licence texts; results are unchanged."
+    "zh": "小更新：更新时文件夹被杀毒软件等短暂占用会等待重试（从 0.1.7 之后的更新起生效）；有显卡却改用处理器时，设置窗口会提示；下载更新前检查磁盘空间，不够时说明哪个盘需要多少；device.log 记录驱动版本。修图结果与 0.1.6 相同。",
+    "en": "Small update: an update now waits and retries when the folder is briefly locked by antivirus software or File Explorer (from the update after 0.1.7); the settings window says when a graphics card is present but the processor is used; free disk space is checked before an update is downloaded, with a message saying how much is needed on which drive; device.log records the driver version. Results are the same as in 0.1.6."
    },
    "components": [
     "app-win",
@@ -55,11 +55,11 @@
    ]
   },
   "win-x64-cu124": {
-   "version": "0.1.6",
+   "version": "0.1.7",
    "min_os": "10.0",
    "notes": {
-    "zh": "CUDA 版改用较新的运算库（PyTorch 2.8.0，CUDA 12.8），用来支持 GTX 10 到 RTX 50 系显卡（尚未在 RTX 50 系显卡上测过）。LRCDF 先检查显卡，用不了就自动改用处理器。",
-    "en": "The CUDA package now carries a newer library (PyTorch 2.8.0 with CUDA 12.8), meant to support GeForce GTX 10 to RTX 50 series cards (not yet tested on an RTX 50-series card). LRCDF now checks the graphics card first and uses the processor if it cannot compute on it."
+    "zh": "小更新：更新时文件夹被杀毒软件等短暂占用会等待重试（从 0.1.7 之后的更新起生效）；有显卡却改用处理器时，设置窗口会提示；下载更新前检查磁盘空间，不够时说明哪个盘需要多少；device.log 记录驱动版本。修图结果与 0.1.6 相同。",
+    "en": "Small update: an update now waits and retries when the folder is briefly locked by antivirus software or File Explorer (from the update after 0.1.7); the settings window says when a graphics card is present but the processor is used; free disk space is checked before an update is downloaded, with a message saying how much is needed on which drive; device.log records the driver version. Results are the same as in 0.1.6."
    },
    "components": [
     "app-win",
@@ -335,32 +335,34 @@
    ]
   },
   "app-win": {
-   "version": "79f658b5f4ece0d4",
+   "version": "f739a251d270fb2d",
    "install": "app",
    "restart": "app",
    "files": [
     {
-     "size": 25083860,
-     "sha256": "403f2c2f83c413710bb5730548fe06873f75634eb375bd0ef6d4da017232aa13",
+     "size": 25088730,
+     "sha256": "291d4b8b8d7089576641fb57009b53a63aaac75c10c0bbd4bbc0880c6e950521",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-79f658b5f4ece0d4.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-f739a251d270fb2d.zip"
      ]
     }
-   ]
+   ],
+   "unpacked": 40213871
   },
   "code-win": {
-   "version": "1c098ecc7d6fc003",
+   "version": "3b05ba48fb69261b",
    "install": "project",
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 294179,
-     "sha256": "b181d4c3cc8e22f1cbf6781966693302ccd808194d48c803e197de670442e1c7",
+     "size": 295250,
+     "sha256": "134924480d8c08565476a90e59adc42d658151654a994d5d4f16981f9d6a7f7a",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-1c098ecc7d6fc003.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-3b05ba48fb69261b.zip"
      ]
     }
    ],
+   "unpacked": 789174,
    "keep": [
     "project/app/windows",
     "project/runs"
@@ -394,7 +396,8 @@
     }
    ],
    "sha256_joined": "a90f121158b8a6ab094da53958d37620886897cc8ec1ac4856612f59e5a8bd20",
-   "keep": []
+   "keep": [],
+   "unpacked": 214540692
   },
   "models-third-win": {
    "version": "51b78f0cfdd57f02",
@@ -504,7 +507,8 @@
     }
    ],
    "sha256_joined": "57826997a959ef01b0c57e24cec03d64cdb4d3da1642aa85decb60774b1a2e04",
-   "keep": []
+   "keep": [],
+   "unpacked": 1409696377
   },
   "python-win-cpu": {
    "version": "8da4b95de633d9bb",
@@ -800,8 +804,9 @@
      ]
     }
    ],
-   "sha256_joined": "7e6d332401286db92dc3bee7b5f83d3decbe439d90e25b47164213fafe6dd5dd"
+   "sha256_joined": "7e6d332401286db92dc3bee7b5f83d3decbe439d90e25b47164213fafe6dd5dd",
+   "unpacked": 5339555387
   }
  },
- "published": "2026-11-21T23:24:04Z"
+ "published": "2026-11-22T02:55:32Z"
 }
