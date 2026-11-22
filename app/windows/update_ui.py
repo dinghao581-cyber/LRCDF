@@ -19,6 +19,9 @@ from .update_core import QUIET_LIMIT, NotEnoughSpace, UpdateCancelled, UpdateCli
 
 
 UPDATE_TEXT = json.loads(Path(__file__).with_name("update_strings.json").read_text(encoding="utf-8"))
+# Sizes in the update text use the app language's decimal mark, not the system locale's (board 11-22 14:23);
+# English, Chinese, Japanese, Korean and Thai keep the point.
+DECIMAL_COMMA = {"de", "fr", "es", "it", "pt", "nl", "ru", "sv", "nb", "pl", "cs", "tr", "id", "vi"}
 AUTO_SETTING = "automaticUpdates"
 DAILY = 24 * 60 * 60 * 1000
 SETTINGS_WIDTH, SETTINGS_MARGIN = 440, 24
@@ -188,6 +191,10 @@ class WindowsUpdater(QObject):
 
     def _text(self, key, **value):
         return UPDATE_TEXT.get(self.language, UPDATE_TEXT["en"])[key].format(**value)
+
+    def _decimal(self, value):
+        text = f"{value:.1f}"
+        return text.replace(".", ",") if self.language.split("-")[0].lower() in DECIMAL_COMMA else text
 
     def _make_widgets(self):
         """The gear left of the window buttons, drawn like them, opens the settings: a small window of its own
@@ -483,13 +490,13 @@ class WindowsUpdater(QObject):
         if self.offer.manual:
             summary = self._text("future", version=self.offer.version)
         else:
-            summary = self._text("offer", version=self.offer.version, size=f"{self.offer.bytes / 1_000_000:.1f}")
+            summary = self._text("offer", version=self.offer.version, size=self._decimal(self.offer.bytes / 1_000_000))
         return "\n\n".join(item for item in (summary, notes) if item)
 
     def _failed_text(self):
         """Why the download did not happen or finish: too little space (said before anything was downloaded), or not."""
         if self.space is not None:
-            need, free = f"{self.space.need / 1e9:.1f}", f"{self.space.free / 1e9:.1f}"
+            need, free = self._decimal(self.space.need / 1e9), self._decimal(self.space.free / 1e9)
             text = self._text("no_space", need=need, free=free, drive=self.space.drive.rstrip(":"))
             # a number and its unit ("13.2 GB", "13.2 Go") stay on one line
             return text.replace(f"{need} ", f"{need} ").replace(f"{free} ", f"{free} ")

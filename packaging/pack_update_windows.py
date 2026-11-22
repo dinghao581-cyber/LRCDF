@@ -183,12 +183,18 @@ def build_record(root, variant):
 
 
 def create_zip(path, entries):
-    # Fixed ZIP metadata makes one content identity produce one archive.
+    # Fixed ZIP metadata makes one content identity produce one archive, on whatever system it is packed. zipfile writes
+    # the packing system into each central-directory entry ("version made by": 0 on Windows, 3 elsewhere): the models
+    # published from a Mac said 3 and the same files packed here said 0, so the archives differed in three bytes
+    # (push manager, board 11-22 14:23). Unix (3) is written everywhere now; time and attributes are ZipInfo's defaults,
+    # spelt out. Entries arrive sorted (component_files).
     with ZipFile(path, "w", compression=ZIP_DEFLATED) as archive:
         for logical, source in entries:
             if source.is_symlink():
                 raise ValueError(f"Windows update archives require regular files: {source}")
-            member = ZipInfo(logical)
+            member = ZipInfo(logical, date_time=(1980, 1, 1, 0, 0, 0))
+            member.create_system = 3
+            member.external_attr = 0
             member.compress_type = ZIP_DEFLATED
             member.file_size = source.stat().st_size
             with source.open("rb") as source_stream:
@@ -263,15 +269,27 @@ def pack_windows(out, urls, cpu, cuda, notes, reuse=None):
         raise ValueError(f"Choose an empty output directory: {out}")
 
     published = json.loads(reuse.read_text(encoding="utf-8"))["components"] if reuse else {}
-    components = {"app-win": pack_component(out, urls, "app-win", "app", app_version, app)}
+
+    def already(component, identity):
+        """The published entry when this content identity is already out: its pieces stay as published, byte for byte,
+        whatever packed them (board 11-22 14:23). None when the component is new or changed."""
+        entry = published.get(component)
+        if entry and entry.get("version") == identity:
+            print(f"{component}: {identity} already published, its entry kept")
+            return entry
+        return None
+
+    components = {"app-win": already("app-win", app_version) or pack_component(out, urls, "app-win", "app", app_version, app)}
     for component, trees, exclude, identity, entries in shared:
-        targets = [logical for logical, _ in trees]
-        packed = pack_component(
-            out, urls, component, targets[0] if len(targets) == 1 else targets, identity, entries
-        )
-        packed["keep"] = list(exclude)
-        packed["restart"] = "lightroom-if-menu-changed" if component == "code-win" else "none"
-        components[component] = packed
+        entry = already(component, identity)
+        if entry is None:
+            targets = [logical for logical, _ in trees]
+            entry = pack_component(
+                out, urls, component, targets[0] if len(targets) == 1 else targets, identity, entries
+            )
+            entry["keep"] = list(exclude)
+            entry["restart"] = "lightroom-if-menu-changed" if component == "code-win" else "none"
+        components[component] = entry
     releases = {}
     for variant, bundle in zip(VARIANTS, (cpu, cuda)):
         component = f"python-win-{variant}"
@@ -285,8 +303,9 @@ def pack_windows(out, urls, cpu, cuda, notes, reuse=None):
             components[component] = entry
         else:
             entries = component_files(bundle, (("python", "python"),))
-            components[component] = pack_component(
-                out, urls, component, "python", component_version(entries), entries
+            identity = component_version(entries)
+            components[component] = already(component, identity) or pack_component(
+                out, urls, component, "python", identity, entries
             )
         releases[f"win-x64-{variant}"] = {
             "version": version,

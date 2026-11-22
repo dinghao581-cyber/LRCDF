@@ -44,6 +44,19 @@ def checkpoint_key(path):
 # time stamp and size). Done on this thread: PyTorch keeps cuDNN's execution plans per thread, so a warm-up on another
 # thread saved the first photo only 0.26 of its 1.6 s (measured, 0.1.7). Results do not change (cudnn.benchmark is off:
 # the algorithm chosen does not depend on what ran before; measured bit-identical, 0.1.7 hand-back).
+def tone_convolutions(dev):
+    """Windows on a graphics card: ToneNet runs without cuDNN (0.1.8). cuDNN 9 spent about 2.4 s choosing and loading its
+    algorithms the first time it met the network's convolutions, which no warm-up could hide when the photo arrives with
+    the service (0.1.7: Lightroom single photo still 6 % over 0.1.5); PyTorch's own kernels need 0.56 s for that first
+    photo (0.1.6 hand-back, section 6). Only this network: the other models of this service keep cuDNN. The pictures on
+    the card change by the kernels' rounding (GPU regression, 0.1.8 hand-back); a Mac and the CPU are untouched."""
+    import contextlib
+    if sys.platform != "win32" or dev != "cuda":
+        return contextlib.nullcontext()
+    c = torch.backends.cudnn
+    return c.flags(enabled=False, benchmark=c.benchmark, deterministic=c.deterministic, allow_tf32=c.allow_tf32)
+
+
 def warm_up():
     """(what load_model gives, its checkpoint key), or (None, None) off a Windows graphics card or on any problem."""
     if sys.platform != "win32" or not torch.version.cuda:
@@ -55,7 +68,7 @@ def warm_up():
             return None, None
         key = checkpoint_key(path)
         loaded = load_model(path)
-        with torch.no_grad():
+        with torch.no_grad(), tone_convolutions(loaded[1]):
             loaded[2].features(torch.zeros(1, 3, SIZE, SIZE, device=loaded[1]))
             torch.cuda.synchronize()
         return loaded, key
@@ -560,9 +573,10 @@ def run(a, loaded=None):
                         (temp, tint), known = found, True
                 x = torch.from_numpy(load_image(path))[None].to(dev)
                 wb = torch.tensor([wb_feature(temp, tint, known)], device=dev)
-                feat = model.features(x)
-                base = {s: (model.heads(feat, torch.tensor([k], device=dev), wb)[0] * model.t_std + model.t_mean).cpu().numpy().astype(np.float64)
-                        for k, s in enumerate(ck["styles"]) if any(recipes.get(n, {}).get("base", n) == s for n in names)}
+                with tone_convolutions(dev):
+                    feat = model.features(x)
+                    base = {s: (model.heads(feat, torch.tensor([k], device=dev), wb)[0] * model.t_std + model.t_mean).cpu().numpy().astype(np.float64)
+                            for k, s in enumerate(ck["styles"]) if any(recipes.get(n, {}).get("base", n) == s for n in names)}
                 ref = (temp, tint) if known else (P.T_DEFAULT, 0.0)
                 when = float(rest[0]) if rest and rest[0] else 0.0
                 photos.append((pid, base, ref, when))
