@@ -27,6 +27,15 @@
    },
    "versions": [
     {
+     "version": "0.3.3",
+     "buildVersion": "6",
+     "date": "2026-11-22T15:21:09Z",
+     "localizedDescription": "Tonewell 0.3.3: on faces seen from the side or cut off by the edge of the picture, the eye is no longer smeared into a grey band and the lips are no longer treated as a blemish; frontal faces are not affected.",
+     "downloadURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.3/Tonewell-iPad-0.3.3.ipa",
+     "size": 130486302,
+     "minOSVersion": "27.0"
+    },
+    {
      "version": "0.3.2",
      "buildVersion": "5",
      "date": "2026-11-22T14:00:48Z",
