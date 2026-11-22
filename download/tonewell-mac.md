@@ -2,9 +2,9 @@
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your Mac.
 
-**Latest version: 0.3.1** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.1)
+**Latest version: 0.3.2** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.2)
 
-- Download: [Tonewell-macOS-0.3.1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3.1/Tonewell-macOS-0.3.1.zip)
+- Download: [Tonewell-macOS-0.3.2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3.2/Tonewell-macOS-0.3.2.zip)
 
 ## What it does
 
@@ -20,7 +20,7 @@ macOS 14 Sonoma or newer, on Apple silicon or Intel (not yet tested on an Intel 
 
 ## Install
 
-1. Download `Tonewell-macOS-0.3.1.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
+1. Download `Tonewell-macOS-0.3.2.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
 2. The app is not signed with an Apple developer certificate, so macOS blocks it the first time. On macOS 15 and newer: click **Done** in the message, open **System Settings → Privacy & Security**, click **Open Anyway** next to the note about Tonewell and enter your login password, then open the app again and confirm with **Open Anyway**. On macOS 14: right-click the app, choose **Open**, then **Open** again. You only do this once.
 
 ## Updates
@@ -31,6 +31,7 @@ The app tells you when a new version is out; download it from this page. The opt
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.2 | [tonewell-mac-v0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.2) | Live sliders with Noise reduction on; better blemish removal on heavy acne |
 | 0.3.1 | [tonewell-mac-v0.3.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.1) |  |
 | 0.3 | [tonewell-mac-v0.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3) |  |
 | 0.1 | [tonewell-mac-v0.1](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.1) |  |
