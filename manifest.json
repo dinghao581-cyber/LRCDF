@@ -40,11 +40,11 @@
    "components": []
   },
   "win-x64-cpu": {
-   "version": "0.1.7",
+   "version": "0.1.8",
    "min_os": "10.0",
    "notes": {
-    "zh": "小更新：更新时文件夹被杀毒软件等短暂占用会等待重试（从 0.1.7 之后的更新起生效）；有显卡却改用处理器时，设置窗口会提示；下载更新前检查磁盘空间，不够时说明哪个盘需要多少；device.log 记录驱动版本。修图结果与 0.1.6 相同。",
-    "en": "Small update: an update now waits and retries when the folder is briefly locked by antivirus software or File Explorer (from the update after 0.1.7); the settings window says when a graphics card is present but the processor is used; free disk space is checked before an update is downloaded, with a message saying how much is needed on which drive; device.log records the driver version. Results are the same as in 0.1.6."
+    "zh": "小更新：Lightroom 启动后第一张美颜预览恢复到约 0.1.5 的速度（显卡）；设置里“自动检查更新”下的说明已译成全部 20 种语言；更新提示里的大小按各语言的小数点书写。修图结果与 0.1.7 相同。",
+    "en": "Small update: in Lightroom the first retouch preview after starting is back to about the speed of 0.1.5 on NVIDIA cards; the note under \"Check for updates automatically\" is translated into all 20 languages; sizes in update messages use each language's decimal mark. Results are the same as in 0.1.7."
    },
    "components": [
     "app-win",
@@ -55,11 +55,11 @@
    ]
   },
   "win-x64-cu124": {
-   "version": "0.1.7",
+   "version": "0.1.8",
    "min_os": "10.0",
    "notes": {
-    "zh": "小更新：更新时文件夹被杀毒软件等短暂占用会等待重试（从 0.1.7 之后的更新起生效）；有显卡却改用处理器时，设置窗口会提示；下载更新前检查磁盘空间，不够时说明哪个盘需要多少；device.log 记录驱动版本。修图结果与 0.1.6 相同。",
-    "en": "Small update: an update now waits and retries when the folder is briefly locked by antivirus software or File Explorer (from the update after 0.1.7); the settings window says when a graphics card is present but the processor is used; free disk space is checked before an update is downloaded, with a message saying how much is needed on which drive; device.log records the driver version. Results are the same as in 0.1.6."
+    "zh": "小更新：Lightroom 启动后第一张美颜预览恢复到约 0.1.5 的速度（显卡）；设置里“自动检查更新”下的说明已译成全部 20 种语言；更新提示里的大小按各语言的小数点书写。修图结果与 0.1.7 相同。",
+    "en": "Small update: in Lightroom the first retouch preview after starting is back to about the speed of 0.1.5 on NVIDIA cards; the note under \"Check for updates automatically\" is translated into all 20 languages; sizes in update messages use each language's decimal mark. Results are the same as in 0.1.7."
    },
    "components": [
     "app-win",
@@ -335,34 +335,34 @@
    ]
   },
   "app-win": {
-   "version": "f739a251d270fb2d",
+   "version": "ff2822942b2193ba",
    "install": "app",
    "restart": "app",
    "files": [
     {
-     "size": 25088730,
-     "sha256": "291d4b8b8d7089576641fb57009b53a63aaac75c10c0bbd4bbc0880c6e950521",
+     "size": 25092398,
+     "sha256": "02e85e14d0e11730e2fba9f53e8b384de0c5c95124ee8e78372230d82c73cf69",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-f739a251d270fb2d.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/app-win-ff2822942b2193ba.zip"
      ]
     }
    ],
-   "unpacked": 40213871
+   "unpacked": 40216755
   },
   "code-win": {
-   "version": "3b05ba48fb69261b",
+   "version": "efce465314025273",
    "install": "project",
    "restart": "lightroom-if-menu-changed",
    "files": [
     {
-     "size": 295250,
-     "sha256": "134924480d8c08565476a90e59adc42d658151654a994d5d4f16981f9d6a7f7a",
+     "size": 295568,
+     "sha256": "2efddf8bc2353ff3eae56eba277231519b91a846b44f9943365fd651a8af80c0",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-3b05ba48fb69261b.zip"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/win-updates/code-win-efce465314025273.zip"
      ]
     }
    ],
-   "unpacked": 789174,
+   "unpacked": 790142,
    "keep": [
     "project/app/windows",
     "project/runs"
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-22T02:55:32Z"
+ "published": "2026-11-22T06:47:57Z"
 }
