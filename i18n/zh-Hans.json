@@ -139,5 +139,8 @@
  "t138": "拖动合影上的分隔线",
  "t139": "拖动橙色羽毛上的分隔线",
  "title": "LRCDF 与 Tonewell：在你自己的电脑上免费进行人像修图",
- "description": "免费、开源的人像修图，淡化瑕疵，保留真实的皮肤质感，全程在你自己的设备上运行。适用于 Lightroom Classic，也可作为独立应用用于 Mac、iPad 和 Windows。"
+ "description": "免费、开源的人像修图，淡化瑕疵，保留真实的皮肤质感，全程在你自己的设备上运行。适用于 Lightroom Classic，也可作为独立应用用于 Mac、iPad 和 Windows。",
+ "t140": "Windows，微软商店版",
+ "t141": "Windows 11，64 位。同一个 Tonewell，由微软商店安装并保持更新。",
+ "t142": "约 3.5 GB。首次打开没有警告，也不用解压。"
 }

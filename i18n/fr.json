@@ -139,5 +139,8 @@
  "t138": "Déplacer le séparateur sur la photo de groupe",
  "t139": "Déplacer le séparateur sur les plumes orange",
  "title": "LRCDF et Tonewell : retouche de portrait gratuite sur votre ordinateur",
- "description": "Retouche de portrait gratuite et open source, qui estompe les imperfections, conserve la vraie texture de la peau et fonctionne entièrement sur votre appareil. Pour Lightroom Classic, ou comme application autonome pour Mac, iPad et Windows."
+ "description": "Retouche de portrait gratuite et open source, qui estompe les imperfections, conserve la vraie texture de la peau et fonctionne entièrement sur votre appareil. Pour Lightroom Classic, ou comme application autonome pour Mac, iPad et Windows.",
+ "t140": "Windows, depuis le Microsoft Store",
+ "t141": "Windows 11, 64 bits. Le même Tonewell, installé et tenu à jour par le Store.",
+ "t142": "Environ 3,5 Go. Aucun avertissement au premier lancement, rien à extraire."
 }

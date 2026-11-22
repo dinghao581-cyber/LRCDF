@@ -139,5 +139,8 @@
  "t138": "集合写真の境界線を動かす",
  "t139": "オレンジの羽根の境界線を動かす",
  "title": "LRCDF と Tonewell：ご自身のパソコンで使える無料の人物レタッチ",
- "description": "無料・オープンソースの人物レタッチ。シミを薄くし、本物の肌の質感を残し、すべてご自身のデバイス上で動作します。Lightroom Classic 用、または Mac・iPad・Windows 用のスタンドアロンアプリとして。"
+ "description": "無料・オープンソースの人物レタッチ。シミを薄くし、本物の肌の質感を残し、すべてご自身のデバイス上で動作します。Lightroom Classic 用、または Mac・iPad・Windows 用のスタンドアロンアプリとして。",
+ "t140": "Windows（Microsoft Store）",
+ "t141": "Windows 11、64 ビット。同じ Tonewell を Microsoft Store がインストールし、最新の状態に保ちます。",
+ "t142": "約 3.5 GB。初回起動時の警告も、展開の手間もありません。"
 }

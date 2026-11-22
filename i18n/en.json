@@ -139,5 +139,8 @@
  "t138": "Move the divider on the group photo",
  "t139": "Move the divider on the orange feathers",
  "title": "LRCDF and Tonewell: free portrait retouching on your own computer",
- "description": "Free, open-source portrait retouching that fades blemishes, keeps real skin texture and runs entirely on your own device. For Lightroom Classic, or as a standalone app for Mac, iPad and Windows."
+ "description": "Free, open-source portrait retouching that fades blemishes, keeps real skin texture and runs entirely on your own device. For Lightroom Classic, or as a standalone app for Mac, iPad and Windows.",
+ "t140": "Windows, from the Microsoft Store",
+ "t141": "Windows 11, 64-bit. The same Tonewell, installed and kept up to date by the Store.",
+ "t142": "About 3.5 GB. No warning on first launch and nothing to extract."
 }

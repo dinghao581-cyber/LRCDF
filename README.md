@@ -19,7 +19,7 @@ All of these are in `index.html`.
 
 | What | Where | Change |
 |---|---|---|
-| Download links | `<ul class="get">`, the `Get it` link in each row | LRCDF for Mac uses `/releases/latest` and needs no change. Windows, Tonewell for Mac and Tonewell for iPad link to a release tag: point them at the new tag. |
+| Download links | `<ul class="get">`, the `Get it` link in each row | LRCDF for Mac uses `/releases/latest` and needs no change. Windows, Tonewell for Mac and Tonewell for iPad link to a release tag: point them at the new tag. The Microsoft Store row links to the Store page (`9N5ZZ64N3SN0`) and needs no change. |
 | Download sizes | `<ul class="get">`, the `first` line in each row | Use the size shown on the release page. |
 | System requirements | `<ul class="get">`, the `needs` line in each row | Only if they changed. |
 | Tonewell features | `<table class="compare">`, rows `row-people`, `row-learn`, `row-culling` | When a feature ships, change `<td class="no">No</td>` to `<td>Yes</td>`. If it reaches every platform, also revisit "This one is LRCDF only." under the group photo. |

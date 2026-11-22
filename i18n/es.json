@@ -139,5 +139,8 @@
  "t138": "Mueve el divisor sobre la foto de grupo",
  "t139": "Mueve el divisor sobre las plumas naranjas",
  "title": "LRCDF y Tonewell: retoque de retratos gratuito en tu propio ordenador",
- "description": "Retoque de retratos gratuito y de código abierto que atenúa las manchas, mantiene la textura real de la piel y se ejecuta por completo en tu propio dispositivo. Para Lightroom Classic, o como app independiente para Mac, iPad y Windows."
+ "description": "Retoque de retratos gratuito y de código abierto que atenúa las manchas, mantiene la textura real de la piel y se ejecuta por completo en tu propio dispositivo. Para Lightroom Classic, o como app independiente para Mac, iPad y Windows.",
+ "t140": "Windows, desde Microsoft Store",
+ "t141": "Windows 11, 64 bits. El mismo Tonewell, instalado y actualizado por la Store.",
+ "t142": "Unos 3,5 GB. Sin advertencia al primer inicio y sin nada que extraer."
 }
