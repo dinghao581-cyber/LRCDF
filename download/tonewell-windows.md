@@ -28,17 +28,17 @@ Windows 11, 64-bit. About 3.5 GB. This is the same Tonewell: the Store installs 
 
 ## Or download it directly
 
-**Latest version: 0.3.4** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.4)
+**Latest version: 0.3.5** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.5)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.4-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.4/Tonewell-Windows-x64-0.3.4-part1.zip) (1,687,520,401 bytes)
-- [Tonewell-Windows-x64-0.3.4-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.4/Tonewell-Windows-x64-0.3.4-part2.zip) (1,803,657,182 bytes)
+- [Tonewell-Windows-x64-0.3.5-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.5/Tonewell-Windows-x64-0.3.5-part1.zip) (1,687,521,763 bytes)
+- [Tonewell-Windows-x64-0.3.5-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.5/Tonewell-Windows-x64-0.3.5-part2.zip) (1,803,657,181 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.4-part1.zip` | `6ab093690cd78d66bad8679272bbd39f97e4fda1d26f09228c9872e9ac64f1cb` |
-| `Tonewell-Windows-x64-0.3.4-part2.zip` | `457fec9983dbd7f3a3a940c99610d3950d13d5898a96f2e140e25077f4c8015f` |
+| `Tonewell-Windows-x64-0.3.5-part1.zip` | `5cab69706f038ef32b2707a8f2fbdff067c1c89611bab816579d3c446d54df59` |
+| `Tonewell-Windows-x64-0.3.5-part2.zip` | `705ed370bce1577e9a82a4a3faa90eca84a49b4af000e57828580727c0411a15` |
 
 ## What it does
 
@@ -55,8 +55,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.4`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.4` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.5`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.5` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -70,6 +70,8 @@ Nothing is installed: Tonewell writes nothing to the registry or the Start menu.
 - Body reshaping uses a different body detector from the Mac version. When legs are hidden by a long coat or skirt, or a person stands slightly sideways, the two versions can make different choices about which steps to apply or skip, and the strength of some steps differs slightly.
 - "Fuller bust" is off for anyone the age model reads as under 18 and cannot be switched on for them. About 0.2–1.7 % of adults are read that way. The model often reads teenagers as older, and the software cannot verify an age you type.
 - The same photo exported on different PCs can differ by a few levels out of 255 in a small share of pixels.
+- Fujifilm X-Trans RAW files (e.g. X-T4, X-T5, X100V) can come out slightly differently each time the same photo is opened or exported on Windows; in some photos the difference is visible. This has been the case since 0.3.4 and is being investigated. Other cameras are not affected, and Tonewell for Mac and iPad is not affected.
+- 8-bit compressed NEF files from the Nikon Z 8 cannot be opened.
 - Not in this version yet: HEIC export, per-person settings, the noise-reduction switch for JPEG photos, the tutorial.
 
 ## Updates
@@ -82,6 +84,7 @@ The Microsoft Store edition has no update check of its own: the Store keeps it u
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.5 | [tonewell-win-v0.3.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.5) | Faster start; no empty window flashing up at start |
 | 0.3.4 | [tonewell-win-v0.3.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.4) | Interface text no longer cut off in the 20 languages; faster first start |
 | 0.3.3 | [tonewell-win-v0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3) | Newer graphics library for GeForce GTX 10 to RTX 50 series; style cards show their styles |
 | 0.3.2 | [tonewell-win-v0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.2) | Fixes the "…" menu and the Settings page |
