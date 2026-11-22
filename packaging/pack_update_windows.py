@@ -236,6 +236,9 @@ def pack_component(out, urls, component, target, version, entries):
     result = {"version": version, "install": target, "restart": "app", "files": files}
     if joined is not None:
         result["sha256_joined"] = joined
+    # the files' size once extracted: an installed 0.1.7 or later checks the drive has room before downloading
+    # (update_core.space_needed); older installs ignore the key
+    result["unpacked"] = sum(source.stat().st_size for _, source in entries)
     print(f"{component}: {version}, {len(files)} part(s), {sum(part['size'] for part in files)} bytes")
     return result
 

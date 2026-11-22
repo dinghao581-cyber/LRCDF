@@ -29,6 +29,41 @@ def load_runtime():
     from lrcdf.model import ToneNet, load_image, wb_feature
 
 
+def checkpoint_key(path):
+    path = os.path.normcase(os.path.abspath(path))
+    stat = os.stat(path)
+    return path, stat.st_mtime_ns, stat.st_size
+
+
+# ---- Windows with an NVIDIA card only (a Mac, and the Windows CPU package, never get here) ---------------------------
+# cuDNN 9 (torch 2.8 +cu128, LRCDF 0.1.6) spends about 2 s the first time it meets each of ToneNet's convolutions: the
+# first photo took 3.3 s instead of 0.9 (0.1.6 hand-back, section 6). On Windows the plug-in starts this service while
+# the LRCDF app opens and before Lightroom exports the first photo for it, so the service usually waits once imported.
+# It now loads the model the plug-in asks for (runs/tone/tone.pt) and runs it once on an empty picture of the photos'
+# size, which meets the same convolutions, before it waits; the first request takes that model as it is (same file,
+# time stamp and size). Done on this thread: PyTorch keeps cuDNN's execution plans per thread, so a warm-up on another
+# thread saved the first photo only 0.26 of its 1.6 s (measured, 0.1.7). Results do not change (cudnn.benchmark is off:
+# the algorithm chosen does not depend on what ran before; measured bit-identical, 0.1.7 hand-back).
+def warm_up():
+    """(what load_model gives, its checkpoint key), or (None, None) off a Windows graphics card or on any problem."""
+    if sys.platform != "win32" or not torch.version.cuda:
+        return None, None
+    try:
+        from lrcdf.model import SIZE
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "runs", "tone", "tone.pt")
+        if not os.path.exists(path) or pick() != "cuda":
+            return None, None
+        key = checkpoint_key(path)
+        loaded = load_model(path)
+        with torch.no_grad():
+            loaded[2].features(torch.zeros(1, 3, SIZE, SIZE, device=loaded[1]))
+            torch.cuda.synchronize()
+        return loaded, key
+    except Exception as ex:      # a help only: whatever goes wrong here, the first request loads the model as before
+        print("cuDNN warm-up:", type(ex).__name__, ex, flush=True)
+        return None, None
+
+
 def process_started(pid, handle=None):
     """The OS start time, so a PID left after an idle exit cannot later name an unrelated process."""
     if sys.platform == "win32":
@@ -186,6 +221,20 @@ def task(argv):
         _tasks[name].main(rest)
 
 
+def gpu_failed(ex):
+    """Windows: True when ex was a CUDA error. The rest of the process then works on the CPU (lrcdf.device.fall_back),
+    and what this process keeps on the card is let go, to be made again there. Always False on a Mac."""
+    from lrcdf.device import cuda_error, fall_back
+    if not cuda_error(ex):
+        return False
+    fall_back(ex)
+    _tasks.clear()
+    skinkeep = sys.modules.get("lrcdf.skinkeep")
+    if skinkeep is not None:
+        skinkeep._models = None
+    return True
+
+
 def serve(folder):
     """One request at a time; each --out is private until the plug-in accepts its successful .done."""
     os.makedirs(folder, exist_ok=True)
@@ -200,7 +249,7 @@ def serve(folder):
         if os.path.exists(os.path.join(folder, "quit")):
             return
         load_runtime()
-        loaded, checkpoint = None, None
+        loaded, checkpoint = warm_up()
         mode, idle, last = None, 600, time.monotonic()
         while time.monotonic() - last < idle and not os.path.exists(os.path.join(folder, "quit")):
             waiting = sorted(glob.glob(os.path.join(folder, "*.req")))
@@ -215,7 +264,12 @@ def serve(folder):
                 if argv[:1] == ["--task"]:
                     # other scripts' short jobs (Tone.serviceTask): answered, never ending the service on failure
                     try:
-                        task(argv)
+                        try:
+                            task(argv)
+                        except Exception as ex:
+                            if not gpu_failed(ex):      # Windows only: a CUDA error has the job done again on the CPU
+                                raise
+                            task(argv)
                         reply = "ok\n" + (mode or "resident") + "\n"
                     except (Exception, SystemExit) as ex:
                         import traceback
@@ -229,14 +283,18 @@ def serve(folder):
                     continue
                 a = arguments(argv)
                 if not a.forget:
-                    path = os.path.abspath(a.ckpt)
-                    stat = os.stat(path)
-                    key = (path, stat.st_mtime_ns, stat.st_size)
+                    key = checkpoint_key(a.ckpt)
                     if key != checkpoint:
                         loaded = None   # release the previous model before loading a changed checkpoint
                         loaded = load_model(a.ckpt)
                         checkpoint = key
-                run(a, loaded)
+                try:
+                    run(a, loaded)
+                except Exception as ex:
+                    if not gpu_failed(ex):              # Windows only: a CUDA error has the request done again on the CPU
+                        raise
+                    loaded = None if a.forget else load_model(a.ckpt)
+                    run(a, loaded)
                 if mode is None:
                     mode, idle = residency()
                     with open(os.path.join(folder, "mode"), "w") as f:
@@ -483,6 +541,8 @@ def run(a, loaded=None):
         open(a.out, "w").write("return {}\n")
         return
     ck, dev, model = loaded if loaded is not None else load_model(a.ckpt)
+    from lrcdf.device import midway_test
+    midway_test()               # Windows tests only (LRCDF_GPU_TEST=midway); nothing anywhere else
     recipes = json.load(open(os.path.join(os.path.dirname(__file__), "..", "styles.json"), encoding="utf-8"))
     builtin = set(ck["styles"]) | set(recipes)      # not the user's own looks (learnt against the model as it is)
     recipes.update(my_styles(a.mystyles))
@@ -560,4 +620,9 @@ if __name__ == "__main__":
         serve(sys.argv[2])
     else:
         load_runtime()
-        run(arguments())
+        try:
+            run(arguments())
+        except Exception as ex:
+            if not gpu_failed(ex):          # Windows only: a CUDA error has it done again on the CPU
+                raise
+            run(arguments())

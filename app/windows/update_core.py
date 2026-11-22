@@ -44,6 +44,15 @@ class _IntegrityError(UpdateError):
     pass
 
 
+class NotEnoughSpace(UpdateError):
+    """Too little free space on the installation's drive for the update: nothing was downloaded. `need` and `free` in
+    bytes, `drive` as Windows writes it ("C:")."""
+
+    def __init__(self, need: int, free: int, drive: str):
+        super().__init__(f"The update needs {need} bytes on {drive}, {free} are free")
+        self.need, self.free, self.drive = need, free, drive
+
+
 @dataclass(frozen=True)
 class Piece:
     size: int
@@ -60,6 +69,7 @@ class Component:
     restart: str
     pieces: tuple[Piece, ...]
     joined: str | None
+    unpacked: int = 0           # its files' size once extracted (0: a manifest from before 0.1.7, which does not say)
 
 
 @dataclass(frozen=True)
@@ -172,7 +182,10 @@ def _component(name: str, data: dict, platform: str) -> Component:
         pieces.append(Piece(size, _digest(piece["sha256"]), tuple(urls)))
     joined = data.get("sha256_joined")
     _require(bool(pieces) and (len(pieces) == 1 or joined is not None), "Missing piece or joined hash")
-    return Component(name, version, targets, keep, restart, tuple(pieces), _digest(joined) if joined is not None else None)
+    unpacked = data.get("unpacked", 0)
+    _require(type(unpacked) is int and 0 <= unpacked <= 64 * 1024 ** 3, "Invalid extracted size")
+    return Component(name, version, targets, keep, restart, tuple(pieces), _digest(joined) if joined is not None else None,
+                     unpacked)
 
 
 class UpdateClient:
@@ -448,6 +461,28 @@ class UpdateClient:
         menus = re.findall(rb"""\bfile\s*=\s*["']([A-Za-z0-9_.-]+\.lua)["']""", new_info or b"")
         return any(content(old / name.decode("ascii")) != content(new / name.decode("ascii")) for name in menus)
 
+    # what staging holds at its peak, besides the pieces: each component once more as its joined ZIP, then its files
+    # extracted (measured for 0.1.5 -> 0.1.6 CUDA: pieces 3.24 + joined 3.22 + extracted 5.48 GB, 11.8 GB at the
+    # peak). A manifest from before 0.1.7 does not give the extracted size: twice the download is assumed (the runtime
+    # extracted to 1.7 times its ZIP). The installation then moves trees on the same drive, which takes no more room.
+    SPACE_MARGIN = 512 * 1024 ** 2
+
+    def space_needed(self, offer: Offer, downloads: Path) -> int:
+        """Bytes of free space staging this offer still needs, counting the pieces a resumed download already has."""
+        pieces = sum(piece.size for part in offer.components for piece in part.pieces)
+        have = 0
+        for number, piece in ((n, p) for part in offer.components for n, p in enumerate(part.pieces)):
+            for path in downloads.glob(f"*-{number}-{piece.sha256}.part"):
+                have += min(path.stat().st_size, piece.size)
+        unpacked = sum(part.unpacked or 2 * sum(p.size for p in part.pieces) for part in offer.components)
+        return max(0, pieces - have) + pieces + unpacked + self.SPACE_MARGIN
+
+    def _check_space(self, offer: Offer, downloads: Path) -> None:
+        need = self.space_needed(offer, downloads)
+        free = shutil.disk_usage(self.root).free
+        if free < need:
+            raise NotEnoughSpace(need, free, self.root.resolve().drive or str(self.root.anchor))
+
     def stage(self, offer: Offer, stop: threading.Event) -> Path:
         """Verify all requested pieces and archives before marking the stage ready."""
         _cancelled(stop)
@@ -468,6 +503,7 @@ class UpdateClient:
                 return stage
         (stage / "READY").unlink(missing_ok=True)
         downloads, files = stage / "downloads", stage / "files"
+        self._check_space(offer, downloads)
         downloads.mkdir(parents=True, exist_ok=True)
         try:
             header = self._agent(state[0], state[1])

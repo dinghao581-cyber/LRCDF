@@ -15,6 +15,9 @@ if (!$OutputDirectory) { $OutputDirectory = Join-Path $root 'dist' }
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $OutputDirectory = (Resolve-Path -LiteralPath $OutputDirectory).Path
 $bundleName = "LRCDF-Windows-x64-$Variant"
+# 0.1.6: what users download and extract says "cuda", not a CUDA version; the platform (win-x64-cu124) and the component
+# (python-win-cu124) inside stay as they are, so that installed CUDA packages keep taking updates
+if ($Variant -eq 'cu124') { $bundleName = 'LRCDF-Windows-x64-cuda' }
 $bundle = Join-Path $OutputDirectory $bundleName
 $archive = Join-Path $OutputDirectory "$bundleName.zip"
 if ((Test-Path -LiteralPath $bundle) -or (Test-Path -LiteralPath $archive)) {
@@ -46,13 +49,16 @@ if ($ReusePythonFrom) {
     Copy-Tree $ReusePythonFrom $portable
 } else {
     Copy-Tree $PythonRuntime $portable
-    uv pip install --python $python --break-system-packages --torch-backend $Variant -r "$PSScriptRoot\requirements-windows.txt" "torch==2.6.0+$Variant" "torchvision==0.21.0+$Variant"
+    # 0.1.6: the CUDA variant (still named cu124: platform win-x64-cu124, component python-win-cu124, so that installed
+    # 0.1.5 CUDA packages take the update) carries torch 2.8.0 with CUDA 12.8, built for sm_61 to sm_120 (GeForce 10 to 50)
+    $torch = @{ cpu = @('cpu', '2.6.0+cpu', '0.21.0+cpu'); cu124 = @('cu128', '2.8.0+cu128', '0.23.0+cu128') }[$Variant]
+    uv pip install --python $python --break-system-packages --torch-backend $torch[0] -r "$PSScriptRoot\requirements-windows.txt" "torch==$($torch[1])" "torchvision==$($torch[2])" $(if ($Variant -eq 'cu124') { 'sympy==1.13.3' })
     if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed.' }
     uv pip check --python $python
     if ($LASTEXITCODE -ne 0) { throw 'Dependency validation failed.' }
 }
 function Test-BundledPython {
-    & $python -s -c "import sys, struct, torch, torchvision, cv2, mediapipe, onnxruntime, imagecodecs; from PySide6.QtWidgets import QApplication; from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey; assert sys.version_info[:2] == (3, 12) and struct.calcsize('P') == 8; assert (torch.version.cuda or 'cpu') == {'cpu':'cpu','cu124':'12.4'}[sys.argv[1]]; assert hasattr(cv2, 'FaceRecognizerSF_create'); print(sys.version.split()[0], torch.__version__, torchvision.__version__)" $Variant
+    & $python -s -c "import sys, struct, torch, torchvision, cv2, mediapipe, onnxruntime, imagecodecs; from PySide6.QtWidgets import QApplication; from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey; assert sys.version_info[:2] == (3, 12) and struct.calcsize('P') == 8; assert (torch.version.cuda or 'cpu') == {'cpu':'cpu','cu124':'12.8'}[sys.argv[1]] and (sys.argv[1] == 'cpu' or {'sm_61', 'sm_120'} <= set(torch.cuda.get_arch_list())); assert hasattr(cv2, 'FaceRecognizerSF_create'); print(sys.version.split()[0], torch.__version__, torchvision.__version__)" $Variant
     if ($LASTEXITCODE -ne 0) { throw 'Bundled Python validation failed.' }
 }
 Test-BundledPython
@@ -86,9 +92,20 @@ Copy-Tree "$root\models" "$payload\models"
 Copy-Tree "$root\legacy\mac_project" "$payload\legacy\mac_project"
 Copy-Tree "$project\legal" "$projectPayload\legal"
 Copy-Item -LiteralPath "$project\styles.json","$project\LICENSE","$project\NOTICE" -Destination $projectPayload
-foreach ($required in @('LICENSE', 'NOTICE', 'legal\THIRD_PARTY_NOTICES.md', 'legal\MODEL_LICENSES.md', 'legal\licenses\APPLE_ML_RESEARCH_MODEL_LICENSE.txt')) {
+$licenceFiles = @('LICENSE', 'NOTICE', 'legal\THIRD_PARTY_NOTICES.md', 'legal\MODEL_LICENSES.md', 'legal\licenses\APPLE_ML_RESEARCH_MODEL_LICENSE.txt',
+    'legal\licenses\RETINAFACE_ternaus_LICENSE.txt', 'legal\licenses\PYTORCH_RETINAFACE_biubug6_LICENSE.txt')
+$licenceFiles += Get-ChildItem -LiteralPath "$project\legal\licenses" -File | ForEach-Object { "legal\licenses\$($_.Name)" }
+foreach ($required in ($licenceFiles | Select-Object -Unique)) {
+    $source = Join-Path $project $required
     $file = Join-Path $projectPayload $required
-    if (!(Test-Path -LiteralPath $file -PathType Leaf) -or (Get-Item -LiteralPath $file).Length -eq 0) { throw "Missing licence file: $required" }
+    if (!(Test-Path -LiteralPath $source -PathType Leaf) -or !(Test-Path -LiteralPath $file -PathType Leaf) -or (Get-Item -LiteralPath $file).Length -eq 0) { throw "Missing licence file: $required" }
+    if ((Get-FileHash -LiteralPath $source).Hash -ne (Get-FileHash -LiteralPath $file).Hash) { throw "Licence file differs from the source: $required" }
+}
+if (Get-ChildItem -LiteralPath $payload -Recurse -File -Filter 'retinaface_resnet50*.pth') {
+    $notices = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $projectPayload 'legal\THIRD_PARTY_NOTICES.md')
+    foreach ($entry in @('ternaus/retinaface', 'biubug6/Pytorch_Retinaface')) {
+        if (!$notices.Contains($entry)) { throw "THIRD_PARTY_NOTICES.md has no entry for $entry" }
+    }
 }
 Remove-Item Env:PYTHONDONTWRITEBYTECODE -ErrorAction SilentlyContinue
 & $python -s (Join-Path $PSScriptRoot 'precompile_windows.py') $payload

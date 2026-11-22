@@ -7,7 +7,7 @@ import argparse, json, os, sys, time
 import cv2, numpy as np, tifffile, torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..")); sys.path.insert(0, os.path.dirname(__file__))
 from lrcdf import beauty, people, shape, paths
-from lrcdf.device import pick, plan
+from lrcdf.device import cuda_error, fall_back, midway_test, pick, plan
 
 PLAN = plan()       # what this machine allows (lrcdf/device.py); on 32 GB and more everything runs as it was built
 from lrcdf import reuse
@@ -553,6 +553,7 @@ def process(src, models, opt, device, icc=None):
     ProPhoto: only what retouching changed is carried over to the original pixels, so those it did not touch come out
     exactly as they went in. Reshaping is done last and on the real pixels, whatever their colour space."""
     opt.pop("_auto", None)       # what was chosen for the last picture
+    midway_test()                # Windows tests only (LRCDF_GPU_TEST=midway); nothing anywhere else
     scale = 65535.0 if src.dtype == np.uint16 else 255.0
     wide = icc is not None and b"ProPhoto" in icc and src.dtype == np.uint16 and opt.get("bits") != 8
     if PLAN.work_mp and src.shape[0] * src.shape[1] > PLAN.work_mp * 1e6:
@@ -630,6 +631,17 @@ def process_reduced(src, models, opt, device, wide):
     return shape.apply_strips(res, geo, rows), n
 
 
+def to_cpu(ex):
+    """Windows: after a CUDA error (lrcdf.device.fall_back) the rest of the process works on the CPU; the networks kept
+    here are made again there. Returns (device, models)."""
+    global _RETOUCHER, _DODGER, _SHADOW, _CRITIC, _MAKEUP
+    fall_back(ex)
+    _RETOUCHER = _DODGER = _SHADOW = _CRITIC = _MAKEUP = None
+    _CPU_COPY.clear()
+    device = pick()
+    return device, load_models(device)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--job", required=True); ap.add_argument("--blemish", type=float, default=1.0)
@@ -655,7 +667,13 @@ def main():
         t0 = time.time()
         try:
             src, icc = read(inp)
-            res, n = process(src, models, opt, device, icc)
+            try:
+                res, n = process(src, models, opt, device, icc)
+            except Exception as ex:
+                if not cuda_error(ex):           # Windows only: a CUDA error has the photo done again on the CPU
+                    raise
+                device, models = to_cpu(ex)
+                res, n = process(src, models, opt, device, icc)
             if res.dtype == np.uint8 and icc is not None and b"ProPhoto" in icc:
                 raise ValueError("8-bit output needs an sRGB input")
             tags = [(34675, "B", len(icc), icc, True)] if icc else []

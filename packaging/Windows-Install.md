@@ -59,8 +59,8 @@ LRCDF/
 Building needs uv, the Windows .NET Framework 4.x compiler and a network connection. Dependency versions are in `packaging\requirements-windows.txt`. In the `project` folder, build the CPU variant first, then the CUDA variant reusing the CPU launcher; give `-ReleaseVersion` the version to be released:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cpu -ReleaseVersion 0.1.4 -NewPythonIdentity
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cu124 -ReleaseVersion 0.1.4 -NewPythonIdentity -ReuseLauncherFrom '..\dist\LRCDF-Windows-x64-cpu\LRCDF\project\app\windows\LRCDF.exe'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cpu -ReleaseVersion 0.1.7 -NewPythonIdentity
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Build-Windows.ps1 -Variant cu124 -ReleaseVersion 0.1.7 -NewPythonIdentity -ReuseLauncherFrom '..\dist\LRCDF-Windows-x64-cpu\LRCDF\project\app\windows\LRCDF.exe'
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\packaging\Split-WindowsBundle.ps1 -ArchivePath '..\dist\LRCDF-Windows-x64-cuda.zip' -OutputDirectory '..\dist\CUDA-parts'
 ```
 

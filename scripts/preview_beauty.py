@@ -96,8 +96,13 @@ def main():
     run(a, models, device, lambda text: print(text, flush=True), reuse=False)
 
 
+_MOVED = []     # Windows: (device, models) once a CUDA error moved this process to the CPU (beautify.to_cpu)
+
+
 def run(a, models, device, say, reuse=True):
     from lrcdf import people
+    if _MOVED:
+        device, models = _MOVED
     who = people.Choices(a.people, a.choices, a.levels)
     if a.original and a.faces and not os.path.exists(a.faces):
         bgr = imread(a.original)
@@ -120,7 +125,17 @@ def run(a, models, device, say, reuse=True):
             if reuse:
                 opt["_memo"] = memo_of(inp)
             bgr = imread(inp)
-            res, n = beautify.process(np.ascontiguousarray(bgr[..., ::-1]), models, opt, device)
+            try:
+                res, n = beautify.process(np.ascontiguousarray(bgr[..., ::-1]), models, opt, device)
+            except Exception as ex:
+                if not beautify.cuda_error(ex):    # Windows only: a CUDA error has the photo done again on the CPU
+                    raise
+                _MOVED[:] = beautify.to_cpu(ex)
+                device, models = _MOVED
+                _MEMO.clear()                      # what was kept may lie on the card
+                if reuse:
+                    opt["_memo"] = memo_of(inp)
+                res, n = beautify.process(np.ascontiguousarray(bgr[..., ::-1]), models, opt, device)
             imwrite(outp + ".tmp.jpg", res[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 93])
             os.replace(outp + ".tmp.jpg", outp)
             say(json.dumps({"output": outp, "faces": n, "levels": opt.get("_levels") if auto else None}))

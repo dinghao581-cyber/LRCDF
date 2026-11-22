@@ -31,7 +31,9 @@
     "future": "新版本 {version} 请从下载页安装。",
     "runtime_busy": "请等 Lightroom 的 LRCDF 预览进程退出后再试。",
     "stale_plan": "更新信息已变化。请打开更新设置，查看最新版本。",
-    "licenses": "许可与致谢"
+    "licenses": "许可与致谢",
+    "gpu_unsupported": "这块显卡暂不支持加速，LRCDF 正在用处理器，出图会慢一些。",
+    "no_space": "空间不够，没有下载更新：{drive} 盘大约需要 {need} GB，现在空闲 {free} GB。腾出空间后再试。"
   },
   "zh-TW": {
     "settings": "更新設定",
@@ -65,7 +67,9 @@
     "future": "請從下載頁安裝新版 {version}。",
     "runtime_busy": "請等 Lightroom 的 LRCDF 預覽程序結束後再試。",
     "stale_plan": "更新資訊已變更。請開啟更新設定以查看最新版本。",
-    "licenses": "授權與致謝"
+    "licenses": "授權與致謝",
+    "gpu_unsupported": "這張顯示卡暫不支援加速，LRCDF 正在用處理器，出圖會慢一些。",
+    "no_space": "空間不足，沒有下載更新：磁碟 {drive} 上大約需要 {need} GB，目前可用 {free} GB。騰出空間後再試一次。"
   },
   "en": {
     "settings": "Update Settings",
@@ -99,7 +103,9 @@
     "future": "Install version {version} from the download page.",
     "runtime_busy": "Try again after the LRCDF preview process in Lightroom exits.",
     "stale_plan": "The update changed. Open Update Settings for the current version.",
-    "licenses": "Licences and credits"
+    "licenses": "Licences and credits",
+    "gpu_unsupported": "This graphics card isn't supported for acceleration yet, so LRCDF is using the processor. Pictures take longer.",
+    "no_space": "Not enough free space, so the update was not downloaded. It needs about {need} GB on drive {drive}, and {free} GB is free. Free up space and try again."
   },
   "ja": {
     "settings": "アップデート設定",
@@ -133,7 +139,9 @@
     "future": "ダウンロードページからバージョン {version} をインストールしてください。",
     "runtime_busy": "Lightroom の LRCDF プレビュー処理が終了したら、もう一度お試しください。",
     "stale_plan": "アップデートが変わりました。アップデート設定で最新のバージョンをご確認ください。",
-    "licenses": "ライセンスとクレジット"
+    "licenses": "ライセンスとクレジット",
+    "gpu_unsupported": "このグラフィックカードはまだアクセラレーションに対応していないため、LRCDF はプロセッサを使用しています。画像の処理に時間がかかります。",
+    "no_space": "空き容量が足りないため、更新はダウンロードされていません。ドライブ {drive} に約 {need} GB が必要ですが、空きは {free} GB です。容量を空けてから、もう一度お試しください。"
   },
   "ko": {
     "settings": "업데이트 설정",
@@ -167,7 +175,9 @@
     "future": "다운로드 페이지에서 버전 {version}을 설치하세요.",
     "runtime_busy": "Lightroom의 LRCDF 미리 보기 프로세스가 끝난 뒤 다시 시도하세요.",
     "stale_plan": "업데이트가 변경되었습니다. 업데이트 설정에서 현재 버전을 확인하세요.",
-    "licenses": "라이선스 및 크레딧"
+    "licenses": "라이선스 및 크레딧",
+    "gpu_unsupported": "이 그래픽카드는 아직 가속을 지원하지 않아 LRCDF이 프로세서를 사용합니다. 사진 처리에 시간이 더 걸립니다.",
+    "no_space": "여유 공간이 부족해 업데이트를 내려받지 않았습니다. 드라이브 {drive}에 약 {need} GB가 필요하지만 여유 공간은 {free} GB입니다. 공간을 확보한 뒤 다시 시도하세요."
   },
   "es": {
     "settings": "Ajustes de actualización",
@@ -201,7 +211,9 @@
     "future": "Instala la versión {version} desde la página de descarga.",
     "runtime_busy": "Vuelve a intentarlo cuando se cierre el proceso de vista previa de LRCDF en Lightroom.",
     "stale_plan": "La actualización ha cambiado. Abre los ajustes de actualización para ver la versión actual.",
-    "licenses": "Licencias y créditos"
+    "licenses": "Licencias y créditos",
+    "gpu_unsupported": "Esta tarjeta gráfica aún no es compatible con la aceleración, así que LRCDF usa el procesador. Las imágenes tardan más.",
+    "no_space": "No hay suficiente espacio libre, así que la actualización no se descargó: necesita unos {need} GB en la unidad {drive}, y hay {free} GB libres. Libera espacio y vuelve a intentarlo."
   },
   "fr": {
     "settings": "Paramètres de mise à jour",
@@ -235,7 +247,9 @@
     "future": "Installez la version {version} depuis la page de téléchargement.",
     "runtime_busy": "Réessayez après la fermeture du processus d’aperçu LRCDF dans Lightroom.",
     "stale_plan": "La mise à jour a changé. Ouvrez les paramètres de mise à jour pour voir la version actuelle.",
-    "licenses": "Licences et crédits"
+    "licenses": "Licences et crédits",
+    "gpu_unsupported": "Cette carte graphique n'est pas encore prise en charge pour l'accélération : LRCDF utilise donc le processeur. Les images prennent plus de temps.",
+    "no_space": "Espace libre insuffisant : la mise à jour n'a pas été téléchargée. Elle nécessite environ {need} Go sur le lecteur {drive}, et {free} Go sont disponibles. Libérez de l'espace, puis réessayez."
   },
   "de": {
     "settings": "Update-Einstellungen",
@@ -269,7 +283,9 @@
     "future": "Installiere Version {version} über die Downloadseite.",
     "runtime_busy": "Versuche es erneut, sobald der LRCDF-Vorschauprozess in Lightroom beendet ist.",
     "stale_plan": "Das Update hat sich geändert. Öffne die Update-Einstellungen für die aktuelle Version.",
-    "licenses": "Lizenzen und Danksagungen"
+    "licenses": "Lizenzen und Danksagungen",
+    "gpu_unsupported": "Diese Grafikkarte wird für die Beschleunigung noch nicht unterstützt, daher nutzt LRCDF den Prozessor. Bilder brauchen länger.",
+    "no_space": "Nicht genug freier Speicher, daher wurde das Update nicht heruntergeladen: Es braucht etwa {need} GB auf Laufwerk {drive}, frei sind {free} GB. Gib etwas Speicher frei und versuch es dann erneut."
   },
   "pt-BR": {
     "settings": "Configurações de atualização",
@@ -303,7 +319,9 @@
     "future": "Instale a versão {version} pela página de download.",
     "runtime_busy": "Tente novamente depois que o processo de visualização do LRCDF no Lightroom terminar.",
     "stale_plan": "A atualização mudou. Abra as configurações de atualização para ver a versão atual.",
-    "licenses": "Licenças e créditos"
+    "licenses": "Licenças e créditos",
+    "gpu_unsupported": "Esta placa de vídeo ainda não é compatível com aceleração, então o LRCDF usa o processador. As imagens demoram mais.",
+    "no_space": "Espaço livre insuficiente, então a atualização não foi baixada: ela precisa de cerca de {need} GB na unidade {drive}, e há {free} GB livres. Libere espaço e tente novamente."
   },
   "it": {
     "settings": "Impostazioni aggiornamenti",
@@ -337,7 +355,9 @@
     "future": "Installa la versione {version} dalla pagina di download.",
     "runtime_busy": "Riprova quando termina il processo di anteprima di LRCDF in Lightroom.",
     "stale_plan": "L’aggiornamento è cambiato. Apri le impostazioni degli aggiornamenti per vedere la versione corrente.",
-    "licenses": "Licenze e crediti"
+    "licenses": "Licenze e crediti",
+    "gpu_unsupported": "Questa scheda grafica non è ancora supportata per l'accelerazione, quindi LRCDF usa il processore. Le immagini richiedono più tempo.",
+    "no_space": "Spazio libero insufficiente, quindi l'aggiornamento non è stato scaricato: servono circa {need} GB sull'unità {drive}, e ne sono liberi {free} GB. Libera un po' di spazio e riprova."
   },
   "nl": {
     "settings": "Update-instellingen",
@@ -371,7 +391,9 @@
     "future": "Installeer versie {version} via de downloadpagina.",
     "runtime_busy": "Probeer het opnieuw nadat het LRCDF-voorbeeldproces in Lightroom is gestopt.",
     "stale_plan": "De update is gewijzigd. Open Update-instellingen voor de huidige versie.",
-    "licenses": "Licenties en vermeldingen"
+    "licenses": "Licenties en vermeldingen",
+    "gpu_unsupported": "Deze videokaart wordt nog niet ondersteund voor versnelling, dus LRCDF gebruikt de processor. Foto's duren langer.",
+    "no_space": "Te weinig vrije ruimte, dus de update is niet gedownload: er is ongeveer {need} GB nodig op station {drive}, en {free} GB is vrij. Maak ruimte vrij en probeer het opnieuw."
   },
   "ru": {
     "settings": "Настройки обновления",
@@ -405,7 +427,9 @@
     "future": "Установите версию {version} со страницы скачивания.",
     "runtime_busy": "Повторите попытку после завершения процесса предпросмотра LRCDF в Lightroom.",
     "stale_plan": "Обновление изменилось. Откройте настройки обновления, чтобы узнать актуальную версию.",
-    "licenses": "Лицензии и благодарности"
+    "licenses": "Лицензии и благодарности",
+    "gpu_unsupported": "Эта видеокарта пока не поддерживает ускорение, поэтому LRCDF использует процессор. Обработка фото занимает больше времени.",
+    "no_space": "Недостаточно свободного места, поэтому обновление не загружено: оно требует около {need} ГБ на диске {drive}, а свободно {free} ГБ. Освободите место и попробуйте снова."
   },
   "sv": {
     "settings": "Uppdateringsinställningar",
@@ -439,7 +463,9 @@
     "future": "Installera version {version} från hämtningssidan.",
     "runtime_busy": "Försök igen när LRCDF:s förhandsvisningsprocess i Lightroom har avslutats.",
     "stale_plan": "Uppdateringen har ändrats. Öppna uppdateringsinställningarna för att se aktuell version.",
-    "licenses": "Licenser och erkännanden"
+    "licenses": "Licenser och erkännanden",
+    "gpu_unsupported": "Det här grafikkortet stöds ännu inte för acceleration, så LRCDF använder processorn. Bilderna tar längre tid.",
+    "no_space": "Inte tillräckligt med ledigt utrymme, så uppdateringen laddades inte ner: den behöver cirka {need} GB på enhet {drive}, och {free} GB är ledigt. Frigör lite utrymme och försök igen."
   },
   "th": {
     "settings": "การตั้งค่าการอัปเดต",
@@ -473,7 +499,9 @@
     "future": "ติดตั้งเวอร์ชัน {version} จากหน้าดาวน์โหลด",
     "runtime_busy": "ลองอีกครั้งหลังจากกระบวนการแสดงตัวอย่าง LRCDF ใน Lightroom สิ้นสุดแล้ว",
     "stale_plan": "มีการเปลี่ยนแปลงการอัปเดต เปิดการตั้งค่าการอัปเดตเพื่อดูเวอร์ชันปัจจุบัน",
-    "licenses": "สัญญาอนุญาตและเครดิต"
+    "licenses": "สัญญาอนุญาตและเครดิต",
+    "gpu_unsupported": "การ์ดจอนี้ยังไม่รองรับการเร่งความเร็ว LRCDF จึงใช้โปรเซสเซอร์แทน ทำให้ภาพใช้เวลานานขึ้น",
+    "no_space": "พื้นที่ว่างไม่เพียงพอ จึงยังไม่ได้ดาวน์โหลดการอัปเดต ต้องใช้พื้นที่ประมาณ {need} GB ในไดรฟ์ {drive} และตอนนี้ว่างอยู่ {free} GB กรุณาเพิ่มพื้นที่ว่างแล้วลองอีกครั้ง"
   },
   "nb": {
     "settings": "Innstillinger for oppdatering",
@@ -507,7 +535,9 @@
     "future": "Installer versjon {version} fra nedlastingssiden.",
     "runtime_busy": "Prøv igjen når LRCDFs forhåndsvisningsprosess i Lightroom er avsluttet.",
     "stale_plan": "Oppdateringen er endret. Åpne innstillinger for oppdatering for å se gjeldende versjon.",
-    "licenses": "Lisenser og anerkjennelser"
+    "licenses": "Lisenser og anerkjennelser",
+    "gpu_unsupported": "Dette skjermkortet støttes ikke for akselerasjon ennå, så LRCDF bruker prosessoren. Bildene tar lengre tid.",
+    "no_space": "Ikke nok ledig plass, så oppdateringen ble ikke lastet ned: den trenger omtrent {need} GB på stasjon {drive}, og {free} GB er ledig. Frigjør litt plass og prøv igjen."
   },
   "pl": {
     "settings": "Ustawienia aktualizacji",
@@ -541,7 +571,9 @@
     "future": "Zainstaluj wersję {version} ze strony pobierania.",
     "runtime_busy": "Spróbuj ponownie po zamknięciu procesu podglądu LRCDF w Lightroom.",
     "stale_plan": "Aktualizacja się zmieniła. Otwórz ustawienia aktualizacji, aby zobaczyć bieżącą wersję.",
-    "licenses": "Licencje i podziękowania"
+    "licenses": "Licencje i podziękowania",
+    "gpu_unsupported": "Ta karta graficzna nie jest jeszcze obsługiwana do przyspieszania, więc LRCDF korzysta z procesora. Zdjęcia powstają dłużej.",
+    "no_space": "Za mało wolnego miejsca, więc aktualizacja nie została pobrana: potrzeba około {need} GB na dysku {drive}, a wolne jest {free} GB. Zwolnij miejsce i spróbuj ponownie."
   },
   "vi": {
     "settings": "Cài đặt cập nhật",
@@ -575,7 +607,9 @@
     "future": "Cài đặt phiên bản {version} từ trang tải xuống.",
     "runtime_busy": "Hãy thử lại sau khi tiến trình xem trước LRCDF trong Lightroom đã thoát.",
     "stale_plan": "Bản cập nhật đã thay đổi. Mở Cài đặt cập nhật để xem phiên bản hiện tại.",
-    "licenses": "Giấy phép và ghi công"
+    "licenses": "Giấy phép và ghi công",
+    "gpu_unsupported": "Card đồ họa này chưa hỗ trợ tăng tốc, nên LRCDF đang dùng bộ xử lý. Ảnh sẽ xử lý lâu hơn.",
+    "no_space": "Không đủ dung lượng trống nên bản cập nhật chưa được tải xuống: cần khoảng {need} GB trên ổ {drive}, hiện còn trống {free} GB. Hãy giải phóng dung lượng rồi thử lại."
   },
   "id": {
     "settings": "Pengaturan Pembaruan",
@@ -609,7 +643,9 @@
     "future": "Instal versi {version} dari halaman unduhan.",
     "runtime_busy": "Coba lagi setelah proses pratinjau LRCDF di Lightroom berhenti.",
     "stale_plan": "Pembaruan berubah. Buka Pengaturan Pembaruan untuk melihat versi terbaru.",
-    "licenses": "Lisensi dan kredit"
+    "licenses": "Lisensi dan kredit",
+    "gpu_unsupported": "Kartu grafis ini belum didukung untuk akselerasi, jadi LRCDF menggunakan prosesor. Gambar butuh waktu lebih lama.",
+    "no_space": "Ruang kosong tidak cukup, jadi pembaruan belum diunduh: diperlukan sekitar {need} GB di drive {drive}, dan {free} GB tersedia. Kosongkan sebagian ruang, lalu coba lagi."
   },
   "tr": {
     "settings": "Güncelleme Ayarları",
@@ -643,7 +679,9 @@
     "future": "{version} sürümünü indirme sayfasından yükleyin.",
     "runtime_busy": "Lightroom’daki LRCDF önizleme işlemi kapandıktan sonra yeniden deneyin.",
     "stale_plan": "Güncelleme değişti. Geçerli sürümü görmek için Güncelleme Ayarları’nı açın.",
-    "licenses": "Lisanslar ve teşekkürler"
+    "licenses": "Lisanslar ve teşekkürler",
+    "gpu_unsupported": "Bu ekran kartı henüz hızlandırmayı desteklemiyor, bu yüzden LRCDF işlemciyi kullanıyor. Fotoğraflar daha uzun sürüyor.",
+    "no_space": "Boş alan yetersiz olduğu için güncelleme indirilmedi: {drive} sürücüsünde yaklaşık {need} GB gerekiyor, şu an {free} GB boş. Biraz alan açıp yeniden deneyin."
   },
   "cs": {
     "settings": "Nastavení aktualizací",
@@ -677,6 +715,8 @@
     "future": "Nainstalujte verzi {version} ze stránky ke stažení.",
     "runtime_busy": "Zkuste to znovu po ukončení procesu náhledu LRCDF v Lightroomu.",
     "stale_plan": "Aktualizace se změnila. Aktuální verzi najdete v nastavení aktualizací.",
-    "licenses": "Licence a poděkování"
+    "licenses": "Licence a poděkování",
+    "gpu_unsupported": "Tato grafická karta zatím nepodporuje akceleraci, takže LRCDF používá procesor. Zpracování fotek trvá déle.",
+    "no_space": "Není dost volného místa, takže aktualizace nebyla stažena: na disku {drive} potřebuje asi {need} GB a volné je {free} GB. Uvolněte místo a zkuste to znovu."
   }
 }

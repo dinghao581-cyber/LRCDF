@@ -51,14 +51,29 @@ function Ensure-Folder($Path) {
     [void][IO.Directory]::CreateDirectory($Path)
 }
 
+# Antivirus scanners, the search indexer and Explorer briefly hold files in a folder being replaced: a move then fails
+# with "in use" or "access denied" although nothing is wrong. Such a move is tried again for about 20 s before the
+# update gives up; a move that cannot work (the destination exists, the source is gone) fails at once as before.
+$moveWaits = 500, 1000, 1000, 2000, 2000, 3000, 3000, 4000, 4000
+
+function Move-Retrying($Source, $Destination, [bool]$IsDirectory) {
+    for ($attempt = 0; ; $attempt++) {
+        try {
+            if ($IsDirectory) { [IO.Directory]::Move($Source, $Destination) } else { [IO.File]::Move($Source, $Destination) }
+            return
+        } catch [IO.IOException], [UnauthorizedAccessException] {
+            $sourceThere = if ($IsDirectory) { [IO.Directory]::Exists($Source) } else { [IO.File]::Exists($Source) }
+            $destinationThere = [IO.Directory]::Exists($Destination) -or [IO.File]::Exists($Destination)
+            if ($attempt -ge $moveWaits.Count -or !$sourceThere -or $destinationThere) { throw }
+            Start-Sleep -Milliseconds $moveWaits[$attempt]
+        }
+    }
+}
+
 function Move-Tracked($Source, $Destination) {
     Ensure-Folder (Split-Path -Parent $Destination)
     $isDirectory = [IO.Directory]::Exists($Source)
-    if ($isDirectory) {
-        [IO.Directory]::Move($Source, $Destination)
-    } else {
-        [IO.File]::Move($Source, $Destination)
-    }
+    Move-Retrying $Source $Destination $isDirectory
     $journal.Add([pscustomobject]@{ Source = $Source; Destination = $Destination; Directory = $isDirectory })
 }
 
@@ -66,11 +81,7 @@ function Undo-Moves {
     for ($i = $journal.Count - 1; $i -ge 0; $i--) {
         $move = $journal[$i]
         Ensure-Folder (Split-Path -Parent $move.Source)
-        if ($move.Directory) {
-            [IO.Directory]::Move($move.Destination, $move.Source)
-        } else {
-            [IO.File]::Move($move.Destination, $move.Source)
-        }
+        Move-Retrying $move.Destination $move.Source $move.Directory
     }
 }
 

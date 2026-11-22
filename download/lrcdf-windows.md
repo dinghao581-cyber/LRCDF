@@ -6,10 +6,10 @@ One-click portrait retouching inside Lightroom Classic on Windows x64. Everythin
 
 **Known issue in 0.1.3 to 0.1.5 (RTX 50-series):** The CUDA package of these versions does not support NVIDIA GeForce RTX 50-series graphics cards (the bundled PyTorch build, 2.6.0+cu124, lacks them). On these cards please use the CPU package of these versions, or update: [0.1.6](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.6) carries a newer library (PyTorch 2.8.0 with CUDA 12.8) that supports these cards; it has not yet been tested on an RTX 50-series card.
 
-**Latest version: 0.1.6** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.6)
+**Latest version: 0.1.7** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.7)
 
-- Download: [LRCDF-Windows-x64-cpu.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/win-v0.1.6/LRCDF-Windows-x64-cpu.zip)
-- Download: [CUDA package (three parts and Join-Bundle.ps1)](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.6)
+- Download: [LRCDF-Windows-x64-cpu.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/win-v0.1.7/LRCDF-Windows-x64-cpu.zip)
+- Download: [CUDA package (three parts and Join-Bundle.ps1)](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.7)
 
 ## What it does
 
@@ -56,18 +56,20 @@ The package is not code-signed, so Windows may show a security warning after the
 - Graphics cards with less than 15 GB of video memory process large photos in tiles. Previews then differ from those of larger cards by amounts the eye cannot see; full-size results differ by at most 1 level.
 - The skin area is estimated by a segmentation model: skin in shadow may be missed, and small skin-coloured objects, lips, teeth and the whites of the eyes may be adjusted slightly along with it.
 - When the same photo is analysed again in a later Lightroom Classic session, the result may differ slightly.
-- Before using a graphics card, LRCDF checks that it can really compute on it; if it cannot, LRCDF switches to the processor by itself, without a message in 0.1.6. The reason is written to `%USERPROFILE%\LRCDF\device.log`. Tested only on an RTX 3090.
-- On NVIDIA graphics cards, retouched pictures from 0.1.6 differ from 0.1.5 in a small number of pixels by an amount that cannot be seen (at most 11 of 255 levels, in up to 89 pixels of a 4.5-megapixel picture in our tests); this comes from the newer computing library. Results on the processor are bit-identical to 0.1.5.
-- In Lightroom, the first retouch preview after starting takes about 2.4 seconds longer on NVIDIA cards than in 0.1.5 (the newer library's first-run set-up); later pictures are not affected. An improvement is planned for 0.1.7.
+- Before using a graphics card, LRCDF checks that it can really compute on it; if it cannot, LRCDF switches to the processor by itself, and from 0.1.7 the settings window says so. The reason is written to `%USERPROFILE%\LRCDF\device.log`. Tested only on an RTX 3090.
+- On NVIDIA graphics cards, retouched pictures from 0.1.6 and 0.1.7 differ from 0.1.5 in a small number of pixels by an amount that cannot be seen (at most 11 of 255 levels, in up to 89 pixels of a 4.5-megapixel picture in our tests); this comes from the newer computing library. Results on the processor are bit-identical to 0.1.5.
+- In Lightroom, the first retouch preview after starting is still about 2 seconds slower on NVIDIA cards than in 0.1.5 (in our test, median of alternating runs: 32.0 s in 0.1.5, 34.5 s in 0.1.6, 34.1 s in 0.1.7). This comes from the newer computing library's first-run set-up; later pictures and batches are not affected. A fix is planned for 0.1.8.
+- In languages other than English and Chinese, the explanation under "Check for updates automatically" in the settings window is still in English. Translations are planned for 0.1.8.
 
 ## Updates
 
-Installed copies from 0.1.3 on update themselves: the app downloads only the parts that changed. You can switch this off with the gear in the top-right corner. From 0.1.5 to 0.1.6 the CPU package downloads about 25 MB; the CUDA package downloads about 3.2 GB, because its graphics library is replaced, and needs about 12 GB of free disk space while it updates.
+Installed copies from 0.1.3 on update themselves: the app downloads only the parts that changed. You can switch this off with the gear in the top-right corner. From 0.1.6 to 0.1.7 both packages download about 25 MB. From 0.1.5 or earlier, the CUDA package also downloads about 3.2 GB, because its graphics library is replaced, and needs about 12 GB of free disk space while it updates. From 0.1.7 on, LRCDF checks the free space before it downloads an update and says how much is needed on which drive.
 
 ## All versions
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.1.7 | [win-v0.1.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.7) | Update waits when the folder is locked; notices for processor fallback and low disk space |
 | 0.1.6 | [win-v0.1.6](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.6) | CUDA package supports GTX 10 to RTX 50 series |
 | 0.1.5 | [win-v0.1.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.5) |  |
 | 0.1.4 | [win-v0.1.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.4) |  |

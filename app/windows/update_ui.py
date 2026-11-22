@@ -15,7 +15,7 @@ from .chrome import CaptionButton, dark_frame
 from .i18n import LANGUAGE
 from .theme import FOCUS, INK, LINE, SOFT, TEXT, Tween, css, font
 from .widgets import CheckBox, GhostButton, Para, PlainButton, ScrollStyle, paint_glass, painter, text_width
-from .update_core import QUIET_LIMIT, UpdateCancelled, UpdateClient
+from .update_core import QUIET_LIMIT, NotEnoughSpace, UpdateCancelled, UpdateClient
 
 
 UPDATE_TEXT = json.loads(Path(__file__).with_name("update_strings.json").read_text(encoding="utf-8"))
@@ -31,7 +31,8 @@ LICENSE_FILES = ("legal/licenses/APPLE_ML_RESEARCH_MODEL_LICENSE.txt", "legal/MO
                  "legal/licenses/RETINAFACE_ternaus_LICENSE.txt", "legal/licenses/PYTORCH_RETINAFACE_biubug6_LICENSE.txt",
                  "legal/licenses/CRYPTOGRAPHY_LICENSE.txt", "legal/licenses/CRYPTOGRAPHY_LICENSE.APACHE.txt",
                  "legal/licenses/CRYPTOGRAPHY_LICENSE.BSD.txt", "legal/licenses/OPENSSL_NOTE.txt",
-                 "legal/licenses/LGPL-3.0.txt", "legal/licenses/GPL-3.0.txt", "NOTICE", "LICENSE")
+                 "legal/licenses/LGPL-3.0.txt", "legal/licenses/GPL-3.0.txt",
+                 "legal/licenses/NVIDIA_CUDA_EULA_12.8.txt", "legal/licenses/NVIDIA_CUDNN_SLA.txt", "NOTICE", "LICENSE")
 
 
 def dark_palette():
@@ -174,6 +175,7 @@ class WindowsUpdater(QObject):
         self.worker_stop = None
         self.helper = None
         self.result_message = []
+        self.space = None              # NotEnoughSpace from the last download attempt: what it needs, what is free
         self.last_check_day = QTimer(self, interval=DAILY)
         self.last_check_day.timeout.connect(self.check)
         self.handoff_poll = QTimer(self, interval=70)
@@ -218,6 +220,9 @@ class WindowsUpdater(QObject):
         v.setContentsMargins(SETTINGS_MARGIN, SETTINGS_MARGIN, SETTINGS_MARGIN, SETTINGS_MARGIN)
         v.setSpacing(8)
         self.toggle = self.check_button = self.back = None
+        if self.processor_fallback():
+            v.addWidget(self._small_note(self._text("gpu_unsupported")))
+            v.addSpacing(8)
         if self.client.channel == "store":
             note = QLabel(self._text("store_note"))
             note.setWordWrap(True)
@@ -249,6 +254,21 @@ class WindowsUpdater(QObject):
         panel.destroyed.connect(self._panel_gone)
         dark_frame(panel)
         return panel
+
+    # what lrcdf/device.py writes to device.log in the installation folder when a graphics card is there but the CPU is
+    # used: the card is not in this torch's build, the trial on it failed, or a CUDA error came up during work. Not when
+    # there is no card CUDA can use at all ("no graphics card ...": the CPU package's case, said by its name), as Tonewell
+    CARD_BUT_CPU = (": not in the build, CPU", ": trial gave other numbers than the CPU, CPU", "graphics card check failed (",
+                    "CUDA error during work (")
+
+    def processor_fallback(self):
+        """Whether the last choice the retouch processes logged was the processor although a graphics card is there."""
+        try:
+            lines = (self.root / "device.log").read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            return False
+        last = next((line for line in reversed(lines) if line.strip()), "")
+        return any(mark in last for mark in self.CARD_BUT_CPU)
 
     @staticmethod
     def _button(text, action):
@@ -427,6 +447,8 @@ class WindowsUpdater(QObject):
         self.worker_stop = None
         if not self.enabled:
             return
+        if action == "stage":
+            self.space = problem if isinstance(problem, NotEnoughSpace) else None
         if stop.is_set() or isinstance(problem, UpdateCancelled):
             self.state = "idle"
             self.check()
@@ -464,8 +486,19 @@ class WindowsUpdater(QObject):
             summary = self._text("offer", version=self.offer.version, size=f"{self.offer.bytes / 1_000_000:.1f}")
         return "\n\n".join(item for item in (summary, notes) if item)
 
+    def _failed_text(self):
+        """Why the download did not happen or finish: too little space (said before anything was downloaded), or not."""
+        if self.space is not None:
+            need, free = f"{self.space.need / 1e9:.1f}", f"{self.space.free / 1e9:.1f}"
+            text = self._text("no_space", need=need, free=free, drive=self.space.drive.rstrip(":"))
+            # a number and its unit ("13.2 GB", "13.2 Go") stay on one line
+            return text.replace(f"{need} ", f"{need} ").replace(f"{free} ", f"{free} ")
+        return self._text("failed")
+
     def render(self):
         status = self._text(self.state) if self.state in UPDATE_TEXT["en"] else ""
+        if self.state == "failed":
+            status = self._failed_text()
         lines = [part for part in self.result_message + [status] if part]
         actions = {"manual": "open", "available": "download", "ready": "install", "failed": "download"}
         action = actions.get(self.state)
@@ -517,7 +550,8 @@ class WindowsUpdater(QObject):
         if self.state == "available":
             return {"key": ("available", version), "text": summary, "action": self._text("download"), "run": self._act}
         if self.state == "failed":
-            return {"key": ("failed", version), "text": self._text("failed"), "action": self._text("download"), "run": self._act}
+            return {"key": ("failed", version, self.space is not None), "text": self._failed_text(),
+                    "action": self._text("download"), "run": self._act}
         if self.state == "ready":
             words = [self._text("ready")]
             if busy:
