@@ -70,11 +70,11 @@
    ]
   },
   "win-studio": {
-   "version": "0.3.4",
+   "version": "0.3.5",
    "min_os": "10.0.22000",
    "notes": {
-    "zh": "Tonewell for Windows 0.3.4：修正 20 种语言里被截断的界面文字（色轮标签、导出按钮、祛痘等处的标签），并加了逐条测量的自动检查；修正放大时对比分隔线压到底栏；修正韩文和泰文省略号的位置；解压后首次启动更快。修图结果与 0.3.3 完全相同。两个文件都要下载，解压到同一个文件夹。",
-    "en": "Tonewell for Windows 0.3.4: interface text that was cut off in the 20 languages (colour-wheel labels, the export button, labels in Blemishes and others) is fixed, with an automatic check that measures every text; the comparison divider no longer covers the bottom bar when zoomed in; the ellipsis is placed correctly in Korean and Thai; the first start after unpacking is faster. Retouching results are identical to 0.3.3. Download both files and extract them into the same folder."
+    "zh": "Tonewell for Windows 0.3.5：启动更快，主窗口约 0.6 秒出来（原来约 0.8 秒），第一张预览约 0.6–0.75 秒（原来约 2.3 秒）；启动时不再闪出一个空的小窗口。修图结果与 0.3.4 相同。已知问题：富士 X-Trans RAW 每次打开或导出可能略有不同（自 0.3.4 起，正在查）。两个文件都要下载，解压到同一个文件夹。",
+    "en": "Tonewell for Windows 0.3.5: faster start, with the main window after about 0.6 s (was about 0.8 s) and the first preview after about 0.6–0.75 s (was about 2.3 s); a small empty window no longer flashes up at start. Retouching results are identical to 0.3.4. Known issue: Fujifilm X-Trans RAW files can come out slightly differently each time they are opened or exported (since 0.3.4; being investigated). Download both files and extract them into the same folder."
    },
    "components": []
   }
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-22T15:21:09Z"
+ "published": "2026-11-22T20:36:41Z"
 }
