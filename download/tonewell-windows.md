@@ -28,17 +28,17 @@ Windows 11, 64-bit. About 3.5 GB. This is the same Tonewell: the Store installs 
 
 ## Or download it directly
 
-**Latest version: 0.3.5** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.5)
+**Latest version: 0.3.7** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.7)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.5-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.5/Tonewell-Windows-x64-0.3.5-part1.zip) (1,687,521,763 bytes)
-- [Tonewell-Windows-x64-0.3.5-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.5/Tonewell-Windows-x64-0.3.5-part2.zip) (1,803,657,181 bytes)
+- [Tonewell-Windows-x64-0.3.7-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.7/Tonewell-Windows-x64-0.3.7-part1.zip) (1,687,530,540 bytes)
+- [Tonewell-Windows-x64-0.3.7-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.7/Tonewell-Windows-x64-0.3.7-part2.zip) (1,803,657,181 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.5-part1.zip` | `5cab69706f038ef32b2707a8f2fbdff067c1c89611bab816579d3c446d54df59` |
-| `Tonewell-Windows-x64-0.3.5-part2.zip` | `705ed370bce1577e9a82a4a3faa90eca84a49b4af000e57828580727c0411a15` |
+| `Tonewell-Windows-x64-0.3.7-part1.zip` | `e2e7553a6ba552d5f7c704885b637456123cc57349d4435a8b8184e80064972b` |
+| `Tonewell-Windows-x64-0.3.7-part2.zip` | `1f61d64579c87d32f16bbb9c62b19f7c4151a30ba57f2aa74f9ea9de4da34e6f` |
 
 ## What it does
 
@@ -55,8 +55,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.5`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.5` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.7`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.7` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -70,6 +70,9 @@ Nothing is installed: Tonewell writes nothing to the registry or the Start menu.
 - Body reshaping uses a different body detector from the Mac version. When legs are hidden by a long coat or skirt, or a person stands slightly sideways, the two versions can make different choices about which steps to apply or skip, and the strength of some steps differs slightly.
 - "Fuller bust" is off for anyone the age model reads as under 18 and cannot be switched on for them. About 0.2–1.7 % of adults are read that way. The model often reads teenagers as older, and the software cannot verify an age you type.
 - The same photo exported on different PCs can differ by a few levels out of 255 in a small share of pixels.
+- Heavy acne is softened, not removed: at high settings it can still show as soft, uneven patches.
+- On faces seen strongly from the side or cut off by the edge of the picture, the lips are protected only when they can be located with confidence; otherwise only eyes, lashes, nostrils and other dark details are protected.
+- Results on Windows and on Mac are close but not identical for the same photo: there are small differences at the edges of faces.
 - Fujifilm X-Trans RAW files (e.g. X-T4, X-T5, X100V) can come out slightly differently each time the same photo is opened or exported on Windows; in some photos the difference is visible. This has been the case since 0.3.4 and is being investigated. Other cameras are not affected, and Tonewell for Mac and iPad is not affected.
 - 8-bit compressed NEF files from the Nikon Z 8 cannot be opened.
 - Not in this version yet: HEIC export, per-person settings, the noise-reduction switch for JPEG photos, the tutorial.
@@ -84,6 +87,7 @@ The Microsoft Store edition has no update check of its own: the Store keeps it u
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.7 | [tonewell-win-v0.3.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.7) | Better blemish removal on heavy acne; eyes and lips left alone on faces seen from the side (as in Mac and iPad 0.3.2 and 0.3.3; 0.3.6 was not released separately) |
 | 0.3.5 | [tonewell-win-v0.3.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.5) | Faster start; no empty window flashing up at start |
 | 0.3.4 | [tonewell-win-v0.3.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.4) | Interface text no longer cut off in the 20 languages; faster first start |
 | 0.3.3 | [tonewell-win-v0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3) | Newer graphics library for GeForce GTX 10 to RTX 50 series; style cards show their styles |
