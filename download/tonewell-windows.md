@@ -20,6 +20,14 @@ Fixed in [0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your PC.
 
+## Easiest: the Microsoft Store
+
+[**Get Tonewell from the Microsoft Store**](https://apps.microsoft.com/detail/9N5ZZ64N3SN0)
+
+Windows 11, 64-bit. About 3.5 GB. This is the same Tonewell: the Store installs it, keeps it up to date and lets you uninstall it like any other app. There is no warning on first launch and nothing to extract.
+
+## Or download it directly
+
 **Latest version: 0.3.4** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.4)
 
 Tonewell for Windows comes in two parts. **Download both:**
@@ -67,6 +75,8 @@ Nothing is installed: Tonewell writes nothing to the registry or the Start menu.
 ## Updates
 
 Tonewell checks once a day whether a new version is out (switch it off in Settings) and opens this download page; nothing is downloaded or installed by itself. Details are in [`legal/PRIVACY.md`](../legal/PRIVACY.md).
+
+The Microsoft Store edition has no update check of its own: the Store keeps it up to date.
 
 ## All versions
 
