@@ -63,7 +63,7 @@
  "t062": "首次在 Mac 上打开",
  "t063": "应用未经 Apple 签名，因此 macOS 第一次会阻止它们运行。前往“系统设置”，选择“隐私与安全性”，然后点按“仍要打开”。只需做一次。",
  "t064": "首次在 Windows 上运行",
- "t065": "两个应用都未针对 Windows 签名，因此可能会看到警告。LRCDF 通过在 PowerShell 中运行所附脚本来安装。Tonewell 无需安装程序：将两个下载文件解压到同一文件夹并运行即可。不需要管理员权限。",
+ "t065": "直接下载的版本未针对 Windows 签名，因此首次打开时 Windows 可能会显示警告。LRCDF 通过在 PowerShell 中运行所附脚本来安装。Tonewell 无需安装程序：将两个下载文件解压到同一文件夹并运行即可。不需要管理员权限。从微软商店安装的 Tonewell 没有这个警告；LRCDF 没有商店版。",
  "t066": "在 iPad 上安装",
  "t067": "Tonewell 不在 App Store 上架，因此需要侧载安装。使用免费的 Apple 账户时，每 7 天需要重新安装一次。可以把<a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">安装指南</a>交给 AI 助手，让它一步步带你完成。",
  "t068": "照片出处",

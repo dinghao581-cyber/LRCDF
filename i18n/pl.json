@@ -63,7 +63,7 @@
  "t062": "Pierwsze uruchomienie na Macu",
  "t063": "Aplikacje nie są podpisane przez Apple, więc macOS blokuje je za pierwszym razem. Wejdź w Ustawienia systemowe, potem w Prywatność i ochrona i wybierz Otwórz mimo to. Robisz to tylko raz.",
  "t064": "Pierwsze uruchomienie w Windows",
- "t065": "Żadna z aplikacji nie jest podpisana dla Windows, więc może pojawić się ostrzeżenie. LRCDF instaluje się przez uruchomienie dołączonego skryptu w PowerShell. Tonewell nie wymaga instalatora: wypakuj oba pliki do jednego folderu i uruchom go. Uprawnienia administratora nie są potrzebne.",
+ "t065": "Pliki pobierane bezpośrednio nie są podpisane dla Windows, więc przy pierwszym uruchomieniu Windows może pokazać ostrzeżenie. LRCDF instaluje się przez uruchomienie dołączonego skryptu w PowerShell. Tonewell nie wymaga instalatora: wypakuj oba pliki do jednego folderu i uruchom go. Uprawnienia administratora nie są potrzebne. Tonewell ze sklepu Microsoft Store nie pokazuje ostrzeżenia; LRCDF nie ma w sklepie.",
  "t066": "Instalacja na iPadzie",
  "t067": "Tonewell nie jest w App Store, więc instalujesz go przez sideloading. Przy darmowym Apple Account trzeba go instalować ponownie co 7 dni. <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">Przewodnik instalacji</a> można przekazać asystentowi AI, który przeprowadzi Cię przez proces.",
  "t068": "Autorzy zdjęć",

@@ -63,7 +63,7 @@
  "t062": "Lần mở đầu tiên trên Mac",
  "t063": "Các ứng dụng chưa được Apple ký, nên macOS sẽ chặn chúng ở lần mở đầu tiên. Vào Cài đặt Hệ thống, chọn Quyền riêng tư &amp; Bảo mật, rồi nhấn Vẫn mở. Bạn chỉ cần làm việc này một lần.",
  "t064": "Lần mở đầu tiên trên Windows",
- "t065": "Cả hai ứng dụng đều chưa được ký cho Windows, nên bạn có thể thấy cảnh báo. LRCDF được cài bằng cách chạy tập lệnh đi kèm trong PowerShell. Tonewell không cần trình cài đặt: giải nén cả hai bản tải về vào cùng một thư mục rồi chạy. Không cần quyền quản trị viên.",
+ "t065": "Các bản tải trực tiếp chưa được ký cho Windows, nên Windows có thể hiện cảnh báo ở lần mở đầu tiên. LRCDF được cài bằng cách chạy tập lệnh đi kèm trong PowerShell. Tonewell không cần trình cài đặt: giải nén cả hai bản tải về vào cùng một thư mục rồi chạy. Không cần quyền quản trị viên. Tonewell từ Microsoft Store không có cảnh báo; LRCDF không có trên Store.",
  "t066": "Cài đặt trên iPad",
  "t067": "Tonewell không có trên App Store, nên bạn cài qua sideload. Với Apple Account miễn phí, bạn phải cài lại 7 ngày một lần. <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">Hướng dẫn cài đặt</a> có thể đưa cho một trợ lý AI để hướng dẫn bạn từng bước.",
  "t068": "Ghi công ảnh",

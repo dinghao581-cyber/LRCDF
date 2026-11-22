@@ -63,7 +63,7 @@
  "t062": "Første oppstart på Mac",
  "t063": "Appene er ikke signert av Apple, så macOS blokkerer dem første gang. Gå til Systeminnstillinger, deretter Personvern og sikkerhet, og velg Åpne likevel. Dette gjør du bare én gang.",
  "t064": "Første oppstart på Windows",
- "t065": "Ingen av appene er signert for Windows, så du kan få en advarsel. LRCDF installeres ved å kjøre det medfølgende skriptet i PowerShell. Tonewell trenger ingen installasjon: pakk ut begge nedlastingene i samme mappe og kjør den. Du trenger ikke administratorrettigheter.",
+ "t065": "De direkte nedlastingene er ikke signert for Windows, så Windows kan vise en advarsel første gang. LRCDF installeres ved å kjøre det medfølgende skriptet i PowerShell. Tonewell trenger ingen installasjon: pakk ut begge nedlastingene i samme mappe og kjør den. Du trenger ikke administratorrettigheter. Tonewell fra Microsoft Store viser ingen advarsel; LRCDF finnes ikke i Store.",
  "t066": "Installere på iPad",
  "t067": "Tonewell ligger ikke i App Store, så du installerer den direkte. Med en gratis Apple Account må den installeres på nytt hver 7. dag. <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">Installasjonsveiledningen</a> kan gis til en KI-assistent, som viser deg gjennom den.",
  "t068": "Bildekreditering",

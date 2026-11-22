@@ -63,7 +63,7 @@
  "t062": "První spuštění na Macu",
  "t063": "Aplikace nejsou podepsané Applem, takže je macOS poprvé zablokuje. Otevřete Nastavení systému, pak Soukromí a zabezpečení a zvolte Otevřít přesto. Stačí to udělat jen jednou.",
  "t064": "První spuštění ve Windows",
- "t065": "Žádná z aplikací není podepsaná pro Windows, takže se může zobrazit varování. LRCDF se nainstaluje spuštěním přiloženého skriptu v PowerShellu. Tonewell instalaci nepotřebuje: rozbalte obě stažené části do stejné složky a spusťte ji. Správcovská oprávnění nejsou potřeba.",
+ "t065": "Přímo stažené verze nejsou pro Windows podepsané, takže Windows může při prvním spuštění zobrazit varování. LRCDF se nainstaluje spuštěním přiloženého skriptu v PowerShellu. Tonewell instalaci nepotřebuje: rozbalte obě stažené části do stejné složky a spusťte ji. Správcovská oprávnění nejsou potřeba. Tonewell z Microsoft Storu žádné varování nezobrazuje; LRCDF v Storu není.",
  "t066": "Instalace na iPad",
  "t067": "Tonewell není v App Store, takže se instaluje přímo (sideload). S bezplatným Apple Account se musí instalovat znovu každých 7 dní. <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">Návod k instalaci</a> lze předat asistentovi AI, který vás provede postupem.",
  "t068": "Autoři fotografií",

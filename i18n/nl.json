@@ -63,7 +63,7 @@
  "t062": "Eerste keer starten op een Mac",
  "t063": "De apps zijn niet door Apple ondertekend, dus macOS blokkeert ze de eerste keer. Ga naar Systeeminstellingen, dan naar Privacy en beveiliging, en kies Toch openen. Dit hoef je maar één keer te doen.",
  "t064": "Eerste keer starten op Windows",
- "t065": "Geen van beide apps is voor Windows ondertekend, dus je ziet mogelijk een waarschuwing. LRCDF installeert door het meegeleverde script in PowerShell uit te voeren. Tonewell heeft geen installatieprogramma nodig: pak beide downloads uit in dezelfde map en voer het uit. Er zijn geen beheerdersrechten nodig.",
+ "t065": "De directe downloads zijn niet voor Windows ondertekend, dus Windows toont mogelijk de eerste keer een waarschuwing. LRCDF installeert door het meegeleverde script in PowerShell uit te voeren. Tonewell heeft geen installatieprogramma nodig: pak beide downloads uit in dezelfde map en voer het uit. Er zijn geen beheerdersrechten nodig. Tonewell uit de Microsoft Store toont geen waarschuwing; LRCDF staat niet in de Store.",
  "t066": "Installeren op iPad",
  "t067": "Tonewell staat niet in de App Store, dus je installeert het via sideloading. Met een gratis Apple Account moet het elke 7 dagen opnieuw worden geïnstalleerd. De <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">installatiegids</a> kan aan een AI-assistent worden gegeven die je er stap voor stap doorheen loodst.",
  "t068": "Fotocredits",

@@ -63,7 +63,7 @@
  "t062": "Mac'te ilk açılış",
  "t063": "Uygulamalar Apple tarafından imzalanmamıştır, bu nedenle macOS ilk seferde bunları engeller. Sistem Ayarları'na gidin, Gizlilik ve Güvenlik'i seçin ve Yine de Aç'ı seçin. Bunu yalnızca bir kez yapmanız gerekir.",
  "t064": "Windows'ta ilk açılış",
- "t065": "İki uygulama da Windows için imzalı değildir, bu yüzden bir uyarı görebilirsiniz. LRCDF, dahil edilen komut dosyasını PowerShell'de çalıştırarak kurulur. Tonewell kurulum gerektirmez: iki indirmeyi de aynı klasöre çıkarıp çalıştırın. Yönetici hakları gerekmez.",
+ "t065": "Doğrudan indirmeler Windows için imzalı değildir, bu yüzden Windows ilk açılışta bir uyarı gösterebilir. LRCDF, dahil edilen komut dosyasını PowerShell'de çalıştırarak kurulur. Tonewell kurulum gerektirmez: iki indirmeyi de aynı klasöre çıkarıp çalıştırın. Yönetici hakları gerekmez. Microsoft Store'dan alınan Tonewell uyarı göstermez; LRCDF Store'da yoktur.",
  "t066": "iPad'e kurulum",
  "t067": "Tonewell App Store'da olmadığı için yan yükleme ile kurulur. Ücretsiz bir Apple Account ile 7 günde bir yeniden kurulması gerekir. <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">Kurulum kılavuzu</a>, sizi adım adım yönlendirmesi için bir yapay zekâ asistanına verilebilir.",
  "t068": "Fotoğraf kredileri",

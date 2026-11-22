@@ -63,7 +63,7 @@
  "t062": "First launch on a Mac",
  "t063": "The apps aren’t signed by Apple, so macOS blocks them the first time. Go to System Settings, then Privacy &amp; Security, and choose Open Anyway. You only do this once.",
  "t064": "First launch on Windows",
- "t065": "Neither app is signed for Windows, so you may see a warning. LRCDF installs by running the included script in PowerShell. Tonewell needs no installer: extract both downloads into the same folder and run it. No administrator rights are needed.",
+ "t065": "The direct downloads aren’t signed for Windows, so Windows may show a warning the first time. LRCDF installs by running the included script in PowerShell. Tonewell needs no installer: extract both downloads into the same folder and run it. No administrator rights are needed. Tonewell from the Microsoft Store shows no warning; LRCDF is not in the Store.",
  "t066": "Installing on iPad",
  "t067": "Tonewell isn’t on the App Store, so you sideload it. With a free Apple Account it has to be reinstalled every 7 days. The <a href=\"https://github.com/dinghao581-cyber/LRCDF/blob/main/ipad/INSTALL_WITH_AI.md\">install guide</a> can be handed to an AI assistant to walk you through it.",
  "t068": "Photo credits",
