@@ -27,6 +27,15 @@
    },
    "versions": [
     {
+     "version": "0.3.2",
+     "buildVersion": "5",
+     "date": "2026-11-22T14:00:48Z",
+     "localizedDescription": "Tonewell 0.3.2: sliders show the picture live again with Noise reduction on; Remove spots no longer leaves pale, flat patches on large areas of acne, and dark spots no longer turn pink.",
+     "downloadURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.2/Tonewell-iPad-0.3.2.ipa",
+     "size": 130484465,
+     "minOSVersion": "27.0"
+    },
+    {
      "version": "0.3.1",
      "buildVersion": "4",
      "date": "2026-11-20T11:21:45Z",

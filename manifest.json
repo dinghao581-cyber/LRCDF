@@ -21,21 +21,21 @@
    ]
   },
   "ipad": {
-   "version": "0.3.1",
+   "version": "0.3.2",
    "min_os": "27.0",
    "notes": {
-    "zh": "Tonewell 0.3.1：打开照片后更快出图；滑块第一次使用不再停顿；修正 JPEG/HEIC 照片人脸区域错位一行；更新后不再使用旧版本下载的模型。",
-    "en": "Tonewell 0.3.1: pictures appear sooner, no pause the first time a slider is used, JPEG/HEIC face areas no longer one row off, and models downloaded for an earlier version are no longer used after an update."
+    "zh": "Tonewell 0.3.2：打开降噪时拖动滑块也能实时看到画面；去痘在大片痘痘上不再留下发白的平块，深色斑点不再变粉。",
+    "en": "Tonewell 0.3.2: sliders show the picture live again with Noise reduction on; Remove spots no longer leaves pale, flat patches on large areas of acne, and dark spots no longer turn pink."
    },
    "components": [],
    "ipa": "ipa-ipad"
   },
   "mac-studio": {
-   "version": "0.3.1",
+   "version": "0.3.2",
    "min_os": "14.0",
    "notes": {
-    "zh": "Tonewell 0.3.1：打开照片后更快出图；滑块第一次使用不再停顿；修正 JPEG/HEIC 照片人脸区域错位一行；更新后不再使用旧版本下载的模型。",
-    "en": "Tonewell 0.3.1: pictures appear sooner, no pause the first time a slider is used, JPEG/HEIC face areas no longer one row off, and models downloaded for an earlier version are no longer used after an update."
+    "zh": "Tonewell 0.3.2：打开降噪时拖动滑块也能实时看到画面；去痘在大片痘痘上不再留下发白的平块，深色斑点不再变粉。",
+    "en": "Tonewell 0.3.2: sliders show the picture live again with Noise reduction on; Remove spots no longer leaves pale, flat patches on large areas of acne, and dark spots no longer turn pink."
    },
    "components": []
   },
@@ -320,16 +320,16 @@
    "sha256_joined": "899bd233b4739e204661502d78f9ab43f551097a7528689477261f8cb519b714"
   },
   "ipa-ipad": {
-   "version": "0.3.1-4",
+   "version": "0.3.2-5",
    "install": "app",
    "keep": [],
    "restart": "none",
    "files": [
     {
-     "size": 130475094,
-     "sha256": "c31bdfee0fc90b05ece69d46309a2732591a5c314cb9ced47e7803e7e02bdba2",
+     "size": 130484465,
+     "sha256": "0309b40a94f6f151de392cbd6e1fbc6d9811d353a1d4dada88f438d69865e168",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.1/Tonewell-iPad-0.3.1.ipa"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.2/Tonewell-iPad-0.3.2.ipa"
      ]
     }
    ]
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-22T06:47:57Z"
+ "published": "2026-11-22T14:00:48Z"
 }
