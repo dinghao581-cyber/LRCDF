@@ -74,6 +74,7 @@ Nothing is installed: Tonewell writes nothing to the registry or the Start menu.
 - On faces seen strongly from the side or cut off by the edge of the picture, the lips are protected only when they can be located with confidence; otherwise only eyes, lashes, nostrils and other dark details are protected.
 - Results on Windows and on Mac are close but not identical for the same photo: there are small differences at the edges of faces.
 - Exporting a Fujifilm X-Trans RAW file takes about 9–14 seconds longer than in 0.3.7, and opening one is about 2–5 % slower. The X-Trans fix was tested with files from the X-T4, X-T5 and X100V.
+- If a Fujifilm X-Trans RAW is being exported while another photo is opened or previewed, RAW decoding and exporting for all cameras can become slower afterwards (about 70 % slower) until Tonewell is restarted; in rare cases that one Fujifilm photo can come out as in 0.3.7. Working on one photo at a time is not affected. A fix is coming in 0.3.9.
 - 8-bit compressed NEF files from the Nikon Z 8 cannot be opened.
 - Not in this version yet: HEIC export, per-person settings, the noise-reduction switch for JPEG photos, the tutorial.
 
