@@ -21,21 +21,21 @@
    ]
   },
   "ipad": {
-   "version": "0.3.4",
+   "version": "0.3.5",
    "min_os": "27.0",
    "notes": {
-    "zh": "Tonewell 0.3.4：开始拖动滑块时第一帧来得更快（60 MP 照片上皮肤强度约 0.2 秒 → 0.06 秒）；修图结果与 0.3.3 完全相同。",
-    "en": "Tonewell 0.3.4: sliders show their first frame sooner when you start dragging (skin Strength on a 60 MP photo about 0.2 s → 0.06 s); finished pictures are identical to 0.3.3."
+    "zh": "Tonewell 0.3.5：刚打开照片或松开滑块后马上拖动更顺了，60 MP 照片上不再在第一秒里卡一下（约 0.15 秒）；修图结果与 0.3.4 完全相同。",
+    "en": "Tonewell 0.3.5: smoother drags right after opening a photo or letting go of a slider; on a 60 MP photo a drag in the first second no longer stops once for about 0.15 s. Finished pictures are identical to 0.3.4."
    },
    "components": [],
    "ipa": "ipa-ipad"
   },
   "mac-studio": {
-   "version": "0.3.4",
+   "version": "0.3.5",
    "min_os": "14.0",
    "notes": {
-    "zh": "Tonewell 0.3.4：开始拖动滑块时第一帧来得更快（60 MP 照片上皮肤强度约 0.2 秒 → 0.06 秒）；修图结果与 0.3.3 完全相同。",
-    "en": "Tonewell 0.3.4: sliders show their first frame sooner when you start dragging (skin Strength on a 60 MP photo about 0.2 s → 0.06 s); finished pictures are identical to 0.3.3."
+    "zh": "Tonewell 0.3.5：刚打开照片或松开滑块后马上拖动更顺了，60 MP 照片上不再在第一秒里卡一下（约 0.15 秒）；修图结果与 0.3.4 完全相同。",
+    "en": "Tonewell 0.3.5: smoother drags right after opening a photo or letting go of a slider; on a 60 MP photo a drag in the first second no longer stops once for about 0.15 s. Finished pictures are identical to 0.3.4."
    },
    "components": []
   },
@@ -320,16 +320,16 @@
    "sha256_joined": "899bd233b4739e204661502d78f9ab43f551097a7528689477261f8cb519b714"
   },
   "ipa-ipad": {
-   "version": "0.3.4-7",
+   "version": "0.3.5-8",
    "install": "app",
    "keep": [],
    "restart": "none",
    "files": [
     {
-     "size": 130491875,
-     "sha256": "7dd54ef4a5f75e96d0f3f866d59a9378a627cb3b1b2e9e55fcd1de235c15bc8b",
+     "size": 130495372,
+     "sha256": "c2b1d51bbe0df882f8554c91374ad2047910f313733b64c622988184d6f06d9e",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.4/Tonewell-iPad-0.3.4.ipa"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.5/Tonewell-iPad-0.3.5.ipa"
      ]
     }
    ]
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-23T04:49:04Z"
+ "published": "2026-11-23T04:55:52Z"
 }

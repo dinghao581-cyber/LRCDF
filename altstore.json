@@ -27,6 +27,15 @@
    },
    "versions": [
     {
+     "version": "0.3.5",
+     "buildVersion": "8",
+     "date": "2026-11-23T04:55:52Z",
+     "localizedDescription": "Tonewell 0.3.5: smoother drags right after opening a photo or letting go of a slider; on a 60 MP photo a drag in the first second no longer stops once for about 0.15 s. Finished pictures are identical to 0.3.4.",
+     "downloadURL": "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.5/Tonewell-iPad-0.3.5.ipa",
+     "size": 130495372,
+     "minOSVersion": "27.0"
+    },
+    {
      "version": "0.3.4",
      "buildVersion": "7",
      "date": "2026-11-22T21:58:12Z",
