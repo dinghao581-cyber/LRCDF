@@ -70,11 +70,11 @@
    ]
   },
   "win-studio": {
-   "version": "0.3.9",
+   "version": "0.3.10",
    "min_os": "10.0.22000",
    "notes": {
-    "zh": "Tonewell for Windows 0.3.9：富士 X-Trans RAW 导出比 0.3.8 快 2.6–3 倍（X-T4 12.0 → 4.6 秒，X100V 12.2 → 4.8 秒，X-T5 18.4 → 6.2 秒），每个像素和 0.3.8 完全相同，仍然没有接缝、每次结果一样。修复：导出和预览同时解码后，所有相机的 RAW 解码一直变慢、要重开才恢复的问题。其他相机不变。时间在 RTX 3090 上测得。两个文件都要下载，解压到同一个文件夹。",
-    "en": "Tonewell for Windows 0.3.9: Fujifilm X-Trans RAW exports are 2.6–3× faster than in 0.3.8 (X-T4 12.0 → 4.6 s, X100V 12.2 → 4.8 s, X-T5 18.4 → 6.2 s), with every pixel identical to 0.3.8: still no seams, and the same result every time. Fixed: after an export and a preview decoded at the same moment, RAW decoding for all cameras could stay slow until restart. Other cameras are unchanged. Times measured on an RTX 3090. Download both files and extract them into the same folder."
+    "zh": "Tonewell for Windows 0.3.10：导出富士 X-Trans 照片时打开别的照片不用再等导出（0.3.9 约 5.3–5.6 秒，现在约 4.2 秒，和 0.3.7 差不多）。其他相机导出快 0.15–0.4 秒，富士 X-Trans 导出快 2–4%；启动后第一张富士导出多约半秒。导出的每个像素和 0.3.9 完全相同。时间在一台 RTX 3090 电脑上测得。两个文件都要下载，解压到同一个文件夹。",
+    "en": "Tonewell for Windows 0.3.10: opening a photo while Fujifilm X-Trans photos are exporting no longer waits for the export (5.3–5.6 s in 0.3.9, about 4.2 s now, about as in 0.3.7). Exports from other cameras are 0.15–0.4 s faster and Fujifilm X-Trans exports 2–4% faster; the first X-Trans export after start takes about half a second longer. Every exported pixel is identical to 0.3.9. Times measured on one RTX 3090 PC. Download both files and extract them into the same folder."
    },
    "components": []
   }
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-23T12:57:34Z"
+ "published": "2026-11-23T16:48:20Z"
 }
