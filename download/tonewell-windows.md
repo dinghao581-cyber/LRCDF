@@ -1,6 +1,6 @@
 # Tonewell for Windows
 
-**Known issue (RTX 50-series):** On NVIDIA GeForce RTX 50-series graphics cards the picture area is reported to stay black: the bundled PyTorch build (2.6.0+cu124) has no support for these cards. Other GeForce generations are not affected. [0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3) carries a newer library (PyTorch 2.8.0 with CUDA 12.8) that supports these cards; it has not yet been tested on an RTX 50-series card.
+**Known issue in 0.3.2 and earlier (RTX 50-series):** On NVIDIA GeForce RTX 50-series graphics cards the picture area is reported to stay black: those versions bundle PyTorch 2.6.0+cu124, which has no support for these cards. Other GeForce generations are not affected. Since [0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.3), Tonewell carries a newer library (PyTorch 2.8.0 with CUDA 12.8) that supports these cards; it has not yet been tested on an RTX 50-series card.
 
 **Known issue in 0.3 and 0.3.1:** the "Open Photos…", "Settings" and "Clear and choose again" items in the "…" menu do nothing. To open photos, use Ctrl+O or the button on the start page; there is no other way to use "Clear and choose again". Because the Settings page does not open, you also cannot switch off the automatic update check, change the language, open the in-app licence list or the full privacy policy link, or reopen the "Your rights at work" screen. The licence texts are still included in the `legal` folder inside the installation folder, and the rights notice still appears at startup. The update check still runs: it only downloads a small signed version file and sends no personal information. Because the "new version" message is also shown on the Settings page, you will not be told about updates, so please check the release page.
 
@@ -28,17 +28,17 @@ Windows 11, 64-bit. About 3.5 GB. This is the same Tonewell: the Store installs 
 
 ## Or download it directly
 
-**Latest version: 0.3.8** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.8)
+**Latest version: 0.3.9** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.9)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.8-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.8/Tonewell-Windows-x64-0.3.8-part1.zip) (1,687,532,216 bytes)
-- [Tonewell-Windows-x64-0.3.8-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.8/Tonewell-Windows-x64-0.3.8-part2.zip) (1,803,657,181 bytes)
+- [Tonewell-Windows-x64-0.3.9-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.9/Tonewell-Windows-x64-0.3.9-part1.zip) (1,687,538,658 bytes)
+- [Tonewell-Windows-x64-0.3.9-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.9/Tonewell-Windows-x64-0.3.9-part2.zip) (1,803,657,182 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.8-part1.zip` | `51d9385dda4cc523209b3621dd0eb12ff574f126535fd37dd1f0724edbf68abd` |
-| `Tonewell-Windows-x64-0.3.8-part2.zip` | `3a1afcba41c2c277c22a584a5d1ee50058e1397377da4b796e16806639e6813b` |
+| `Tonewell-Windows-x64-0.3.9-part1.zip` | `7fc6036dd2efd13e7c393d39d40557ee9738cc8358ef391aee539625be4bc4aa` |
+| `Tonewell-Windows-x64-0.3.9-part2.zip` | `f354be9c146d4c1f2576f505dcdb4a120bf51eaa95438408466c4f94b1dc98e8` |
 
 ## What it does
 
@@ -55,8 +55,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.8`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.8` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.9`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.9` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -73,9 +73,10 @@ Nothing is installed: Tonewell writes nothing to the registry or the Start menu.
 - Heavy acne is softened, not removed: at high settings it can still show as soft, uneven patches.
 - On faces seen strongly from the side or cut off by the edge of the picture, the lips are protected only when they can be located with confidence; otherwise only eyes, lashes, nostrils and other dark details are protected.
 - Results on Windows and on Mac are close but not identical for the same photo: there are small differences at the edges of faces.
-- Exporting a Fujifilm X-Trans RAW file takes about 9–14 seconds longer than in 0.3.7, and opening one is about 2–5 % slower. The X-Trans fix was tested with files from the X-T4, X-T5 and X100V.
-- If a Fujifilm X-Trans RAW is being exported while another photo is opened or previewed, RAW decoding and exporting for all cameras can become slower afterwards (about 70 % slower) until Tonewell is restarted; in rare cases that one Fujifilm photo can come out as in 0.3.7. Working on one photo at a time is not affected. A fix is coming in 0.3.9.
-- 8-bit compressed NEF files from the Nikon Z 8 cannot be opened.
+- Opening a photo from another camera while Fujifilm X-Trans photos are exporting takes about 1.5 s longer to show its first picture (measured 3.95 s → 5.3–5.6 s).
+- A 40-megapixel X-Trans photo takes about 6.2 s to export (measured on the X-T5); 0.3.7 took 4.7 s. Exporting 10 X-Trans photos takes 65.6 s, against 51.7 s in 0.3.7. The extra time is what an exact, seam-free export costs; 0.3.7's faster exports had faint seams.
+- Photos taken in the DR200 or DR400 dynamic-range modes have not been tested.
+- 8-bit compressed NEF files from the Nikon Z 8 cannot be opened (not supported by LibRaw 0.22.2).
 - Not in this version yet: HEIC export, per-person settings, the noise-reduction switch for JPEG photos, the tutorial.
 
 ## Updates
@@ -88,6 +89,7 @@ The Microsoft Store edition has no update check of its own: the Store keeps it u
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.9 | [tonewell-win-v0.3.9](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.9) | Fujifilm X-Trans exports 2.6–3× faster with the same exact result; RAW decoding no longer stays slow after exporting while previewing |
 | 0.3.8 | [tonewell-win-v0.3.8](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.8) | Fujifilm X-Trans RAW files give the same picture every time and no faint seams; their export takes about 9–14 s longer |
 | 0.3.7 | [tonewell-win-v0.3.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.7) | Better blemish removal on heavy acne; eyes and lips left alone on faces seen from the side (as in Mac and iPad 0.3.2 and 0.3.3; 0.3.6 was not released separately) |
 | 0.3.5 | [tonewell-win-v0.3.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.5) | Faster start; no empty window flashing up at start |
