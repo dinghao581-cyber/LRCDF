@@ -21,21 +21,21 @@
    ]
   },
   "ipad": {
-   "version": "0.3.6",
+   "version": "0.3.7",
    "min_os": "27.0",
    "notes": {
-    "zh": "Tonewell 0.3.6：大合照上拖动又快了（29 张脸的照片第一帧约 0.1–0.2 秒，和 0.3.4 一样，0.3.5 要 0.9–1 秒）；修图结果与 0.3.5 完全相同。",
-    "en": "Tonewell 0.3.6: drags on photos of large groups are quick again (on a 29-face photo the first frame takes about 0.1-0.2 s, as in 0.3.4, instead of 0.9-1 s in 0.3.5). Finished pictures are identical to 0.3.5."
+    "zh": "Tonewell 0.3.7：大合照上连续换美颜档位不再越换越慢（Mac 上每次约 1.6–2.1 秒），松开修图滑块后拖动也更快出第一帧；修图结果与 0.3.6 完全相同。",
+    "en": "Tonewell 0.3.7: changing the retouch level on photos of large groups no longer slows down (on a Mac about 1.6-2.1 s each time), and drags start sooner after a retouching control. Finished pictures are identical to 0.3.6."
    },
    "components": [],
    "ipa": "ipa-ipad"
   },
   "mac-studio": {
-   "version": "0.3.6",
+   "version": "0.3.7",
    "min_os": "14.0",
    "notes": {
-    "zh": "Tonewell 0.3.6：大合照上拖动又快了（29 张脸的照片第一帧约 0.1–0.2 秒，和 0.3.4 一样，0.3.5 要 0.9–1 秒）；修图结果与 0.3.5 完全相同。",
-    "en": "Tonewell 0.3.6: drags on photos of large groups are quick again (on a 29-face photo the first frame takes about 0.1-0.2 s, as in 0.3.4, instead of 0.9-1 s in 0.3.5). Finished pictures are identical to 0.3.5."
+    "zh": "Tonewell 0.3.7：大合照上连续换美颜档位不再越换越慢（Mac 上每次约 1.6–2.1 秒），松开修图滑块后拖动也更快出第一帧；修图结果与 0.3.6 完全相同。",
+    "en": "Tonewell 0.3.7: changing the retouch level on photos of large groups no longer slows down (on a Mac about 1.6-2.1 s each time), and drags start sooner after a retouching control. Finished pictures are identical to 0.3.6."
    },
    "components": []
   },
@@ -320,16 +320,16 @@
    "sha256_joined": "899bd233b4739e204661502d78f9ab43f551097a7528689477261f8cb519b714"
   },
   "ipa-ipad": {
-   "version": "0.3.6-9",
+   "version": "0.3.7-10",
    "install": "app",
    "keep": [],
    "restart": "none",
    "files": [
     {
-     "size": 130495265,
-     "sha256": "b2d8745f40f76858bf979823126efb717a91d02eab1051fe3c795faaecd5d1c1",
+     "size": 130501213,
+     "sha256": "d929f5e2d7078d56be37f8dd75c54c7ed53aa2559dff665294225f661e4fe259",
      "urls": [
-      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.6/Tonewell-iPad-0.3.6.ipa"
+      "https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-ipad-v0.3.7/Tonewell-iPad-0.3.7.ipa"
      ]
     }
    ]
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-23T08:29:59Z"
+ "published": "2026-11-23T12:57:34Z"
 }
