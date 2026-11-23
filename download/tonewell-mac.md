@@ -2,9 +2,9 @@
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your Mac.
 
-**Latest version: 0.3.4** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.4)
+**Latest version: 0.3.5** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.5)
 
-- Download: [Tonewell-macOS-0.3.4.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3.4/Tonewell-macOS-0.3.4.zip)
+- Download: [Tonewell-macOS-0.3.5.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3.5/Tonewell-macOS-0.3.5.zip)
 
 ## What it does
 
@@ -20,7 +20,7 @@ macOS 14 Sonoma or newer, on Apple silicon or Intel (not yet tested on an Intel 
 
 ## Install
 
-1. Download `Tonewell-macOS-0.3.4.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
+1. Download `Tonewell-macOS-0.3.5.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
 2. The app is not signed with an Apple developer certificate, so macOS blocks it the first time. On macOS 15 and newer: click **Done** in the message, open **System Settings → Privacy & Security**, click **Open Anyway** next to the note about Tonewell and enter your login password, then open the app again and confirm with **Open Anyway**. On macOS 14: right-click the app, choose **Open**, then **Open** again. You only do this once.
 
 ## Updates
@@ -31,6 +31,7 @@ The app tells you when a new version is out; download it from this page. The opt
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.5 | [tonewell-mac-v0.3.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.5) | Smoother drags right after opening a photo or letting go of a slider |
 | 0.3.4 | [tonewell-mac-v0.3.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.4) | Sliders respond sooner when you start dragging |
 | 0.3.3 | [tonewell-mac-v0.3.3](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.3) | Faces seen from the side: eyes and lips are no longer retouched by mistake |
 | 0.3.2 | [tonewell-mac-v0.3.2](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.2) | Live sliders with Noise reduction on; better blemish removal on heavy acne |
