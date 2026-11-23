@@ -2,9 +2,9 @@
 
 The standalone app from the LRCDF project. It works without Lightroom: open your photos, pick a look and a retouch level, and save the finished pictures. Everything runs on your Mac.
 
-**Latest version: 0.3.6** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.6)
+**Latest version: 0.3.7** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.7)
 
-- Download: [Tonewell-macOS-0.3.6.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3.6/Tonewell-macOS-0.3.6.zip)
+- Download: [Tonewell-macOS-0.3.7.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-mac-v0.3.7/Tonewell-macOS-0.3.7.zip)
 
 ## What it does
 
@@ -20,7 +20,7 @@ macOS 14 Sonoma or newer, on Apple silicon or Intel (not yet tested on an Intel 
 
 ## Install
 
-1. Download `Tonewell-macOS-0.3.6.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
+1. Download `Tonewell-macOS-0.3.7.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
 2. The app is not signed with an Apple developer certificate, so macOS blocks it the first time. On macOS 15 and newer: click **Done** in the message, open **System Settings → Privacy & Security**, click **Open Anyway** next to the note about Tonewell and enter your login password, then open the app again and confirm with **Open Anyway**. On macOS 14: right-click the app, choose **Open**, then **Open** again. You only do this once.
 
 ## Updates
@@ -31,6 +31,7 @@ The app tells you when a new version is out; download it from this page. The opt
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.7 | [tonewell-mac-v0.3.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.7) | Retouch level changes on large groups no longer slow down; drags start sooner after a retouching control |
 | 0.3.6 | [tonewell-mac-v0.3.6](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.6) | Drags on photos of large groups are quick again |
 | 0.3.5 | [tonewell-mac-v0.3.5](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.5) | Smoother drags right after opening a photo or letting go of a slider |
 | 0.3.4 | [tonewell-mac-v0.3.4](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.4) | Sliders respond sooner when you start dragging |
