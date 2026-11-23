@@ -70,11 +70,11 @@
    ]
   },
   "win-studio": {
-   "version": "0.3.7",
+   "version": "0.3.8",
    "min_os": "10.0.22000",
    "notes": {
-    "zh": "Tonewell for Windows 0.3.7：去痘在大片痘痘上不再留下发白的平块和亮粉色斑点，深色斑点的中心也不再变粉；侧脸或被画面边缘切掉的脸，眼睛、睫毛、鼻孔（能可靠找到时还有嘴唇）不再被误修（与 Mac 和 iPad 0.3.2、0.3.3 相同的修复）。有人脸的照片效果会略有变化，速度不变。0.3.6 未单独发布。两个文件都要下载，解压到同一个文件夹。",
-    "en": "Tonewell for Windows 0.3.7: Remove spots no longer leaves pale, flat patches or bright pink spots on large areas of acne, and the dark centre of a spot no longer turns pink; on faces seen from the side or cut off by the edge of the picture, eyes, lashes, nostrils and (where they can be located reliably) lips are no longer retouched by mistake (the fixes of Mac and iPad 0.3.2 and 0.3.3). Retouched faces differ slightly from 0.3.5; speed is unchanged. 0.3.6 was not released separately. Download both files and extract them into the same folder."
+    "zh": "Tonewell for Windows 0.3.8：富士 X-Trans RAW（如 X-T4、X-T5、X100V）同一张照片每次打开、导出的画面都一样了，以前预览每次可能明显不同；导出的照片也不再带有解码器留下的细微横向接缝。代价：导出一张 X-Trans RAW 要多约 9–14 秒（RTX 3090 上约 3–5 秒变成 12–18 秒），打开慢约 2–5%，更快的精确导出正在做。其他相机（包括富士 GFX）不变。两个文件都要下载，解压到同一个文件夹。",
+    "en": "Tonewell for Windows 0.3.8: Fujifilm X-Trans RAW files (for example X-T4, X-T5, X100V) now give the same picture every time the same photo is opened or exported; before, the preview could differ visibly from run to run. Exports no longer carry faint horizontal seams from the RAW decoder. The cost: exporting an X-Trans RAW file takes about 9–14 s longer (about 12–18 s instead of 3–5 s on an RTX 3090 PC) and opening one is about 2–5 % slower; a faster exact export is being worked on. Other cameras, including Fujifilm GFX, are unchanged. Download both files and extract them into the same folder."
    },
    "components": []
   }
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-22T21:58:12Z"
+ "published": "2026-11-23T01:15:57Z"
 }
