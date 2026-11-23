@@ -28,17 +28,17 @@ Windows 11, 64-bit. About 3.5 GB. This is the same Tonewell: the Store installs 
 
 ## Or download it directly
 
-**Latest version: 0.3.9** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.9)
+**Latest version: 0.3.10** · [release page](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.10)
 
 Tonewell for Windows comes in two parts. **Download both:**
 
-- [Tonewell-Windows-x64-0.3.9-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.9/Tonewell-Windows-x64-0.3.9-part1.zip) (1,687,538,658 bytes)
-- [Tonewell-Windows-x64-0.3.9-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.9/Tonewell-Windows-x64-0.3.9-part2.zip) (1,803,657,182 bytes)
+- [Tonewell-Windows-x64-0.3.10-part1.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.10/Tonewell-Windows-x64-0.3.10-part1.zip) (1,687,594,805 bytes)
+- [Tonewell-Windows-x64-0.3.10-part2.zip](https://github.com/dinghao581-cyber/LRCDF/releases/download/tonewell-win-v0.3.10/Tonewell-Windows-x64-0.3.10-part2.zip) (1,803,657,193 bytes)
 
 | File | SHA-256 |
 |---|---|
-| `Tonewell-Windows-x64-0.3.9-part1.zip` | `7fc6036dd2efd13e7c393d39d40557ee9738cc8358ef391aee539625be4bc4aa` |
-| `Tonewell-Windows-x64-0.3.9-part2.zip` | `f354be9c146d4c1f2576f505dcdb4a120bf51eaa95438408466c4f94b1dc98e8` |
+| `Tonewell-Windows-x64-0.3.10-part1.zip` | `fbc76ce733aa0a72cb6caf6508adf8ca1b8197ed3443cc5d4ecf6788b829a423` |
+| `Tonewell-Windows-x64-0.3.10-part2.zip` | `2fda38e28e837e9b3d36f33e6bdc98e826e89225cdf243bbc9933eda461770e2` |
 
 ## What it does
 
@@ -55,8 +55,8 @@ Tonewell for Windows comes in two parts. **Download both:**
 ## Install
 
 1. Download both files above.
-2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.9`; the two must end up as one folder.
-3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.9` folder. If only one part was extracted, Tonewell says so and closes.
+2. Extract both into the same folder with Windows' own Extract All (right-click → Extract All…). Both contain a folder named `Tonewell-Windows-x64-0.3.10`; the two must end up as one folder.
+3. Run `Tonewell.exe` in the `Tonewell-Windows-x64-0.3.10` folder. If only one part was extracted, Tonewell says so and closes.
 
 Nothing is installed: Tonewell writes nothing to the registry or the Start menu. Settings live in `%APPDATA%\Tonewell`; to remove Tonewell, delete the Tonewell folder and that one.
 
@@ -89,6 +89,7 @@ The Microsoft Store edition has no update check of its own: the Store keeps it u
 
 | Version | Release page | Note |
 |---|---|---|
+| 0.3.10 | [tonewell-win-v0.3.10](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.10) | Opening a photo no longer waits while Fujifilm X-Trans photos export; exports slightly faster, same exact result |
 | 0.3.9 | [tonewell-win-v0.3.9](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.9) | Fujifilm X-Trans exports 2.6–3× faster with the same exact result; RAW decoding no longer stays slow after exporting while previewing |
 | 0.3.8 | [tonewell-win-v0.3.8](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.8) | Fujifilm X-Trans RAW files give the same picture every time and no faint seams; their export takes about 9–14 s longer |
 | 0.3.7 | [tonewell-win-v0.3.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.7) | Better blemish removal on heavy acne; eyes and lips left alone on faces seen from the side (as in Mac and iPad 0.3.2 and 0.3.3; 0.3.6 was not released separately) |
