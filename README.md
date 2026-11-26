@@ -33,7 +33,7 @@ Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 
 ## Apple Developer Program
 
-Tonewell has joined the Apple Developer Program. A Mac build signed and notarised by Apple, and an iPad build on TestFlight, are on the way; until then, install as described above.
+The project has joined the Apple Developer Program. Tonewell, the standalone app, will get a Mac build signed and notarised by Apple and an iPad build on TestFlight.
 
 ## Install the Mac plug-in version
 
