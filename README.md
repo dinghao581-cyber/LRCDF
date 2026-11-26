@@ -31,12 +31,9 @@ Each version has its own page with requirements, installation steps and every re
 
 Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 
-## Help us reach the App Store (US$99 a year)
+## Apple Developer Program
 
-LRCDF is free and made in spare time. To put the iPad app on the App Store, so nobody has to sideload it and
-re-install it every 7 days, we need Apple's developer membership: **US$99 a year**. The same membership also lets us
-sign the Mac app, so macOS no longer blocks it the first time. A sponsorship page is being set up; the link will be
-added here as soon as it is open.
+Tonewell has joined the Apple Developer Program. A Mac build signed and notarised by Apple, and an iPad build on TestFlight, are on the way; until then, install as described above.
 
 ## Install the Mac plug-in version
 
