@@ -21,7 +21,7 @@ macOS 14 Sonoma or newer, on Apple silicon or Intel (not yet tested on an Intel 
 ## Install
 
 1. Download `Tonewell-macOS-0.3.8.zip`, unzip it and move `Tonewell.app` to Applications (replace an earlier Tonewell if you have it).
-2. Open it. The app is signed and notarised by Apple, so the first time macOS only asks whether you want to open an app downloaded from the internet: click **Open**.
+2. Open it. The first time, macOS asks whether you want to open an app downloaded from the internet: click **Open**.
 
 Versions 0.3.7 and earlier are not signed: macOS blocks them the first time. On macOS 15 and newer, click **Done** in the message, open **System Settings → Privacy & Security**, click **Open Anyway** next to the note about Tonewell and enter your login password, then open the app again and confirm with **Open Anyway**. On macOS 14, right-click the app and choose **Open** twice.
 

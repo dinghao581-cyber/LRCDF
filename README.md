@@ -33,7 +33,7 @@ Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 
 ## Apple Developer Program
 
-The project has joined the Apple Developer Program. Tonewell, the standalone app, is signed and notarised by Apple on Mac from [0.3.8](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.8) on; an iPad build on TestFlight is on the way.
+The project has joined the Apple Developer Program. Tonewell, the standalone app, is signed and notarised by Apple on the Mac from 0.3.8; an iPad build on TestFlight is on the way.
 
 ## Install the Mac plug-in version
 
