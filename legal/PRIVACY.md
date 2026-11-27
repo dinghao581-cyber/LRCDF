@@ -1,14 +1,16 @@
 # Privacy Policy
 
-Last updated: 2026-11-20 · Applies to LRCDF on every platform it
-runs on: macOS, Windows and iPad (the Lightroom Classic plug-in, the companion
-app, the iPad app and the command-line tools).
+Last updated: 2026-11-27 · Applies to LRCDF and Tonewell on every platform they
+run on: macOS, Windows and iPad (the Lightroom Classic plug-in, the companion
+app, Tonewell and the command-line tools). Below, **App Store editions** means
+Tonewell for iPad and Mac as distributed through Apple's App Store or TestFlight.
 
 ## In short
 
 LRCDF runs entirely on your own device (Mac, Windows PC or iPad). It does not collect, upload, sell or share
 your photos, faces or any personal information. It has no accounts, no
-analytics of its own, no telemetry of its own and no crash reporting. One
+analytics of its own, no telemetry of its own and no crash reporting of its own.
+The App Store editions of Tonewell make no outgoing network connections. One
 exception: the LRCDF Lightroom plug-in bundles a Google MediaPipe library that
 sends usage statistics to Google (see "Network use" below). Tonewell does not.
 
@@ -25,7 +27,8 @@ sends usage statistics to Google (see "Network use" below). Tonewell does not.
   the same retouching level across photos.
 
 None of this leaves your computer. The only outgoing network use that LRCDF
-itself makes is the update check described under "Network use" below; it sends no
+itself makes is the update check described under "Network use" below (the App Store
+editions of Tonewell do not make even that one); it sends no
 photos or personal information. In the LRCDF plug-in, a bundled Google library
 also sends usage statistics, described in the same section; it does not send your
 photos.
@@ -37,7 +40,8 @@ On a Mac that is `~/Library/Application Support/LRCDF`; on Windows it is
 `%APPDATA%\LRCDF`. On an iPad, photos you import are copied to the app's
 temporary folder (`imports/`, results in `exports/`), which the app clears at
 start-up and from its "clear" button; downloaded model updates are kept in the
-app's Application Support folder; and the app's Documents folder is visible in
+app's Application Support folder (the App Store editions download none); and the
+app's Documents folder is visible in
 the Files app, where you can put photos yourself. The iPad app saves a result
 to your Photos library only when you tap the save button. The table below
 describes the Mac and Windows versions; the iPad app differs as noted under it.
@@ -77,8 +81,9 @@ In Tonewell on a Mac or iPad, face detection uses Apple's on-device Vision
 framework; on Windows it uses a face detector that runs inside the app on your PC.
 Tonewell does not keep `known_people.json`, `people.json` or `person_*.jpg`. Its
 settings (hide the launch notice, break reminder, turn person recognition off,
-automatic updates) are kept in the app's preferences on a Mac or iPad, and in the
-app's local data folder on your PC on Windows.
+automatic updates; the App Store editions have no update setting) are kept in the
+app's preferences on a Mac or iPad, and in the app's local data folder on your PC on
+Windows.
 
 **Per-person settings (Tonewell).** When you import photos, the app
 computes a face feature vector (OpenCV SFace) on your device for each clearly
@@ -87,7 +92,8 @@ set each person separately. The vectors and the 96 px thumbnails shown in the
 people bar exist only in memory: they are not written to disk, not uploaded, and
 disappear when you close the batch or clear it. The people bar appears only when
 a batch contains two or more people. You can switch this off with "turn off
-person recognition" in the settings (it is on by default). Tonewell for Windows
+person recognition" in the settings (it is on by default). In Tonewell for Mac and
+iPad this also stops the age/sex estimate described below. Tonewell for Windows
 does not have per-person settings yet; none of this happens there until it does.
 
 **Age estimate in the LRCDF plug-in.** The plug-in runs the same kind of local
@@ -102,11 +108,23 @@ result is kept only in memory while the photo is processed.
 
 **Age/sex model (Tonewell).** An age/sex estimate is used to start children
 and men at the lightest retouch level, and as one safeguard for the "Fuller bust"
-shaping step. In the Tonewell Mac and iPad apps the model is an optional download:
-the Mac app asks the first time you use per-person settings; on the iPad you can
-download it manually in the settings. The Tonewell Windows app includes the model,
-so nothing is downloaded. The model always runs on your device and
-uploads no photos; its result for a face is kept only in memory with that photo.
+shaping step. How the model reaches you depends on the edition:
+
+- **App Store editions (iPad and Mac):** the model is inside the app. Nothing is
+  downloaded and you are not asked to choose it: while person recognition is on (it
+  is on by default), the estimate runs on your device for faces in the photos you
+  open.
+- **Tonewell for iPad and Mac installed from the project's release page:** the model
+  is an optional download. The Mac app asks the first time you use per-person
+  settings; on the iPad you can download it manually in the settings. Nothing is
+  estimated until you have downloaded it.
+- **Tonewell for Windows:** the model is included, so nothing is downloaded.
+
+The model always runs on your device and uploads no photos; its result for a face is
+kept only in memory with that photo. In Tonewell for Mac and iPad the model is used
+only while person recognition is on. If you turn person recognition off, no estimate
+is made, so the lighter start for children and men and the model's block on "Fuller
+bust" described below do not apply; the age question still does.
 
 **The "Fuller bust" step (Tonewell for Mac, iPad and Windows).** For each person in each photo,
 the first time you use "Fuller bust", the app asks you to type that person's age and
@@ -114,18 +132,18 @@ to tick "I confirm this person is 18 or older." (the box is never pre-ticked and
 is not remembered). Nothing carries over to another photo, even if the same person
 appears in it. The step works only if the age you enter is 18 or more and the box
 is ticked; for under 18 it is not available, whether or not the box is ticked.
-This does not depend on the age model and applies even when the model is not
-installed (on Windows the model is always included, so the limit below always
-applies there). If the optional model is installed, there is one more limit: for a
-person the model reads as under 18, the step is not available and cannot be
-switched on by typing an age. The step is also never used on people the model
-reads as men (when the model is installed). Other body and face shaping is not
+This does not depend on the age model and applies even when there is no model or no
+estimate. When the model is there (always in the App Store editions and on Windows,
+elsewhere once downloaded) and, on a Mac or iPad, person recognition is on, there is
+one more limit: for a person the model reads as under 18, the step is not available
+and cannot be switched on by typing an age. Under the same conditions the step is
+also never used on people the model reads as men. Other body and face shaping is not
 changed by age.
 
 **An age you type** for a person is kept only in memory, with that photo. It is
 not written to disk, not included in exported files or logs, and not uploaded, and
 it is gone when you close the photo. Per-person settings work without the model.
-The download is described under "Network use".
+Where the model is a download, the download is described under "Network use".
 
 Age estimates can be wrong, in either direction. The age model often reads
 teenagers as adults, so it is only used to block people it reads as under 18; it
@@ -153,10 +171,20 @@ applied to the wrong person; check every result.
   download or install anything by itself. The request carries no parameters,
   identifiers or cookies; the only extra request header is a User-Agent with the
   app name, version and platform.
-- **Update check in Tonewell for Mac and iPad (on by default).** The same check,
-  from the same servers and with the same switch. It tells you when a newer version
-  of the app exists (the iPad app is updated through AltStore; the Mac app through
-  its download page). It can also download an updated set of retouching models:
+- **Tonewell, App Store editions (iPad and Mac).** These editions have no update
+  check and download nothing: the app and its models, including the age/sex model,
+  arrive and are updated through Apple. The app itself makes no outgoing network
+  connections. On the iPad, if you turn on tethered shooting, it only receives from
+  your local network or the cable-connected camera, as described below (the Mac app
+  has no tethered shooting). A web link you tap opens in your browser. Apple
+  handles your download under Apple's own privacy policy. If you use TestFlight, or
+  have chosen to share analytics with app developers, Apple may give the developer
+  crash reports and usage information, and TestFlight lets you send feedback
+  yourself; the app does not collect or send any of this.
+- **Update check in Tonewell for Mac and iPad installed from the project's release
+  page (on by default).** The same check, from the same servers and with the same
+  switch. It tells you when a newer version of the app exists; you install it the same
+  way you installed the app. It can also download an updated set of retouching models:
   small updates are fetched automatically, larger ones only after you agree. Each
   download is checked against the signed version file before use, and the previous
   models are kept so you can go back. Nothing about you or your photos is sent.
@@ -169,7 +197,8 @@ applied to the wrong person; check every result.
   "Start receiving" on the tethered-shooting page, and only until you tap stop or
   the app leaves the foreground, the iPad app listens on TCP port 2121 on local
   networks only (Wi-Fi, the iPad's own hotspot, USB networking; never mobile data)
-  so a camera can upload photos by FTP. It makes no outgoing connection. The
+  so a camera can upload photos by FTP. It makes no outgoing connection (passive
+  mode only: the camera opens every connection). The
   login defaults to the user name `lrcdf` and an 8-character random password
   created once on the device; you can change both in the app (letters, digits
   and - _ . @ only). The user name is kept in the app's settings and the password
@@ -183,12 +212,15 @@ applied to the wrong person; check every result.
   permission. Closing the tethered-shooting page does not stop reception: while
   it is receiving, the app always shows a "tethered · n photos" badge in its top
   row, and tapping that badge takes you to the page with the stop button.
-- **Tethered shooting by USB cable (iPad, and the Mac sandbox's USB permission).**
+- **Tethered shooting by USB cable (iPad only).**
   When you connect a supported camera by USB cable and tap "Start receiving",
   iPadOS asks once whether LRCDF may access the camera (the external camera, not
   the iPad's own). LRCDF then only reads photos newly taken on that camera and
   saves them in its own folder. It does not change the camera's settings, release
-  the shutter, or delete anything on the memory card. Nothing is sent anywhere.
+  the shutter, or delete anything on the memory card. Nothing is sent anywhere. The
+  Mac app has no tethered shooting, reads no camera and receives nothing from your
+  network; version 0.3.8 for Mac was still built with a USB permission and an
+  incoming-network permission that none of its code uses.
 - **Google MediaPipe usage statistics (LRCDF Lightroom plug-in, Mac and Windows).**
   The plug-in bundles Google's MediaPipe library (version 1.2.3) for face and body
   detection. Google's own terms say that MediaPipe sends metrics about the
@@ -212,7 +244,8 @@ applied to the wrong person; check every result.
   MediaPipe library of the LRCDF plug-in, described above; Tonewell has no such
   reporting.) (Tethered shooting, if you turn it on,
   only receives from your local network, as described above.)
-- **Optional age/sex model download (Tonewell Mac and iPad, version 0.3).** If you choose to
+- **Optional age/sex model download (Tonewell for Mac and iPad installed from the
+  project's release page; not the App Store editions).** If you choose to
   download it, the app fetches one model file from the project's release page
   on GitHub. The request shows GitHub your IP address, the time and the app's
   version, handled under GitHub's privacy policy; nothing about you or your
@@ -224,12 +257,25 @@ applied to the wrong person; check every result.
 
 ## Children, biometric and sensitive data
 
-LRCDF does not target children and does not collect personal data from anyone.
-Because it can analyse faces, you are responsible for having the right to
-process the photos you give it, including consent of the people shown where
+LRCDF and Tonewell do not target children and do not collect personal data from
+anyone. Because they can analyse faces, you are responsible for having the right to
+process the photos you give them, including consent of the people shown where
 the law of your country requires it (for example under the GDPR or similar
-laws). The age/sex estimate is used only to choose a gentler default retouching
-level and is not stored as a record about a person.
+laws). The age/sex estimate is used only for the lighter starting level for children
+and men and for the safeguards on the "Fuller bust" step described above; it is not
+stored as a record about a person.
+
+**Face data.** This means what the software works out from a face: its position,
+landmarks and face mesh, expression values (such as whether the eyes are closed),
+the numeric face descriptor and small face pictures used to tell people apart, the
+make-up and skin-depth scores, and the age/sex estimate. Face data is used only to
+retouch and shape the photos you choose, to apply your per-person settings, to help
+you pick photos (for example, to point out closed eyes) and for the safeguards
+described above. It is processed on your device. LRCDF and Tonewell do not upload,
+sell or share it with anyone, and never use it for advertising, marketing, profiling
+or data mining, or to find out who a person is. Tonewell keeps it only in memory,
+while the photo or batch is open. The LRCDF plug-in also keeps face descriptors and
+face pictures in its data folder (see the table above) until you delete them.
 
 ## Third-party software
 
@@ -245,13 +291,16 @@ data are the hosts that serve the update files and downloads described under
 "Network use" (they see your IP address, the time and the app version), and, in the
 LRCDF plug-in only, Google through the bundled MediaPipe library, which sends the
 usage statistics described there by itself (no photos); Google handles those under
-its own privacy policy.
+its own privacy policy. The App Store editions of Tonewell contact no update or
+download host; what Apple itself handles for them is described under "Network use".
 
 All the information the software works with is on your own device: your photos, the
 files LRCDF stores (see the table above) and, while a photo is open, the in-memory
 data described above. You can view, copy or delete it at any time, and nothing is
 kept elsewhere. To delete everything, remove the data folder and any result files
-as described above, or uninstall the app.
+as described above, or uninstall the app. On a Mac or iPad you can also withdraw
+permissions you have given (such as Photos, and on the iPad camera and local network)
+at any time in the system settings.
 
 ## Changes and contact
 
