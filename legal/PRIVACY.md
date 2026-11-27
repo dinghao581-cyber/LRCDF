@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: 2026-11-27 · Applies to LRCDF and Tonewell on every platform they
+Last updated: 2026-11-28 · Applies to LRCDF and Tonewell on every platform they
 run on: macOS, Windows and iPad (the Lightroom Classic plug-in, the companion
 app, Tonewell and the command-line tools). Below, **App Store editions** means
 Tonewell for iPad and Mac as distributed through Apple's App Store or TestFlight.
@@ -58,6 +58,21 @@ LRCDF never deletes your original files. You can remove all of LRCDF's stored
 data at any time by deleting that data folder (on an iPad, by deleting the app) (and the `-LRCDF.tif`
 files you no longer want). Face descriptors are not exported or shared by the
 software.
+
+**Export record (Tonewell for iPad and Mac, build 13 and later).** To help find
+out why an export failed, the app keeps a short plain-text record of its last 20
+exports in its own Application Support folder: the time, app version and build,
+the device's memory class and the memory available before and after, the photo's
+pixel size and file type (the extension only), the export format, processing
+steps and retries, a few overall numbers used to check that the result is not
+blank, and whether the export succeeded or what error occurred. It does not
+contain file names, folder paths, pictures or face data. The app does not send it
+anywhere; like other app data it may be included in your own device backups. We
+receive it only if you press "Copy details" or "Copy export log" and then send us
+the text yourself. Newer entries replace the oldest. Deleting the app on an iPad
+removes it. On a Mac it is the file `Tonewell/exports.txt` in Application
+Support (for the App Store edition, inside the app's container in your Library);
+deleting the app does not remove it, so delete that file yourself.
 
 To avoid erasing makeup, every version (Mac, Windows and iPad) runs a
 "is this face wearing makeup" check on each face crop. It turns the image into
@@ -298,7 +313,8 @@ All the information the software works with is on your own device: your photos, 
 files LRCDF stores (see the table above) and, while a photo is open, the in-memory
 data described above. You can view, copy or delete it at any time, and nothing is
 kept elsewhere. To delete everything, remove the data folder and any result files
-as described above, or uninstall the app. On a Mac or iPad you can also withdraw
+as described above (on a Mac, also Tonewell's export record); on an iPad you
+can simply delete the app. On a Mac or iPad you can also withdraw
 permissions you have given (such as Photos, and on the iPad camera and local network)
 at any time in the system settings.
 
