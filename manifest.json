@@ -31,11 +31,11 @@
    "ipa": "ipa-ipad"
   },
   "mac-studio": {
-   "version": "0.3.7",
+   "version": "0.3.8",
    "min_os": "14.0",
    "notes": {
-    "zh": "Tonewell 0.3.7：大合照上连续换美颜档位不再越换越慢（Mac 上每次约 1.6–2.1 秒），松开修图滑块后拖动也更快出第一帧；修图结果与 0.3.6 完全相同。",
-    "en": "Tonewell 0.3.7: changing the retouch level on photos of large groups no longer slows down (on a Mac about 1.6-2.1 s each time), and drags start sooner after a retouching control. Finished pictures are identical to 0.3.6."
+    "zh": "Tonewell 0.3.8：Mac 版已由苹果签名并公证，打开时不用再去系统设置里点“仍要打开”。修图结果与 0.3.7 完全相同。",
+    "en": "Tonewell 0.3.8: the Mac app is now signed and notarised by Apple, so it opens without the Open Anyway step. Finished pictures are identical to 0.3.7."
    },
    "components": []
   },
@@ -808,5 +808,5 @@
    "unpacked": 5339555387
   }
  },
- "published": "2026-11-23T16:48:20Z"
+ "published": "2026-11-27T07:53:35Z"
 }
