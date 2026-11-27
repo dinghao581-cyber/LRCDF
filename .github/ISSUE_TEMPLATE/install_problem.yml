@@ -28,7 +28,7 @@ body:
         - macOS blocked the first launch
         - Windows security warning or PowerShell install script
         - Joining the CUDA parts (Windows)
-        - Could not find "Open Anyway"
+        - Could not find "Open Anyway" (LRCDF for Mac, or Tonewell for Mac 0.3.7 and earlier)
         - First-time setup (copying the app and models)
         - Menu not in Lightroom
         - Nothing happens after Start One-Click Retouch

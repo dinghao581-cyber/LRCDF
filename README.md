@@ -22,7 +22,7 @@ own computer.
 | Version | Download | Requires | Needs Lightroom Classic |
 |---|---|---|---|
 | [**LRCDF for Mac**](download/lrcdf-mac.md) (Lightroom plug-in) | [Latest release](https://github.com/dinghao581-cyber/LRCDF/releases/latest) | Apple-silicon Mac (M1 or later), macOS 14 or newer | Yes |
-| [**Tonewell for Mac**](download/tonewell-mac.md) (standalone app from the LRCDF project) | [Tonewell for Mac 0.3.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.7) | macOS 14 or newer, Apple silicon or Intel (not yet tested on an Intel Mac) | No |
+| [**Tonewell for Mac**](download/tonewell-mac.md) (standalone app from the LRCDF project) | [Tonewell for Mac 0.3.8](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.8) | macOS 14 or newer, Apple silicon or Intel (not yet tested on an Intel Mac) | No |
 | [**Tonewell for iPad**](download/tonewell-ipad.md) (standalone app from the LRCDF project) | [Tonewell for iPad 0.3.7](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-ipad-v0.3.7) | iPadOS 27 or newer; installed with your own Apple Account from a Mac or PC | No |
 | [**Tonewell for Windows**](download/tonewell-windows.md) (standalone app from the LRCDF project) | [Tonewell for Windows 0.3.10](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-win-v0.3.10) (two files, download both), or [from the Microsoft Store](https://apps.microsoft.com/detail/9N5ZZ64N3SN0) (Windows 11) | 64-bit Windows; uses an NVIDIA graphics card when present | No |
 | [**LRCDF for Windows**](download/lrcdf-windows.md) (Lightroom plug-in) | [LRCDF for Windows 0.1.8](https://github.com/dinghao581-cyber/LRCDF/releases/tag/win-v0.1.8) | Windows 10 or 11, 64-bit; CPU package, or CUDA package for NVIDIA graphics cards | Yes |
@@ -33,7 +33,7 @@ Mirror: https://gitee.com/YMLFPV/LRCDF (the downloads themselves are on GitHub).
 
 ## Apple Developer Program
 
-The project has joined the Apple Developer Program. Tonewell, the standalone app, will get a Mac build signed and notarised by Apple and an iPad build on TestFlight.
+The project has joined the Apple Developer Program. Tonewell, the standalone app, is signed and notarised by Apple on Mac from [0.3.8](https://github.com/dinghao581-cyber/LRCDF/releases/tag/tonewell-mac-v0.3.8) on; an iPad build on TestFlight is on the way.
 
 ## Install the Mac plug-in version
 
