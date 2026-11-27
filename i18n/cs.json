@@ -61,7 +61,7 @@
  "t060": "Projekt ve volném čase",
  "t061": "Jde o nezávislý software, ne o produkt firmy, takže počítejte s nedokonalostmi. Pokud fotka vyjde špatně nebo se instalace zasekne, <a href=\"https://github.com/dinghao581-cyber/LRCDF/issues\">založte prosím issue</a>.",
  "t062": "První spuštění na Macu",
- "t063": "Aplikace nejsou podepsané Applem, takže je macOS poprvé zablokuje. Otevřete Nastavení systému, pak Soukromí a zabezpečení a zvolte Otevřít přesto. Stačí to udělat jen jednou.",
+ "t063": "Tonewell je podepsaný a ověřený Applem: poprvé se macOS zeptá, zda chcete otevřít aplikaci staženou z internetu; klikněte na Otevřít. LRCDF podepsaný není, takže ho macOS poprvé zablokuje: otevřete Nastavení systému, pak Soukromí a zabezpečení a zvolte Otevřít přesto. Stačí to udělat jen jednou.",
  "t064": "První spuštění ve Windows",
  "t065": "Přímo stažené verze nejsou pro Windows podepsané, takže Windows může při prvním spuštění zobrazit varování. LRCDF se nainstaluje spuštěním přiloženého skriptu v PowerShellu. Tonewell instalaci nepotřebuje: rozbalte obě stažené části do stejné složky a spusťte ji. Správcovská oprávnění nejsou potřeba. Tonewell z Microsoft Storu žádné varování nezobrazuje; LRCDF v Storu není.",
  "t066": "Instalace na iPad",

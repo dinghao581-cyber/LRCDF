@@ -61,7 +61,7 @@
  "t060": "Dự án làm trong thời gian rảnh",
  "t061": "Đây là phần mềm độc lập, không phải sản phẩm của công ty nào, nên có thể còn những chỗ chưa hoàn thiện. Nếu ảnh ra sai hoặc việc cài đặt bị kẹt, hãy <a href=\"https://github.com/dinghao581-cyber/LRCDF/issues\">gửi báo cáo lỗi</a>.",
  "t062": "Lần mở đầu tiên trên Mac",
- "t063": "Các ứng dụng chưa được Apple ký, nên macOS sẽ chặn chúng ở lần mở đầu tiên. Vào Cài đặt Hệ thống, chọn Quyền riêng tư &amp; Bảo mật, rồi nhấn Vẫn mở. Bạn chỉ cần làm việc này một lần.",
+ "t063": "Tonewell đã được Apple ký và công chứng: lần đầu, macOS sẽ hỏi bạn có muốn mở ứng dụng tải về từ internet không; nhấn Mở. LRCDF chưa được ký, nên macOS sẽ chặn nó ở lần mở đầu tiên: vào Cài đặt Hệ thống, chọn Quyền riêng tư &amp; Bảo mật, rồi nhấn Vẫn mở. Bạn chỉ cần làm việc này một lần.",
  "t064": "Lần mở đầu tiên trên Windows",
  "t065": "Các bản tải trực tiếp chưa được ký cho Windows, nên Windows có thể hiện cảnh báo ở lần mở đầu tiên. LRCDF được cài bằng cách chạy tập lệnh đi kèm trong PowerShell. Tonewell không cần trình cài đặt: giải nén cả hai bản tải về vào cùng một thư mục rồi chạy. Không cần quyền quản trị viên. Tonewell từ Microsoft Store không có cảnh báo; LRCDF không có trên Store.",
  "t066": "Cài đặt trên iPad",

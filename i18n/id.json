@@ -61,7 +61,7 @@
  "t060": "Proyek sampingan",
  "t061": "Ini perangkat lunak independen, bukan produk perusahaan, jadi mungkin masih ada kekurangan. Jika foto keluar salah atau pemasangan macet, silakan <a href=\"https://github.com/dinghao581-cyber/LRCDF/issues\">laporkan masalah</a>.",
  "t062": "Saat pertama dibuka di Mac",
- "t063": "Aplikasi ini tidak ditandatangani oleh Apple, sehingga macOS memblokirnya pada pertama kali. Buka Pengaturan Sistem, lalu Privasi &amp; Keamanan, dan pilih Tetap Buka. Anda hanya perlu melakukan ini sekali.",
+ "t063": "Tonewell ditandatangani dan dinotarisasi oleh Apple: pada pertama kali, macOS bertanya apakah Anda ingin membuka aplikasi yang diunduh dari internet; klik Buka. LRCDF tidak ditandatangani, sehingga macOS memblokirnya pada pertama kali: buka Pengaturan Sistem, lalu Privasi &amp; Keamanan, dan pilih Tetap Buka. Anda hanya perlu melakukan ini sekali.",
  "t064": "Saat pertama dibuka di Windows",
  "t065": "Unduhan langsung belum ditandatangani untuk Windows, jadi Windows mungkin menampilkan peringatan saat pertama kali dibuka. LRCDF dipasang dengan menjalankan skrip yang disertakan di PowerShell. Tonewell tidak memerlukan pemasang: ekstrak kedua unduhan ke folder yang sama lalu jalankan. Tidak perlu hak administrator. Tonewell dari Microsoft Store tidak menampilkan peringatan; LRCDF tidak ada di Store.",
  "t066": "Memasang di iPad",

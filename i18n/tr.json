@@ -61,7 +61,7 @@
  "t060": "Boş zamanda yürütülen bir proje",
  "t061": "Bu, bir şirketin ürünü değil, bağımsız bir yazılımdır; bu yüzden pürüzler olabilir. Bir fotoğraf yanlış çıkarsa veya bir kurulum takılırsa, lütfen <a href=\"https://github.com/dinghao581-cyber/LRCDF/issues\">bir sorun bildirin</a>.",
  "t062": "Mac'te ilk açılış",
- "t063": "Uygulamalar Apple tarafından imzalanmamıştır, bu nedenle macOS ilk seferde bunları engeller. Sistem Ayarları'na gidin, Gizlilik ve Güvenlik'i seçin ve Yine de Aç'ı seçin. Bunu yalnızca bir kez yapmanız gerekir.",
+ "t063": "Tonewell, Apple tarafından imzalanmış ve onaylanmıştır: ilk seferde macOS, internetten indirilen bir uygulamayı açmak isteyip istemediğinizi sorar; Aç'ı tıklayın. LRCDF imzalı değildir, bu nedenle macOS ilk seferde onu engeller: Sistem Ayarları'na gidin, Gizlilik ve Güvenlik'i seçin ve Yine de Aç'ı seçin. Bunu yalnızca bir kez yapmanız gerekir.",
  "t064": "Windows'ta ilk açılış",
  "t065": "Doğrudan indirmeler Windows için imzalı değildir, bu yüzden Windows ilk açılışta bir uyarı gösterebilir. LRCDF, dahil edilen komut dosyasını PowerShell'de çalıştırarak kurulur. Tonewell kurulum gerektirmez: iki indirmeyi de aynı klasöre çıkarıp çalıştırın. Yönetici hakları gerekmez. Microsoft Store'dan alınan Tonewell uyarı göstermez; LRCDF Store'da yoktur.",
  "t066": "iPad'e kurulum",
